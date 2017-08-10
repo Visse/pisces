@@ -102,4 +102,17 @@ target_compile_definitions(Pisces
     PRIVATE PISCES_BUILDING
 )
 
+file(GLOB PISCES_HEADERS ./*.h)
+install(TARGETS Pisces
+    EXPORT Zodiac
+    RUNTIME DESTINATION bin/$<CONFIG>
+    ARCHIVE DESTINATION lib/$<CONFIG>
+    INCLUDES DESTONATION include
+)
+install(FILES ${PISCES_HEADERS} DESTINATION include/Pisces)
+
+if (PISCES_BUILD_IMGUI)
+    get_target_property(IMGUI_PUBLIC_HEADERS imgui PUBLIC_HEADER)
+    install(FILES ${IMGUI_PUBLIC_HEADERS} DESTINATION include)
+endif (PISCES_BUILD_IMGUI)
 
