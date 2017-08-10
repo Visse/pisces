@@ -10,26 +10,26 @@ namespace Pisces
 {
     using namespace RenderCommandQueueImpl;
 
-    RenderCommandQueue::RenderCommandQueue( Context *context, RenderTargetHandle renderTarget, RenderCommandQueueFlags flags ) :
+    PISCES_API RenderCommandQueue::RenderCommandQueue( Context *context, RenderTargetHandle renderTarget, RenderCommandQueueFlags flags ) :
         mImpl(context, renderTarget, flags)
     {
     }
 
-    RenderCommandQueue::~RenderCommandQueue()
+    PISCES_API RenderCommandQueue::~RenderCommandQueue()
     {
     }
 
-    void RenderCommandQueue::usePipeline( PipelineHandle pipeline )
+    PISCES_API void RenderCommandQueue::usePipeline( PipelineHandle pipeline )
     {
         mImpl->commands.emplace_back(UsePipeline(pipeline));
     }
 
-    void RenderCommandQueue::useVertexArray( VertexArrayHandle vertexArray )
+    PISCES_API void RenderCommandQueue::useVertexArray( VertexArrayHandle vertexArray )
     {
         mImpl->commands.emplace_back(UseVertexArray(vertexArray));
     }
 
-    void RenderCommandQueue::bindTexture( int slot, TextureHandle texture )
+    PISCES_API void RenderCommandQueue::bindTexture( int slot, TextureHandle texture )
     {
         if (slot < 0 || slot >= MAX_BOUND_SAMPLERS) {
             LOG_WARNING("Trying to bind a texture %i to the invalid slot %i!", (int)texture, slot);
@@ -38,7 +38,7 @@ namespace Pisces
         mImpl->commands.emplace_back(BindSampler(slot, texture));
     }
 
-    void RenderCommandQueue::bindUniform( int slot, UniformBufferHandle uniform )
+    PISCES_API void RenderCommandQueue::bindUniform( int slot, UniformBufferHandle uniform )
     {
         if (slot < 0 || slot >= MAX_BOUND_UNIFORM_BUFFERS) {
             LOG_WARNING("Trying to bind a uniform buffer to the invalid slot %i!", slot);
@@ -47,17 +47,17 @@ namespace Pisces
         mImpl->commands.emplace_back(BindUniformBuffer(slot, uniform));
     }
 
-    void RenderCommandQueue::useClipping( bool use )
+    PISCES_API void RenderCommandQueue::useClipping( bool use )
     {
         mImpl->commands.emplace_back(UseClipping(use));
     }
 
-    void RenderCommandQueue::setClipRect( ClipRect rect )
+    PISCES_API void RenderCommandQueue::setClipRect( ClipRect rect )
     {
         mImpl->commands.emplace_back(UseClipRect(rect));
     }
 
-    void RenderCommandQueue::bindImageTexture( int slot, TextureHandle texture, ImageTextureAccess access, PixelFormat format )
+    PISCES_API void RenderCommandQueue::bindImageTexture( int slot, TextureHandle texture, ImageTextureAccess access, PixelFormat format )
     {
         if (slot < 0 || slot >= MAX_BOUND_IMAGE_TEXTURES) {
             LOG_WARNING("Trying to bind a image texture to the invalid slot %i!", slot);
@@ -67,17 +67,17 @@ namespace Pisces
         mImpl->commands.emplace_back(BindImageTexture(slot, texture, access, format));
     }
 
-    void RenderCommandQueue::executeComputeProgram( ComputeProgramHandle program, glm::uvec3 count )
+    PISCES_API void RenderCommandQueue::executeComputeProgram( ComputeProgramHandle program, glm::uvec3 count )
     {
         mImpl->commands.emplace_back(ExecuteCompute(program, {count.x,count.y,count.z}));
     }
 
-    void RenderCommandQueue::draw( Primitive primitive, size_t first, size_t count, size_t base )
+    PISCES_API void RenderCommandQueue::draw( Primitive primitive, size_t first, size_t count, size_t base )
     {
         mImpl->commands.emplace_back(Draw(primitive, first, count, base));
     }
 
-    void RenderCommandQueue::clear( ClearFlags flags, Color color, float depth, int stencil )
+    PISCES_API void RenderCommandQueue::clear( ClearFlags flags, Color color, float depth, int stencil )
     {
         ClearData data;
             data.flags = flags;
@@ -88,7 +88,7 @@ namespace Pisces
         mImpl->commands.emplace_back(data);
     }
 
-    void RenderCommandQueue::bindUniform( int location, glm::mat4 matrix )
+    PISCES_API void RenderCommandQueue::bindUniform( int location, glm::mat4 matrix )
     {
         if (location < 0 || location >= MAX_BOUND_UNIFORMS) {
             LOG_WARNING("Trying to bind uniform to invalid location %i", location);
@@ -104,7 +104,7 @@ namespace Pisces
         mImpl->commands.emplace_back(data);
     }
 
-    void RenderCommandQueue::drawBuiltin( BuiltinObject object )
+    PISCES_API void RenderCommandQueue::drawBuiltin( BuiltinObject object )
     {
         mImpl->commands.emplace_back(DrawBuiltin(object));
     }

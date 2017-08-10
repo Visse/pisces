@@ -2,6 +2,7 @@
 
 
 #include "Fwd.h"
+#include "build_config.h"
 
 #include "Common/PImplHelper.h"
 
@@ -18,19 +19,19 @@ namespace Pisces
 
     class StreamingBufferBase {
     public:
-        StreamingBufferBase( Context *context, BufferType type, size_t size );
-        ~StreamingBufferBase();
+        PISCES_API StreamingBufferBase( Context *context, BufferType type, size_t size );
+        PISCES_API ~StreamingBufferBase();
 
         StreamingBufferBase( const StreamingBufferBase& ) = delete;
         StreamingBufferBase& operator = ( const StreamingBufferBase& ) = delete;
 
-        void* mapBuffer( size_t offset, size_t size );
-        void unmapBuffer();
+        PISCES_API void* mapBuffer( size_t offset, size_t size );
+        PISCES_API void unmapBuffer();
 
-        void resize( size_t newSize, StreamingBufferResizeFlags flags );
+        PISCES_API void resize( size_t newSize, StreamingBufferResizeFlags flags );
 
-        size_t currentFrameOffset();
-        BufferHandle handle();
+        PISCES_API size_t currentFrameOffset();
+        PISCES_API BufferHandle handle();
 
     protected:
         struct Impl;
@@ -78,19 +79,20 @@ namespace Pisces
            private StreamingBufferBase
     {
     public:
-        StreamingUniformBuffer( Context *context, size_t size, bool autoResize=false );
+        PISCES_API StreamingUniformBuffer( Context *context, size_t size, bool autoResize=false );
+        
         StreamingUniformBuffer( const StreamingUniformBuffer& ) = delete;
         StreamingUniformBuffer& operator = ( const StreamingUniformBuffer& ) = delete;
 
-        UniformBufferHandle allocate( const void *data, size_t size );
+        PISCES_API UniformBufferHandle allocate( const void *data, size_t size );
 
         template< typename Type >
         UniformBufferHandle allocate( const Type &type ) {
             return allocate(&type, sizeof(Type));
         }
         
-        void beginAllocation();
-        void endAllocation();
+        PISCES_API void beginAllocation();
+        PISCES_API void endAllocation();
 
     private:
         size_t mAlignment=0, mCurrentOffset=0;

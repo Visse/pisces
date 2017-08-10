@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Fwd.h"
+#include "build_config.h"
 
 #include "Common/PImplHelper.h"
 #include "Common/StringId.h"
@@ -58,20 +59,20 @@ namespace Pisces
 
     class PipelineManager {
     public:
-        PipelineManager( Context *context );
-        ~PipelineManager();
+        PISCES_API PipelineManager( Context *context );
+        PISCES_API ~PipelineManager();
         
-        ProgramHandle createRenderProgram( const RenderProgramInitParams &params );
-        void destroyProgram( ProgramHandle handle );
+        PISCES_API ProgramHandle createRenderProgram( const RenderProgramInitParams &params );
+        PISCES_API void destroyProgram( ProgramHandle handle );
 
-        ComputeProgramHandle createComputeProgram( const ComputeProgramInitParams &params );
-        void destroyProgram( ComputeProgramHandle handle );
+        PISCES_API ComputeProgramHandle createComputeProgram( const ComputeProgramInitParams &params );
+        PISCES_API void destroyProgram( ComputeProgramHandle handle );
 
-        PipelineHandle createPipeline( const PipelineInitParams &params );
-        PipelineHandle createPipeline( const PipelineProgramInitParams &params );
-        void destroyPipeline( PipelineHandle handle );
+        PISCES_API PipelineHandle createPipeline( const PipelineInitParams &params );
+        PISCES_API PipelineHandle createPipeline( const PipelineProgramInitParams &params );
+        PISCES_API void destroyPipeline( PipelineHandle handle );
 
-        bool findPipeline( Common::StringId name, PipelineHandle &pipeline );
+        PISCES_API bool findPipeline( Common::StringId name, PipelineHandle &pipeline );
 
         PipelineManagerImpl::Impl* impl() {
             return mImpl.impl();

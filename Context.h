@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Fwd.h"
+#include "build_config.h"
+
 #include "Common/PImplHelper.h"
 
 #include <functional>
@@ -24,43 +26,43 @@ namespace Pisces
         };
 
     public:
-        static Context* Initilize( const InitParams &params );
-        static void Shutdown();
+        static PISCES_API Context* Initilize( const InitParams &params );
+        static PISCES_API void Shutdown();
 
-        static Context* GetContext();
+        static PISCES_API  Context* GetContext();
 
     private:
-        Context( const InitParams &params );
+        PISCES_API Context( const InitParams &params );
 
         Context( const Context& ) = delete;
         Context& operator = ( const Context& ) = delete;
 
     public:
-        HardwareResourceManager* getHardwareResourceManager();
-        PipelineManager* getPipelineManager();
-        RenderTargetHandle getMainRenderTarget();
+        PISCES_API HardwareResourceManager* getHardwareResourceManager();
+        PISCES_API PipelineManager* getPipelineManager();
+        PISCES_API RenderTargetHandle getMainRenderTarget();
 
-        RenderCommandQueuePtr createRenderCommandQueue( RenderTargetHandle target=RenderTargetHandle(), RenderCommandQueueFlags flags=RenderCommandQueueFlags::None );
+        PISCES_API RenderCommandQueuePtr createRenderCommandQueue( RenderTargetHandle target=RenderTargetHandle(), RenderCommandQueueFlags flags=RenderCommandQueueFlags::None );
 
-        CompiledRenderQueuePtr compile( const RenderCommandQueuePtr &queue, const RenderQueueCompileOptions &options=RenderQueueCompileOptions() );
+        PISCES_API CompiledRenderQueuePtr compile( const RenderCommandQueuePtr &queue, const RenderQueueCompileOptions &options=RenderQueueCompileOptions() );
 
-        void execute( const RenderCommandQueuePtr &queue );
-        void execute( const CompiledRenderQueuePtr &queue );
-        void swapFrameBuffer();
+        PISCES_API void execute( const RenderCommandQueuePtr &queue );
+        PISCES_API void execute( const CompiledRenderQueuePtr &queue );
+        PISCES_API void swapFrameBuffer();
 
-        uint64_t currentFrame();
+        PISCES_API uint64_t currentFrame();
 
-        int displayWidth();
-        int displayHeight();
+        PISCES_API int displayWidth();
+        PISCES_API int displayHeight();
 
-        void addDisplayResizedCallback( DisplayResizedCallback callback, const void *id=nullptr );
-        void removeCallback( const void *id );
+        PISCES_API void addDisplayResizedCallback( DisplayResizedCallback callback, const void *id=nullptr );
+        PISCES_API void removeCallback( const void *id );
 
-        void toogleFullscreen();
+        PISCES_API void toogleFullscreen();
     
-        void clearMainRenderTarget();
+        PISCES_API void clearMainRenderTarget();
 
-        int getHardwareLimit( HardwareLimitName limit );
+        PISCES_API int getHardwareLimit( HardwareLimitName limit );
 
     private:
         struct Impl;

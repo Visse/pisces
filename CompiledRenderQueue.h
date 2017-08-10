@@ -11,8 +11,8 @@ namespace Pisces
     }
     class CompiledRenderQueue {
     public:
-        CompiledRenderQueue( Context *context, const RenderCommandQueuePtr &queue, const RenderQueueCompileOptions &options );
-        ~CompiledRenderQueue();
+        PISCES_API CompiledRenderQueue( Context *context, const RenderCommandQueuePtr &queue, const RenderQueueCompileOptions &options );
+        PISCES_API ~CompiledRenderQueue();
 
         CompiledRenderQueue( const CompiledRenderQueue& ) = delete;
         CompiledRenderQueue& operator = ( const CompiledRenderQueue& ) = delete;

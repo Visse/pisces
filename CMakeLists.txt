@@ -17,9 +17,7 @@ add_library( Pisces SHARED
     Fwd.h
     src/Fwd.cpp
     build_config.h
-    ResourceName.h
-    ResourceMap.h
-
+    
     Context.h
     src/Context.cpp
 
@@ -91,8 +89,8 @@ endif (PISCES_BUILD_IMGUI)
 target_link_libraries( Pisces
     PRIVATE stb
     PRIVATE glbinding::glbinding
+    PRIVATE yaml-cpp
     PUBLIC SDL2
-    PUBLIC yaml-cpp
     PUBLIC Common
 )
 target_include_directories( Pisces

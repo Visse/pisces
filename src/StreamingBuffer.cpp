@@ -25,19 +25,19 @@ namespace Pisces
         return (frame%FRAMES_IN_FLIGHT) * size;
     }
 
-    StreamingBufferBase::StreamingBufferBase( Context *context, BufferType type, size_t size ) :
+    PISCES_API StreamingBufferBase::StreamingBufferBase( Context *context, BufferType type, size_t size ) :
         mImpl(context)
     {
         mImpl->buffer = mImpl->hardwareMgr->allocateBuffer(type, BufferUsage::StreamWrite, BufferFlags::MapWrite|BufferFlags::MapPersistent, size*FRAMES_IN_FLIGHT, nullptr);
         mImpl->size = size;
     }
 
-    StreamingBufferBase::~StreamingBufferBase()
+    PISCES_API StreamingBufferBase::~StreamingBufferBase()
     {
         mImpl->hardwareMgr->freeBuffer(mImpl->buffer);
     }
 
-    void* StreamingBufferBase::mapBuffer( size_t offset, size_t size )
+    PISCES_API void* StreamingBufferBase::mapBuffer( size_t offset, size_t size )
     {
         if( (offset+size) > mImpl->size) {
             LOG_WARNING("Trying to map invalid range [%zu, %zu], when the buffer is only %zu bytes big!", offset, size, mImpl->size);
@@ -48,12 +48,12 @@ namespace Pisces
         return mImpl->hardwareMgr->mapBuffer(mImpl->buffer, frameOffset+offset, size, BufferMapFlags::MapWrite|BufferMapFlags::Persistent);
     }
 
-    void StreamingBufferBase::unmapBuffer()
+    PISCES_API void StreamingBufferBase::unmapBuffer()
     {
         mImpl->hardwareMgr->unmapBuffer(mImpl->buffer, true);
     }
 
-    void StreamingBufferBase::resize( size_t newSize, StreamingBufferResizeFlags flags )
+    PISCES_API void StreamingBufferBase::resize( size_t newSize, StreamingBufferResizeFlags flags )
     {
         BufferResizeFlags resizeFlags = BufferResizeFlags::None;
         if (all(flags, StreamingBufferResizeFlags::KeepCurrentFrame)) {
@@ -71,25 +71,25 @@ namespace Pisces
         mImpl->size = newSize;
     }
 
-    size_t StreamingBufferBase::currentFrameOffset()
+    PISCES_API size_t StreamingBufferBase::currentFrameOffset()
     {
         size_t currentFrame = mImpl->context->currentFrame();
         return offsetForFrame(mImpl->size, currentFrame);
     }
 
-    BufferHandle StreamingBufferBase::handle()
+    PISCES_API BufferHandle StreamingBufferBase::handle()
     {
         return mImpl->buffer;
     }
 
-    StreamingUniformBuffer::StreamingUniformBuffer( Context *context, size_t size, bool autoResize ) :
+    PISCES_API StreamingUniformBuffer::StreamingUniformBuffer( Context *context, size_t size, bool autoResize ) :
         StreamingBufferBase(context, BufferType::Uniform, size)
     {
         HardwareResourceManager *hardwareMgr = context->getHardwareResourceManager();
         mAlignment = hardwareMgr->getUniformAlignment();
     }
 
-    UniformBufferHandle StreamingUniformBuffer::allocate( const void *data, size_t size )
+    PISCES_API UniformBufferHandle StreamingUniformBuffer::allocate( const void *data, size_t size )
     {
         if (!mCurrentMapping) {
             LOG_ERROR("StreamingUniformBuffer::allocate must be called between beginAllocation() and endAllocation()");
@@ -120,13 +120,13 @@ namespace Pisces
         return handle;
     }
 
-    void StreamingUniformBuffer::beginAllocation()
+    PISCES_API void StreamingUniformBuffer::beginAllocation()
     {
         mCurrentOffset = 0;
         mCurrentMapping = mapBuffer(0, mImpl->size);
     }
 
-    void StreamingUniformBuffer::endAllocation()
+    PISCES_API void StreamingUniformBuffer::endAllocation()
     {
         unmapBuffer();
     }

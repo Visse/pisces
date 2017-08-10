@@ -2,6 +2,7 @@
 
 
 #include "Fwd.h"
+#include "build_config.h"
 
 #include "Common/PImplHelper.h"
 
@@ -15,30 +16,30 @@ namespace Pisces
 
     class RenderCommandQueue {
     public:
-        RenderCommandQueue( Context *ctxcontext, RenderTargetHandle renderTarget, RenderCommandQueueFlags flags );
-        ~RenderCommandQueue();
+        PISCES_API RenderCommandQueue( Context *ctxcontext, RenderTargetHandle renderTarget, RenderCommandQueueFlags flags );
+        PISCES_API ~RenderCommandQueue();
 
-        RenderCommandQueue( const RenderCommandQueue& ) = delete;
-        RenderCommandQueue& operator = ( const RenderCommandQueue& ) = delete;
+        PISCES_API RenderCommandQueue( const RenderCommandQueue& ) = delete;
+        PISCES_API RenderCommandQueue& operator = ( const RenderCommandQueue& ) = delete;
     
     public:
-        void usePipeline( PipelineHandle pipeline );
-        void useVertexArray( VertexArrayHandle vertexArray );
-        void bindTexture( int slot, TextureHandle texture );
-        void bindUniform( int slot, UniformBufferHandle uniform );
-        void useClipping( bool use );
-        void setClipRect( ClipRect rect );
+        PISCES_API void usePipeline( PipelineHandle pipeline );
+        PISCES_API void useVertexArray( VertexArrayHandle vertexArray );
+        PISCES_API void bindTexture( int slot, TextureHandle texture );
+        PISCES_API void bindUniform( int slot, UniformBufferHandle uniform );
+        PISCES_API void useClipping( bool use );
+        PISCES_API void setClipRect( ClipRect rect );
 
-        void bindImageTexture( int slot, TextureHandle texture, ImageTextureAccess access, PixelFormat format );
-        void executeComputeProgram( ComputeProgramHandle program, glm::uvec3 count );
+        PISCES_API void bindImageTexture( int slot, TextureHandle texture, ImageTextureAccess access, PixelFormat format );
+        PISCES_API void executeComputeProgram( ComputeProgramHandle program, glm::uvec3 count );
 
         // base is only used together with a index array
-        void draw( Primitive primitive, size_t first, size_t count, size_t base=0 );
-        void clear( ClearFlags flags, Color color=NamedColors::Black, float depth=1.0f, int stencil=0 );
+        PISCES_API void draw( Primitive primitive, size_t first, size_t count, size_t base=0 );
+        PISCES_API void clear( ClearFlags flags, Color color=NamedColors::Black, float depth=1.0f, int stencil=0 );
 
-        void bindUniform( int location, glm::mat4 matrix );
+        PISCES_API void bindUniform( int location, glm::mat4 matrix );
 
-        void drawBuiltin( BuiltinObject object );
+        PISCES_API void drawBuiltin( BuiltinObject object );
 
 
     private:

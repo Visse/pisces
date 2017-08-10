@@ -1,9 +1,12 @@
 #pragma once
 
+#include "build_config.h"
+
 #include <memory>
 
 #include "Common/EnumFlagOp.h"
 #include "Common/HandleType.h"
+#include "Common/EnumString.h"
 
 #include "Common/Color.h"
 
@@ -20,8 +23,6 @@ namespace Pisces
     static const int MIN_UNIFORM_BLOCK_BUFFER_SIZE = 1024*16; // 16 Kb
 
     static const int FRAMES_IN_FLIGHT = 3;
-    
-    MAKE_HANDLE( ResourceName, uint32_t );
 
     MAKE_HANDLE( TextureHandle, uint32_t );
     MAKE_HANDLE( ProgramHandle, uint32_t );
@@ -47,7 +48,12 @@ namespace Pisces
     enum class PixelFormat {
         R8, RG8, RGB8, RGBA8
     };
-    bool PixelFormatFromString( const char *str, size_t len, PixelFormat &format );
+    DECL_ENUM_TO_FROM_STRING(PixelFormat, PISCES_API,
+        (R8, "r"),
+        (RG8, "rg"),
+        (RGB8, "rgb"),
+        (RGBA8, "rgba")                        
+    );
 
     enum class SwizzleMask {
         Red, Green, Blue, Alpha,
@@ -185,9 +191,12 @@ namespace Pisces
         Alpha,
         PreMultipledAlpha,
     };
-    bool BlendModeFromString( const char *str, BlendMode &mode );
-    bool BlendModeFromString( const char *str, size_t len, BlendMode &mode );
-
+    DECL_ENUM_TO_FROM_STRING(BlendMode, PISCES_API,
+        (Replace),
+        (Alpha),
+        (PreMultipledAlpha, "pre_multipled_alpha", "premultiplied_alpha")
+    );
+    
     enum class Shape {
         Cube,
         Sphere
@@ -207,13 +216,23 @@ namespace Pisces
         NearestMipmapLinear,
         LinearMipmapLinear,
     };
-    bool SamplerMinFilterFromString( const char *str, size_t len,  SamplerMinFilter &filter );
+    DECL_ENUM_TO_FROM_STRING(SamplerMinFilter, PISCES_API,
+        (Nearest),
+        (Linear),
+        (NearestMipmapNearest, "nearest_mipmap_nearest"),
+        (LinearMipmapNearest, "linear_mipmap_nearest"),
+        (NearestMipmapLinear, "nearest_mipmap_linear"),
+        (LinearMipmapLinear, "linear_mipmap_linear")
+    );
 
     enum class SamplerMagFilter {
         Nearest = 0,
         Linear = 1,
     };
-    bool SamplerMagFilterFromString( const char *str, size_t len,  SamplerMagFilter &filter );
+    DECL_ENUM_TO_FROM_STRING(SamplerMagFilter, PISCES_API,
+        (Nearest),
+        (Linear)
+    );
 
     enum class EdgeSamplingMode {
         Repeat,
@@ -221,6 +240,12 @@ namespace Pisces
         ClampToEdge,
         ClampToBorder,
     };
+    DECL_ENUM_TO_FROM_STRING(EdgeSamplingMode, PISCES_API,
+        (Repeat),
+        (MirroredRepeat, "mirrored_repeat"),
+        (ClampToEdge, "clamp_to_edge"),
+        (ClampToBorder, "clamp_to_border")
+    );
 
     enum class BuiltinObject {
         Quad = 0,

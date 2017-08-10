@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Fwd.h"
+#include "build_config.h"
+
 #include "Common/PImplHelper.h"
 #include "Common/Archive.h"
 
@@ -12,10 +14,10 @@ namespace Pisces
     class TextureLoader
     {
     public:
-        TextureLoader( HardwareResourceManager *hardwareMgr );
-        ~TextureLoader();
+        PISCES_API TextureLoader( HardwareResourceManager *hardwareMgr );
+        PISCES_API ~TextureLoader();
         
-        TextureHandle loadFile( Common::Archive &archive, const std::string &filename );
+        PISCES_API TextureHandle loadFile( Common::Archive &archive, const std::string &filename );
 
     protected:
         struct Impl;

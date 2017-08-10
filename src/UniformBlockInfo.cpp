@@ -61,7 +61,7 @@ namespace Pisces
         FATAL_ERROR("Unknown UniformBlockMemberType %i", (int)type);
     }
 
-    bool verifyUniformBlocksInProgram( ProgramHandle handle )
+    PISCES_API bool verifyUniformBlocksInProgram( ProgramHandle handle )
     {
         PipelineManagerImpl::Impl *pipelineMgr = Context::GetContext()->getPipelineManager()->impl();
 
@@ -71,7 +71,7 @@ namespace Pisces
         return verifyUniformBlocksInProgram(programInfo->glProgram);
     }
 
-    bool Pisces::verifyUniformBlocksInProgram(GLuint program)
+    PISCES_API bool verifyUniformBlocksInProgram(unsigned int program)
     {
         GLint uniformBlockCount = 0;
 
@@ -158,7 +158,7 @@ namespace Pisces
         return wasErrors == false;
     }
 
-    bool impl::registerUniformBlock( const UniformBlockInfo &info )
+    PISCES_API bool impl::registerUniformBlock( const UniformBlockInfo &info )
     {
         auto res = RegistredUniformBlocks().emplace(info.name, info);
         return res.second;

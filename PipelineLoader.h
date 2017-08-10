@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Fwd.h"
+#include "build_config.h"
 
 #include "Common/PImplHelper.h"
 #include "Common/Archive.h"
@@ -10,10 +11,10 @@ namespace Pisces
     class PipelineLoader
     {
     public:
-        PipelineLoader( PipelineManager *pipelineMgr );
-        virtual ~PipelineLoader();
+        PISCES_API PipelineLoader( PipelineManager *pipelineMgr );
+        PISCES_API ~PipelineLoader();
         
-        PipelineHandle loadFile( Common::Archive &archive, const std::string &filename );
+        PISCES_API PipelineHandle loadFile( Common::Archive &archive, const std::string &filename );
 
     private:
         struct Impl;

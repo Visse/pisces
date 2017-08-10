@@ -21,14 +21,14 @@ namespace Pisces
     using namespace CompiledRenderQueueImpl;
     namespace RenderQueue = RenderCommandQueueImpl;
 
-    CompiledRenderQueue::CompiledRenderQueue( Context *context, const RenderCommandQueuePtr &queue,  const RenderQueueCompileOptions &options ) :
+    PISCES_API CompiledRenderQueue::CompiledRenderQueue( Context *context, const RenderCommandQueuePtr &queue,  const RenderQueueCompileOptions &options ) :
         mImpl(context)
     {
         mImpl->renderTarget = queue->impl()->renderTarget;
         mImpl->commands = Compile(context, options, queue);
     }
 
-    CompiledRenderQueue::~CompiledRenderQueue()
+    PISCES_API CompiledRenderQueue::~CompiledRenderQueue()
     {
     }
 }

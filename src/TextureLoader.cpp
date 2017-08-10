@@ -21,16 +21,16 @@ namespace Pisces {
         HardwareResourceManager *hardwareMgr;
     };
 
-    TextureLoader::TextureLoader( HardwareResourceManager *hardwareMgr )
+    PISCES_API TextureLoader::TextureLoader( HardwareResourceManager *hardwareMgr )
     {
         mImpl->hardwareMgr = hardwareMgr;
     }
 
-    TextureLoader::~TextureLoader()
+    PISCES_API TextureLoader::~TextureLoader()
     {
     }
     
-    TextureHandle TextureLoader::loadFile( Common::Archive &archive, const std::string &filename )
+    PISCES_API TextureHandle TextureLoader::loadFile( Common::Archive &archive, const std::string &filename )
     {
 
 #define LOAD_ERROR(error, ...) \

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Fwd.h"
+#include "build_config.h"
 
 #include <glm/fwd.hpp>
 #include <initializer_list>
@@ -25,12 +26,12 @@ namespace Pisces
         std::initializer_list<UniformBlockMember> members;
     };
 
-    bool verifyUniformBlocksInProgram( ProgramHandle program );
-    bool verifyUniformBlocksInProgram( unsigned int program );
+    PISCES_API bool verifyUniformBlocksInProgram( ProgramHandle program );
+    PISCES_API bool verifyUniformBlocksInProgram( unsigned int program );
 
     namespace impl 
     {
-        bool registerUniformBlock( const UniformBlockInfo &info );
+        PISCES_API bool registerUniformBlock( const UniformBlockInfo &info );
 
         template< typename Type >
         struct MemberType {
@@ -72,7 +73,7 @@ namespace Pisces
 #   define _REGISTER_UNIFORM_END(Type)                                          \
         };                                                                      \
         const UniformBlockInfo _##Type##_info = {#Type, _##Type##_members};     \
-        static const bool _##Type##_registred = impl::registerUniformBlock(_##Type##_info);
+        const bool _##Type##_registred = impl::registerUniformBlock(_##Type##_info);
 
 #   define _REGISTER_UNIFORM_MEMBER(Type, var)                                  \
         {#var, impl::MemberType<decltype(Type::var)>::type, offsetof(Type,var)},

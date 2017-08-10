@@ -22,7 +22,7 @@ namespace Pisces
 
     void loadBuiltinTypes( HardwareResourceManager *hardwareMgr );
 
-    HardwareResourceManager::HardwareResourceManager( Context *context ) :
+    PISCES_API HardwareResourceManager::HardwareResourceManager( Context *context ) :
         mImpl(context)
     {
         int alignment;
@@ -47,11 +47,11 @@ namespace Pisces
         uploadTexture2D(mImpl->missingTexture, 0, TextureUploadFlags::GenerateMipmaps, MissingTexture.format, MissingTexture.pixels);
     }
 
-    HardwareResourceManager::~HardwareResourceManager()
+    PISCES_API HardwareResourceManager::~HardwareResourceManager()
     {
     }
 
-    TextureHandle HardwareResourceManager::allocateTexture2D( PixelFormat format, TextureFlags flags, int width, int height, int mipmaps )
+    PISCES_API TextureHandle HardwareResourceManager::allocateTexture2D( PixelFormat format, TextureFlags flags, int width, int height, int mipmaps )
     {
         if (mipmaps == 0) {
             mipmaps = MipmapsForSize(width, height);
@@ -79,7 +79,7 @@ namespace Pisces
         return mImpl->textures.create(std::move(info));
     }
 
-    TextureHandle HardwareResourceManager::allocateCubemap( PixelFormat format, TextureFlags flags, int size, int mipmaps )
+    PISCES_API TextureHandle HardwareResourceManager::allocateCubemap( PixelFormat format, TextureFlags flags, int size, int mipmaps )
     {
         if (mipmaps == 0) {
             mipmaps = MipmapsForSize(size);
@@ -106,7 +106,7 @@ namespace Pisces
         return mImpl->textures.create(std::move(info));
     }
 
-    void HardwareResourceManager::freeTexture( TextureHandle texture )
+    PISCES_API void HardwareResourceManager::freeTexture( TextureHandle texture )
     {
         if (TextureHandleVector::IsHandleFromThis(texture)) {
             mImpl->textures.free(texture);
@@ -116,7 +116,7 @@ namespace Pisces
         }
     }
 
-    BufferHandle HardwareResourceManager::allocateBuffer( BufferType type, BufferUsage usage, BufferFlags flags, size_t size, const void *data )
+    PISCES_API BufferHandle HardwareResourceManager::allocateBuffer( BufferType type, BufferUsage usage, BufferFlags flags, size_t size, const void *data )
     {
         GLBuffer buffer;
         glGenBuffers(1, &buffer.handle);
@@ -138,7 +138,7 @@ namespace Pisces
         return mImpl->buffers.create(std::move(info));
     }
 
-    void HardwareResourceManager::freeBuffer( BufferHandle buffer )
+    PISCES_API void HardwareResourceManager::freeBuffer( BufferHandle buffer )
     {
         mImpl->buffers.free(buffer);
     }
@@ -178,7 +178,7 @@ namespace Pisces
         }
     }
 
-    void HardwareResourceManager::uploadTexture2D( TextureHandle texture, int mipmap, TextureUploadFlags flags, PixelFormat format, const void *data )
+    PISCES_API void HardwareResourceManager::uploadTexture2D( TextureHandle texture, int mipmap, TextureUploadFlags flags, PixelFormat format, const void *data )
     {
         TextureInfo *info = mImpl->textures.find(texture);
         if (!info) return;
@@ -241,7 +241,7 @@ namespace Pisces
         }
     }
 
-    void HardwareResourceManager::uploadCubemap( TextureHandle texture, CubemapFace face, int mipmap, TextureUploadFlags flags, PixelFormat format, const void *data )
+    PISCES_API void HardwareResourceManager::uploadCubemap( TextureHandle texture, CubemapFace face, int mipmap, TextureUploadFlags flags, PixelFormat format, const void *data )
     {
         TextureInfo *info = mImpl->textures.find(texture);
         if (!info) return;
@@ -263,7 +263,7 @@ namespace Pisces
         }
     }
 
-    void HardwareResourceManager::uploadBuffer( BufferHandle buffer, size_t offset, size_t size, const void * data )
+    PISCES_API void HardwareResourceManager::uploadBuffer( BufferHandle buffer, size_t offset, size_t size, const void * data )
     {
         BufferInfo *info = mImpl->buffers.find(buffer);
         if (info == nullptr) return;
@@ -273,7 +273,7 @@ namespace Pisces
         glBufferSubData(target, offset, size, data);
     }
 
-    void HardwareResourceManager::setSwizzleMask( TextureHandle texture, SwizzleMask red, SwizzleMask green, SwizzleMask blue, SwizzleMask alpha )
+    PISCES_API void HardwareResourceManager::setSwizzleMask( TextureHandle texture, SwizzleMask red, SwizzleMask green, SwizzleMask blue, SwizzleMask alpha )
     {
         TextureInfo *info = mImpl->textures.find(texture);
         if (!info) return;
@@ -286,7 +286,7 @@ namespace Pisces
         glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzle);
     }
 
-    TextureHandle HardwareResourceManager::createSampler( TextureHandle texture, const SamplerParams &params )
+    PISCES_API TextureHandle HardwareResourceManager::createSampler( TextureHandle texture, const SamplerParams &params )
     {
         GLSampler sampler;
         glGenSamplers(1, &sampler.handle);
@@ -313,7 +313,7 @@ namespace Pisces
         return {};
     }
 
-    void HardwareResourceManager::setSamplerParams( TextureHandle texture, const SamplerParams &params )
+    PISCES_API void HardwareResourceManager::setSamplerParams( TextureHandle texture, const SamplerParams &params )
     {
         if (TextureHandleVector::IsHandleFromThis(texture)) {
             TextureInfo *info = mImpl->textures.find(texture);
@@ -332,9 +332,9 @@ namespace Pisces
         }
     }
 
-    VertexArrayHandle HardwareResourceManager::createVertexArray( const VertexAttribute *attributes, int attributeCount, 
-                                                                  const BufferHandle *sourceBuffers, int sourceCount, 
-                                                                  BufferHandle indexBuffer, IndexType indexType )
+    PISCES_API VertexArrayHandle HardwareResourceManager::createVertexArray( const VertexAttribute *attributes, int attributeCount, 
+                                                                             const BufferHandle *sourceBuffers, int sourceCount, 
+                                                                             BufferHandle indexBuffer, IndexType indexType )
     {
         GLVertexArray vertexArray;
         glGenVertexArrays(1, &vertexArray.handle);
@@ -362,12 +362,12 @@ namespace Pisces
         return mImpl->vertexArrays.create(std::move(info));
     }
 
-    void HardwareResourceManager::deleteVertexArray( VertexArrayHandle vertexArray )
+    PISCES_API void HardwareResourceManager::deleteVertexArray( VertexArrayHandle vertexArray )
     {
         mImpl->vertexArrays.free(vertexArray);
     }
 
-    TextureHandle HardwareResourceManager::loadTexture2D( PixelFormat format, TextureFlags flags, const char *filename )
+    PISCES_API TextureHandle HardwareResourceManager::loadTexture2D( PixelFormat format, TextureFlags flags, const char *filename )
     {
         int width, height, channels;
 
@@ -384,7 +384,7 @@ namespace Pisces
         return texture;
     }
 
-    TextureHandle HardwareResourceManager::loadCubemap( PixelFormat format, TextureFlags flags, const char *filetemplate )
+    PISCES_API TextureHandle HardwareResourceManager::loadCubemap( PixelFormat format, TextureFlags flags, const char *filetemplate )
     {
         stbi_image cubemap[6];
 
@@ -462,7 +462,7 @@ namespace Pisces
         return texture;
     }
 
-    void HardwareResourceManager::setTextureName( TextureHandle texture, Common::StringId name )
+    PISCES_API void HardwareResourceManager::setTextureName( TextureHandle texture, Common::StringId name )
     {
         if (TextureHandleVector::IsHandleFromThis(texture)) {
             TextureInfo *info = mImpl->textures.find(texture);
@@ -478,7 +478,7 @@ namespace Pisces
         }
     }
 
-    TextureHandle HardwareResourceManager::findTextureByName( Common::StringId name )
+    PISCES_API TextureHandle HardwareResourceManager::findTextureByName( Common::StringId name )
     {
         TextureHandle texture = mImpl->samplers.findIf(
             [name] (const SamplerInfo &info) {
@@ -497,12 +497,12 @@ namespace Pisces
         return TextureHandle();
     }
 
-    TextureHandle HardwareResourceManager::getMissingTexture()
+    PISCES_API TextureHandle HardwareResourceManager::getMissingTexture()
     {
         return mImpl->missingTexture;
     }
 
-    void* HardwareResourceManager::mapBuffer( BufferHandle buffer, size_t offset, size_t size, BufferMapFlags flags )
+    PISCES_API void* HardwareResourceManager::mapBuffer( BufferHandle buffer, size_t offset, size_t size, BufferMapFlags flags )
     {
         BufferInfo *info = mImpl->buffers.find(buffer);
         if (info == nullptr) return nullptr;
@@ -517,7 +517,7 @@ namespace Pisces
         return GLCompat::MapBuffer(target, offset, size, flags, info->size, info->persistentMapping);
     }
 
-    bool HardwareResourceManager::unmapBuffer( BufferHandle buffer, bool keepPersistent )
+    PISCES_API bool HardwareResourceManager::unmapBuffer( BufferHandle buffer, bool keepPersistent )
     {
         BufferInfo *info = mImpl->buffers.find(buffer);
         if (info == nullptr) return false;
@@ -527,7 +527,7 @@ namespace Pisces
         return GLCompat::UnMapBuffer(target, keepPersistent, info->persistentMapping);
     }
 
-    UniformBufferHandle HardwareResourceManager::allocateStaticUniform( size_t size, const void *data )
+    PISCES_API UniformBufferHandle HardwareResourceManager::allocateStaticUniform( size_t size, const void *data )
     {
         size_t alignment = mImpl->uniformBlockAllignment;
         // Adjust size to the next multiple of aligment
@@ -562,7 +562,7 @@ namespace Pisces
         return handle;
     }
 
-    void HardwareResourceManager::updateStaticUniform( UniformBufferHandle uniform, size_t size, const void *data )
+    PISCES_API void HardwareResourceManager::updateStaticUniform( UniformBufferHandle uniform, size_t size, const void *data )
     {
         if (!uniform) return;
 
@@ -579,7 +579,7 @@ namespace Pisces
         uploadBuffer(uniform.buffer, uniform.offset, size, data);
     }
 
-    void HardwareResourceManager::copyBuffer( BufferHandle target, size_t targetOffset, BufferHandle source, size_t sourceOffset, size_t size )
+    PISCES_API void HardwareResourceManager::copyBuffer( BufferHandle target, size_t targetOffset, BufferHandle source, size_t sourceOffset, size_t size )
     {
         BufferInfo *tgt = mImpl->buffers.find(target);
         BufferInfo *src = mImpl->buffers.find(source);
@@ -592,12 +592,12 @@ namespace Pisces
         glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, sourceOffset, targetOffset, size);
     }
 
-    size_t HardwareResourceManager::getUniformAlignment()
+    PISCES_API size_t HardwareResourceManager::getUniformAlignment()
     {
         return mImpl->uniformBlockAllignment;
     }
 
-    void HardwareResourceManager::resizeBuffer( BufferHandle buffer, size_t newSize, BufferResizeFlags flags, size_t sourceOffset, size_t targetOffset, size_t size )
+    PISCES_API void HardwareResourceManager::resizeBuffer( BufferHandle buffer, size_t newSize, BufferResizeFlags flags, size_t sourceOffset, size_t targetOffset, size_t size )
     {
         BufferInfo *info = mImpl->buffers.find(buffer);
 

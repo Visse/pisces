@@ -134,25 +134,25 @@ namespace Pisces
         }
     };
 
-    Context* Context::Initilize( const InitParams &params )
+    PISCES_API Context* Context::Initilize( const InitParams &params )
     {
         FATAL_ASSERT( gContext == nullptr, "Double initilization of context!");
         gContext = new Context( params );
         return gContext;
     }
 
-    void Context::Shutdown()
+    PISCES_API void Context::Shutdown()
     {
         delete gContext;
         gContext = nullptr;
     }
     
-    Context* Context::GetContext()
+    PISCES_API Context* Context::GetContext()
     {
         return gContext;
     }
 
-    Context::Context( const InitParams &params )
+    PISCES_API Context::Context( const InitParams &params )
     {
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG|SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -243,33 +243,33 @@ namespace Pisces
         }
     }
 
-    HardwareResourceManager* Context::getHardwareResourceManager()
+    PISCES_API HardwareResourceManager* Context::getHardwareResourceManager()
     {
         return mImpl->hardwareResourceMgr.get();
     }
 
-    PipelineManager* Context::getPipelineManager()
+    PISCES_API PipelineManager* Context::getPipelineManager()
     {
         return mImpl->pipelineMgr.get();
     }
 
-    RenderTargetHandle Context::getMainRenderTarget()
+    PISCES_API RenderTargetHandle Context::getMainRenderTarget()
     {
         return mImpl->mainRenderTarget;
     }
 
-    RenderCommandQueuePtr Context::createRenderCommandQueue( RenderTargetHandle target, RenderCommandQueueFlags flags )
+    PISCES_API RenderCommandQueuePtr Context::createRenderCommandQueue( RenderTargetHandle target, RenderCommandQueueFlags flags )
     {
         if (!target) target = mImpl->mainRenderTarget;
         return std::make_shared<RenderCommandQueue>(this, target, flags);
     }
 
-    CompiledRenderQueuePtr Context::compile( const RenderCommandQueuePtr &queue, const RenderQueueCompileOptions &options )
+    PISCES_API CompiledRenderQueuePtr Context::compile( const RenderCommandQueuePtr &queue, const RenderQueueCompileOptions &options )
     {
         return std::make_shared<CompiledRenderQueue>(this, queue, options);
     }
 
-    void Context::execute( const RenderCommandQueuePtr &queue )
+    PISCES_API void Context::execute( const RenderCommandQueuePtr &queue )
     {
         CompiledRenderQueuePtr compiled = compile(queue);
         execute(compiled);
@@ -279,7 +279,7 @@ namespace Pisces
         glDisable(GL_SCISSOR_TEST);
     }
 
-    void Context::execute( const CompiledRenderQueuePtr &queue )
+    PISCES_API void Context::execute( const CompiledRenderQueuePtr &queue )
     {
         using namespace CompiledRenderQueueImpl;
         CompiledRenderQueueImpl::Impl *queueImpl = queue->impl();
@@ -360,7 +360,7 @@ namespace Pisces
         }
     }
 
-    void Context::swapFrameBuffer()
+    PISCES_API void Context::swapFrameBuffer()
     {
         int syncNum = mImpl->currentFrame % FRAMES_IN_FLIGHT;
         if (glClientWaitSync(mImpl->frameSync[syncNum], GL_SYNC_FLUSH_COMMANDS_BIT, GL_TIMEOUT_IGNORED) != GL_ALREADY_SIGNALED) {
@@ -372,32 +372,32 @@ namespace Pisces
         mImpl->currentFrame++;
     }
 
-    uint64_t Context::currentFrame()
+    PISCES_API uint64_t Context::currentFrame()
     {
         return mImpl->currentFrame;
     }
 
-    int Context::displayWidth()
+    PISCES_API int Context::displayWidth()
     {
         return mImpl->displaySize.x;
     }
 
-    int Context::displayHeight()
+    PISCES_API int Context::displayHeight()
     {
         return mImpl->displaySize.y;
     }
 
-    void Context::addDisplayResizedCallback( DisplayResizedCallback callback, const void *id )
+    PISCES_API void Context::addDisplayResizedCallback( DisplayResizedCallback callback, const void *id )
     {
         mImpl->callbackDisplayResized.push_back({callback, id});
     }
 
-    void Context::removeCallback( const void *id )
+    PISCES_API void Context::removeCallback( const void *id )
     {
         mImpl->removeAllCallbacks(id);
     }
 
-    void Context::toogleFullscreen()
+    PISCES_API void Context::toogleFullscreen()
     {
         mImpl->isFullscreen = !mImpl->isFullscreen;
         if (mImpl->isFullscreen) {
@@ -412,7 +412,7 @@ namespace Pisces
         mImpl->onDisplayResized(width, height);
     }
 
-    void Context::clearMainRenderTarget()
+    PISCES_API void Context::clearMainRenderTarget()
     {
         glClearColor(0.f, 0.f, 0.f, 0.f);
         glClearDepth(1.f);
@@ -420,7 +420,7 @@ namespace Pisces
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
-    int Context::getHardwareLimit( HardwareLimitName limit )
+    PISCES_API int Context::getHardwareLimit( HardwareLimitName limit )
     {
         switch (limit) {
         case HardwareLimitName::TextureUnits:

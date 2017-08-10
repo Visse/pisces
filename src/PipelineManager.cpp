@@ -21,7 +21,7 @@ namespace Pisces
 {
     using namespace PipelineManagerImpl;
 
-    PipelineManager::PipelineManager( Context *context ) :
+    PISCES_API PipelineManager::PipelineManager( Context *context ) :
         mImpl(context)
     {
         mImpl->supportsComputeShaders = glbinding::ContextInfo::supported({GLextension::GL_ARB_compute_shader});
@@ -33,10 +33,10 @@ namespace Pisces
         }
     }
 
-    PipelineManager::~PipelineManager()
+    PISCES_API PipelineManager::~PipelineManager()
     {}
   
-    ProgramHandle PipelineManager::createRenderProgram( const RenderProgramInitParams &params )
+    PISCES_API ProgramHandle PipelineManager::createRenderProgram( const RenderProgramInitParams &params )
     {
         try {
             GLShader shaders[2];
@@ -68,12 +68,12 @@ namespace Pisces
         }
     }
 
-    void PipelineManager::destroyProgram( ProgramHandle handle )
+    PISCES_API void PipelineManager::destroyProgram( ProgramHandle handle )
     {
         mImpl->renderPrograms.free(handle);
     }
 
-    ComputeProgramHandle PipelineManager::createComputeProgram( const ComputeProgramInitParams &params )
+    PISCES_API ComputeProgramHandle PipelineManager::createComputeProgram( const ComputeProgramInitParams &params )
     {
         if (!mImpl->supportsComputeShaders) {
             LOG_ERROR("GL context doesn't support compute shaders!");
@@ -100,12 +100,12 @@ namespace Pisces
         }
     }
 
-    void PipelineManager::destroyProgram( ComputeProgramHandle handle )
+    PISCES_API void PipelineManager::destroyProgram( ComputeProgramHandle handle )
     {
         mImpl->computePrograms.free(handle);
     }
 
-    PipelineHandle PipelineManager::createPipeline( const PipelineInitParams &params )
+    PISCES_API PipelineHandle PipelineManager::createPipeline( const PipelineInitParams &params )
     {
         try {
             PipelineInfo info;
@@ -127,7 +127,7 @@ namespace Pisces
         }
     }
 
-    PipelineHandle PipelineManager::createPipeline( const PipelineProgramInitParams &params )
+    PISCES_API PipelineHandle PipelineManager::createPipeline( const PipelineProgramInitParams &params )
     {
         ProgramHandle program = createRenderProgram(params.programParams);
         if (!program) {
@@ -145,7 +145,7 @@ namespace Pisces
         return createPipeline(tmp);
     }
 
-    void PipelineManager::destroyPipeline( PipelineHandle handle )
+    PISCES_API void PipelineManager::destroyPipeline( PipelineHandle handle )
     {
         const PipelineInfo *info = mImpl->pipelines.find(handle);
         if (!info) return;
@@ -157,7 +157,7 @@ namespace Pisces
         mImpl->pipelines.free(handle);
     }
     
-    bool PipelineManager::findPipeline( Common::StringId name, PipelineHandle &pipeline )
+    PISCES_API bool PipelineManager::findPipeline( Common::StringId name, PipelineHandle &pipeline )
     {
         PipelineHandle handle = mImpl->pipelines.findIf( [name](const PipelineInfo &info) {
                 return info.name == name;

@@ -21,15 +21,15 @@ namespace Pisces
         PipelineManager *pipelineMgr;
     };
 
-    PipelineLoader::PipelineLoader( PipelineManager *pipelineMgr )
+    PISCES_API PipelineLoader::PipelineLoader( PipelineManager *pipelineMgr )
     {
     }
 
-    PipelineLoader::~PipelineLoader()
+    PISCES_API PipelineLoader::~PipelineLoader()
     {
     }
 
-    PipelineHandle PipelineLoader::loadFile( Common::Archive &archive, const std::string &filename )
+    PISCES_API PipelineHandle PipelineLoader::loadFile( Common::Archive &archive, const std::string &filename )
     {
 #define LOAD_ERROR(error, ...) \
             LOG_ERROR("Failed to load pipeline from file \"%s\" in archive \"%s\" error: " error, filename.c_str(), archive.name(), __VA_ARGS__); \
