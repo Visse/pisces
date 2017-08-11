@@ -81,8 +81,9 @@ if (PISCES_BUILD_IMGUI)
         PRIVATE imgui
     )
     target_compile_definitions( Pisces
-        PUBLIC IMGUI_API=PISCES_API
+        PUBLIC PISCES_USE_IMGUI
     )
+    
 endif (PISCES_BUILD_IMGUI)
 
 
@@ -103,6 +104,8 @@ target_compile_definitions(Pisces
 )
 
 file(GLOB PISCES_HEADERS ./*.h)
+file(GLOB PISCES_UTILITY_HEADERS ./utility/*.h)
+
 install(TARGETS Pisces
     EXPORT Zodiac
     RUNTIME DESTINATION bin/$<CONFIG>
@@ -110,9 +113,10 @@ install(TARGETS Pisces
     INCLUDES DESTONATION include
 )
 install(FILES ${PISCES_HEADERS} DESTINATION include/Pisces)
+install(FILES ${PISCES_UTILITY_HEADERS} DESTINATION include/Pisces/utility)
 
 if (PISCES_BUILD_IMGUI)
-    get_target_property(IMGUI_PUBLIC_HEADERS imgui PUBLIC_HEADER)
-    install(FILES ${IMGUI_PUBLIC_HEADERS} DESTINATION include)
+    get_target_property(IMGUI_INTERFACE_HEADERS imgui INTERFACE_HEADER)
+    install(FILES ${IMGUI_INTERFACE_HEADERS} DESTINATION include)
 endif (PISCES_BUILD_IMGUI)
 
