@@ -184,7 +184,7 @@ namespace Pisces
 
         if( !context ) {
             THROW( std::runtime_error,
-                   "Failed to create gl context - ",
+                   "Failed to create gl context - %s",
                    SDL_GetError()
             );
         }
@@ -241,6 +241,8 @@ namespace Pisces
         for (auto &sync : mImpl->frameSync) {
             sync = GLFrameSync(glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, GL_NONE_BIT));
         }
+        // wait 10ms for sync
+        glClientWaitSync(mImpl->frameSync[0], GL_SYNC_FLUSH_COMMANDS_BIT, 10000000);
     }
 
     PISCES_API HardwareResourceManager* Context::getHardwareResourceManager()
