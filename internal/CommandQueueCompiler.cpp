@@ -364,9 +364,6 @@ namespace Pisces
 
         switch(uniform.type) {
         case GLType::Float:
-        case GLType::Vec2:
-        case GLType::Vec3:
-        case GLType::Vec4:
         case GLType::Mat2x2:
         case GLType::Mat2x3:
         case GLType::Mat2x4:
@@ -381,6 +378,25 @@ namespace Pisces
         case GLType::ImageTexture2D:
             FATAL_ERROR("Unsupported uniform type!");
             break;
+        case GLType::Vec2: {
+            CCQI::vec2 data;
+            for (int j=0; j < 2; ++j) data[j] = uniform.data.f[j];
+
+            Emit(impl, CCQI::BindUniformVec2(loc, data));
+          } break;
+
+        case GLType::Vec3: {
+            CCQI::vec3 data;
+            for (int j=0; j < 3; ++j) data[j] = uniform.data.f[j];
+
+            Emit(impl, CCQI::BindUniformVec3(loc, data));
+          } break;
+        case GLType::Vec4: {
+            CCQI::vec4 data;
+            for (int j=0; j < 4; ++j) data[j] = uniform.data.f[j];
+
+            Emit(impl, CCQI::BindUniformVec4(loc, data));
+          } break;
         case GLType::Mat4x4: {
             CCQI::mat4 mat;
             for (int j=0; j < 16; ++j) mat[j] = uniform.data.f[j];
@@ -597,6 +613,33 @@ namespace Pisces
         FATAL_ASSERT(data.slot >= 0 && data.slot < MAX_BOUND_IMAGE_TEXTURES, "Invalid uniform buffer slot %i", data.slot);
         impl.state.bindings.uniformBuffers[data.slot] = data.buffer;
     }
+    
+    void BindUniformVec2( CompilerImpl &impl, const CQI::BindUniformVec2Data &data ) 
+    {
+        FATAL_ASSERT(data.location >= 0 && data.location < MAX_BOUND_UNIFORMS, "Invalid uniform location %i", data.location);
+        
+        auto &uniform = impl.state.bindings.uniforms[data.location];
+        uniform.type = GLType::Vec2;
+        std::copy(std::begin(data.vec), std::end(data.vec), uniform.data.f);
+    }
+
+    void BindUniformVec3( CompilerImpl &impl, const CQI::BindUniformVec3Data &data ) 
+    {
+        FATAL_ASSERT(data.location >= 0 && data.location < MAX_BOUND_UNIFORMS, "Invalid uniform location %i", data.location);
+        
+        auto &uniform = impl.state.bindings.uniforms[data.location];
+        uniform.type = GLType::Vec3;
+        std::copy(std::begin(data.vec), std::end(data.vec), uniform.data.f);
+    }
+
+    void BindUniformVec4( CompilerImpl &impl, const CQI::BindUniformVec4Data &data ) 
+    {
+        FATAL_ASSERT(data.location >= 0 && data.location < MAX_BOUND_UNIFORMS, "Invalid uniform location %i", data.location);
+        
+        auto &uniform = impl.state.bindings.uniforms[data.location];
+        uniform.type = GLType::Vec4;
+        std::copy(std::begin(data.vec), std::end(data.vec), uniform.data.f);
+    }
 
     void BindUniformMat4( CompilerImpl &impl, const CQI::BindUniformMat4Data &data ) 
     {
@@ -652,6 +695,15 @@ namespace Pisces
                 break;
             case CommandType::BindUniformBuffer:
                 BindUniformBuffer(impl, command.bindUniformBuffer);
+                break;
+            case CommandType::BindUniformVec2:
+                BindUniformVec2(impl, command.bindUniformVec2);
+                break;
+            case CommandType::BindUniformVec3:
+                BindUniformVec3(impl, command.bindUniformVec3);
+                break;
+            case CommandType::BindUniformVec4:
+                BindUniformVec4(impl, command.bindUniformVec4);
                 break;
             case CommandType::BindUniformMat4:
                 BindUniformMat4(impl, command.bindUniformMat4);

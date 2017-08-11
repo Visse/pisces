@@ -347,6 +347,15 @@ namespace Pisces
             case Type::BindUniformInt:
                 glUniform1i(cmd.bindUniformInt.location, cmd.bindUniformInt.value);
                 break;
+            case Type::BindUniformVec2:
+                glUniform2fv(cmd.bindUniformVec2.location, 1, cmd.bindUniformVec2.vec.data());
+                break;
+            case Type::BindUniformVec3:
+                glUniform3fv(cmd.bindUniformVec3.location, 1, cmd.bindUniformVec3.vec.data());
+                break;
+            case Type::BindUniformVec4:
+                glUniform4fv(cmd.bindUniformVec4.location, 1, cmd.bindUniformVec4.vec.data());
+                break;
             case Type::BindUniformMat4:
                 glUniformMatrix4fv(cmd.bindUniformMat4.location, 1, GL_FALSE, cmd.bindUniformMat4.matrix.data());
                 break;

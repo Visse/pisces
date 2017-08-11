@@ -10,7 +10,11 @@ namespace Pisces
 {
     namespace RenderCommandQueueImpl 
     {
+        using vec2 = std::array<float, 2>;
+        using vec3 = std::array<float, 3>;
+        using vec4 = std::array<float, 4>;
         using mat4 = std::array<float,4*4>;
+
         using uvec3 = std::array<uint32_t, 3>;
 
         enum class Type {
@@ -28,6 +32,9 @@ namespace Pisces
             BindImageTexture,
             BindUniformBuffer,
 
+            BindUniformVec2,
+            BindUniformVec3,
+            BindUniformVec4,
             BindUniformMat4,
         };
         
@@ -79,6 +86,18 @@ namespace Pisces
             (UniformBufferHandle, buffer)
         );
 
+        CREATE_DATA_STRUCT(BindUniformVec2, Type,
+            (int, location),
+            (vec2, vec)
+        );
+        CREATE_DATA_STRUCT(BindUniformVec3, Type,
+            (int, location),
+            (vec3, vec)
+        );
+        CREATE_DATA_STRUCT(BindUniformVec4, Type,
+            (int, location),
+            (vec4, vec)
+        );
         CREATE_DATA_STRUCT(BindUniformMat4, Type,
             (int, location),
             (mat4, matrix)                  
@@ -98,6 +117,10 @@ namespace Pisces
             (BindSamplerData, bindSampler),
             (BindImageTextureData, bindImageTexture),
             (BindUniformBufferData, bindUniformBuffer),
+
+            (BindUniformVec2Data, bindUniformVec2),
+            (BindUniformVec3Data, bindUniformVec3),
+            (BindUniformVec4Data, bindUniformVec4),
             (BindUniformMat4Data, bindUniformMat4)
         );
 

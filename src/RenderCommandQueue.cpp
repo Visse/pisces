@@ -4,7 +4,9 @@
 #include "Common/ErrorUtils.h"
 
 #include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 namespace Pisces
 {
@@ -38,7 +40,7 @@ namespace Pisces
         mImpl->commands.emplace_back(BindSampler(slot, texture));
     }
 
-    PISCES_API void RenderCommandQueue::bindUniform( int slot, UniformBufferHandle uniform )
+    PISCES_API void RenderCommandQueue::bindUniformBuffer( int slot, UniformBufferHandle uniform )
     {
         if (slot < 0 || slot >= MAX_BOUND_UNIFORM_BUFFERS) {
             LOG_WARNING("Trying to bind a uniform buffer to the invalid slot %i!", slot);
@@ -102,6 +104,51 @@ namespace Pisces
         }
 
         mImpl->commands.emplace_back(data);
+    }
+
+    PISCES_API void RenderCommandQueue::bindUniform(int location, glm::vec2 vec)
+    {
+        if (location < 0 || location >= MAX_BOUND_UNIFORMS) {
+            LOG_WARNING("Trying to bind uniform to invalid location %i", location);
+            return;
+        }
+
+        vec2 uniform;
+            uniform[0] = vec[0];
+            uniform[1] = vec[1];
+        
+        mImpl->commands.emplace_back(BindUniformVec2(location, uniform));
+    }
+
+    PISCES_API void RenderCommandQueue::bindUniform(int location, glm::vec3 vec)
+    {
+        if (location < 0 || location >= MAX_BOUND_UNIFORMS) {
+            LOG_WARNING("Trying to bind uniform to invalid location %i", location);
+            return;
+        }
+
+        vec3 uniform;
+            uniform[0] = vec[0];
+            uniform[1] = vec[1];
+            uniform[2] = vec[2];
+        
+        mImpl->commands.emplace_back(BindUniformVec3(location, uniform));
+    }
+
+    PISCES_API void RenderCommandQueue::bindUniform(int location, glm::vec4 vec)
+    {
+        if (location < 0 || location >= MAX_BOUND_UNIFORMS) {
+            LOG_WARNING("Trying to bind uniform to invalid location %i", location);
+            return;
+        }
+
+        vec4 uniform;
+            uniform[0] = vec[0];
+            uniform[1] = vec[1];
+            uniform[2] = vec[2];
+            uniform[3] = vec[3];
+        
+        mImpl->commands.emplace_back(BindUniformVec4(location, uniform));
     }
 
     PISCES_API void RenderCommandQueue::drawBuiltin( BuiltinObject object )

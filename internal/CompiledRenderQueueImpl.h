@@ -36,12 +36,18 @@ namespace Pisces
             DrawIndexed,
 
             BindUniformInt,
+            BindUniformVec2,
+            BindUniformVec3,
+            BindUniformVec4,
             BindUniformMat4,
             
             BindImageTexture,
             DispatchCompute,
         };
 
+        using vec2 = std::array<float,2>;
+        using vec3 = std::array<float,3>;
+        using vec4 = std::array<float,4>;
         using mat4 = std::array<float,4*4>;
 
         CREATE_DATA_STRUCT( Enable, Type,
@@ -114,6 +120,18 @@ namespace Pisces
             (GLint, location),
             (GLint, value)
         );
+        CREATE_DATA_STRUCT(BindUniformVec2, Type,
+            (GLint, location),
+            (vec2, vec)
+        );
+        CREATE_DATA_STRUCT(BindUniformVec3, Type,
+            (GLint, location),
+            (vec3, vec)
+        );
+        CREATE_DATA_STRUCT(BindUniformVec4, Type,
+            (GLint, location),
+            (vec4, vec)
+        );
         CREATE_DATA_STRUCT(BindUniformMat4, Type,
             (GLint, location),
             (mat4, matrix)
@@ -156,6 +174,9 @@ namespace Pisces
             (DrawIndexedData, drawIndexed),
             
             (BindUniformIntData, bindUniformInt),
+            (BindUniformVec2Data, bindUniformVec2),
+            (BindUniformVec3Data, bindUniformVec3),
+            (BindUniformVec4Data, bindUniformVec4),
             (BindUniformMat4Data, bindUniformMat4),
 
             (BindImageTextureData, bindImageTexture),

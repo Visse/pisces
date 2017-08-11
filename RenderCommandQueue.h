@@ -26,7 +26,7 @@ namespace Pisces
         PISCES_API void usePipeline( PipelineHandle pipeline );
         PISCES_API void useVertexArray( VertexArrayHandle vertexArray );
         PISCES_API void bindTexture( int slot, TextureHandle texture );
-        PISCES_API void bindUniform( int slot, UniformBufferHandle uniform );
+        PISCES_API void bindUniformBuffer( int slot, UniformBufferHandle uniform );
         PISCES_API void useClipping( bool use );
         PISCES_API void setClipRect( ClipRect rect );
 
@@ -38,6 +38,9 @@ namespace Pisces
         PISCES_API void clear( ClearFlags flags, Color color=NamedColors::Black, float depth=1.0f, int stencil=0 );
 
         PISCES_API void bindUniform( int location, glm::mat4 matrix );
+        PISCES_API void bindUniform( int location, glm::vec2 vec );
+        PISCES_API void bindUniform( int location, glm::vec3 vec );
+        PISCES_API void bindUniform( int location, glm::vec4 vec );
 
         PISCES_API void drawBuiltin( BuiltinObject object );
 
