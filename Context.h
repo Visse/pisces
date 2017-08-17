@@ -22,7 +22,9 @@ namespace Pisces
             int displayWidth = 1080,
                 displayHeight = 720;
 
-            bool enableExtensions = true;
+            bool enableExtensions = true,
+                 enableVSync = true,
+                 enableDebugContext = true;
         };
 
     public:

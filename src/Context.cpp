@@ -154,7 +154,9 @@ namespace Pisces
 
     PISCES_API Context::Context( const InitParams &params )
     {
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG|SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 
+            (params.enableDebugContext ? SDL_GL_CONTEXT_DEBUG_FLAG : 0) | SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG
+        );
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -182,7 +184,7 @@ namespace Pisces
             context = SDLGLContext(SDL_GL_CreateContext(window));
         }
 
-        if( !context ) {
+        if (!context) {
             THROW( std::runtime_error,
                    "Failed to create gl context - %s",
                    SDL_GetError()
@@ -194,7 +196,9 @@ namespace Pisces
         mImpl->window  = std::move(window);
         mImpl->context = std::move(context);
 
-        SDL_GL_SetSwapInterval( 1 );
+        if (params.enableVSync) {
+            SDL_GL_SetSwapInterval( 1 );
+        }
 
         glbinding::Binding::initialize();
         LOG_INFORMATION("Using OpenGl version %s", glbinding::ContextInfo::version().toString().c_str());
@@ -220,7 +224,9 @@ namespace Pisces
 
         GLCompat::InitCompat(params.enableExtensions);
 
-        InstallGLDebugHooks();
+        if (params.enableDebugContext) {
+            InstallGLDebugHooks();
+        }
 
         // Mark the first frame as done by swapping
         glClearColor(0,0,0,0);
