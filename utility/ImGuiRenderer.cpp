@@ -160,7 +160,7 @@ void main()
 
             mImpl->pipeline = pipelineMgr->createPipeline(params); 
             if (!mImpl->pipeline) {
-                THROW(std::runtime_error, "Failed create ImGuiRenderer - failed to find pipeline \"ImGui\"");
+                THROW(std::runtime_error, "Failed create ImGuiRenderer - failed to create pipeline \"ImGui\"");
             }
         }
 

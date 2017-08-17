@@ -84,6 +84,10 @@ if (PISCES_BUILD_IMGUI)
         PUBLIC PISCES_USE_IMGUI
     )
     
+    get_target_property(IMGUI_INTERFACE_SOURCES imgui INTERFACE_SOURCES)
+    source_group(imgui FILES ${IMGUI_INTERFACE_SOURCES})
+
+    install(FILES utility/ImGuiRenderer.h DESTINATION include/Pisces/utility)
 endif (PISCES_BUILD_IMGUI)
 
 
@@ -104,7 +108,6 @@ target_compile_definitions(Pisces
 )
 
 file(GLOB PISCES_HEADERS ./*.h)
-file(GLOB PISCES_UTILITY_HEADERS ./utility/*.h)
 
 install(TARGETS Pisces
     EXPORT Zodiac
@@ -113,10 +116,9 @@ install(TARGETS Pisces
     INCLUDES DESTONATION include
 )
 install(FILES ${PISCES_HEADERS} DESTINATION include/Pisces)
-install(FILES ${PISCES_UTILITY_HEADERS} DESTINATION include/Pisces/utility)
 
 if (PISCES_BUILD_IMGUI)
     get_target_property(IMGUI_INTERFACE_HEADERS imgui INTERFACE_HEADER)
-    install(FILES ${IMGUI_INTERFACE_HEADERS} DESTINATION include)
+    install(FILES ${IMGUI_INTERFACE_HEADERS} DESTINATION include/Pisces)
 endif (PISCES_BUILD_IMGUI)
 
