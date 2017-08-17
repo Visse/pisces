@@ -480,6 +480,17 @@ namespace Pisces
         }
 
         assert(impl.pipelineInfo);
+        if (impl.state.clipping != impl.current.clipping) {
+            if (impl.state.clipping) {
+                Emit(impl, CCQI::Enable(GL_SCISSOR_TEST));
+                impl.current.clipping = true;
+            }
+            else {
+                Emit(impl, CCQI::Disable(GL_SCISSOR_TEST));
+                impl.current.clipping = false;
+            }
+        }
+
         if (impl.state.clipping && state.clipRect != impl.current.clipRect) {
             Emit(impl, CCQI::SetClipRect(state.clipRect));
             impl.current.clipRect = state.clipRect;
