@@ -12,6 +12,7 @@ find_package(SDL2 REQUIRED)
 find_path(GLM_INCLUDE_DIR FILES glm/glm.hpp REQUIRED)
 
 option( PISCES_BUILD_IMGUI "Build ImGui as part of Pisces." ON )
+option( PISCES_BUILD_NUKLEAR "Build Nuklear as part of Pisces." ON )
 
 add_library( Pisces SHARED
     Fwd.h
@@ -90,6 +91,27 @@ if (PISCES_BUILD_IMGUI)
     install(FILES utility/ImGuiRenderer.h DESTINATION include/Pisces/utility)
 endif (PISCES_BUILD_IMGUI)
 
+if (PISCES_BUILD_NUKLEAR)
+    target_sources (Pisces
+        PRIVATE utility/NkContext.h
+        PRIVATE utility/NkContext.cpp
+        PRIVATE utility/NkWindow.h
+        PRIVATE utility/NkWindow.cpp
+    )
+    target_link_libraries (Pisces
+        PRIVATE nuklear
+    )
+    target_compile_definitions (Pisces
+        PUBLIC PISCES_USE_NUKLEAR
+    )
+    
+    get_target_property(NUKLEAR_INTERFACE_SOURCES nuklear INTERFACE_SOURCES)
+    source_group(nuklear FILES ${NUKLEAR_INTERFACE_SOURCES})
+    
+    install(FILES utility/NkContext.h utility/NkWindow.h DESTINATION include/Pisces/utility)
+endif (PISCES_BUILD_NUKLEAR)
+
+
 
 target_link_libraries( Pisces
     PRIVATE stb
@@ -117,8 +139,14 @@ install(TARGETS Pisces
 )
 install(FILES ${PISCES_HEADERS} DESTINATION include/Pisces)
 
+
 if (PISCES_BUILD_IMGUI)
     get_target_property(IMGUI_INTERFACE_HEADERS imgui INTERFACE_HEADER)
     install(FILES ${IMGUI_INTERFACE_HEADERS} DESTINATION include/Pisces)
 endif (PISCES_BUILD_IMGUI)
+
+if (PISCES_BUILD_NUKLEAR)
+    get_target_property(NUKLEAR_INTERFACE_HEADERS nuklear INTERFACE_HEADER)
+    install(FILES ${NUKLEAR_INTERFACE_HEADERS} DESTINATION include/Pisces)
+endif (PISCES_BUILD_NUKLEAR)
 
