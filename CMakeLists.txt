@@ -14,6 +14,18 @@ find_path(GLM_INCLUDE_DIR FILES glm/glm.hpp REQUIRED)
 option( PISCES_BUILD_IMGUI "Build ImGui as part of Pisces." ON )
 option( PISCES_BUILD_NUKLEAR "Build Nuklear as part of Pisces." ON )
 
+add_library( Pisces-request-shared-gpu STATIC
+    internal/RequestDiscreteGpu.cpp
+)
+
+if (MSVC)
+    target_link_libraries( Pisces-request-shared-gpu
+        INTERFACE "-INCLUDE:NvOptimusEnablement;-INCLUDE:AmdPowerXpressRequestHighPerformance"
+    )
+endif(MSVC)
+    
+
+
 add_library( Pisces SHARED
     Fwd.h
     src/Fwd.cpp
@@ -44,8 +56,6 @@ add_library( Pisces SHARED
     internal/GLCompat.cpp
     internal/GLTypes.h
     internal/Helpers.h
-
-    internal/RequestDiscreteGpu.cpp
     
     internal/GLDebugCallback.h
     internal/GLDebugCallback.cpp
@@ -72,6 +82,7 @@ add_library( Pisces SHARED
     TextureLoader.h
     src/TextureLoader.cpp
 )
+
 
 if (PISCES_BUILD_IMGUI)
     target_sources( Pisces
@@ -119,6 +130,7 @@ target_link_libraries( Pisces
     PRIVATE yaml-cpp
     PUBLIC SDL2
     PUBLIC Common
+    INTERFACE Pisces-request-shared-gpu
 )
 target_include_directories( Pisces
     PUBLIC ${GLM_INCLUDE_DIR}
@@ -131,7 +143,7 @@ target_compile_definitions(Pisces
 
 file(GLOB PISCES_HEADERS ./*.h)
 
-install(TARGETS Pisces
+install(TARGETS Pisces-request-shared-gpu Pisces
     EXPORT Zodiac
     RUNTIME DESTINATION bin/$<CONFIG>
     ARCHIVE DESTINATION lib/$<CONFIG>
