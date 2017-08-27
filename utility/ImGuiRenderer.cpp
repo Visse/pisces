@@ -281,6 +281,7 @@ void main()
 
         ImDrawVert *vertexes = impl->vertexBuffer->mapBuffer(0, drawData->TotalVtxCount);
         ImDrawIdx *indexes = impl->indexBuffer->mapBuffer(0, drawData->TotalIdxCount);
+        assert(vertexes && indexes);
 
         RenderCommandQueuePtr renderQueue = impl->context->createRenderCommandQueue();
         renderQueue->usePipeline(impl->pipeline);
