@@ -51,7 +51,7 @@ add_library( Pisces SHARED
 
     UniformBlockInfo.h
     src/UniformBlockInfo.cpp
-    
+
     internal/GLCompat.h
     internal/GLCompat.cpp
     internal/GLTypes.h
@@ -76,6 +76,9 @@ add_library( Pisces SHARED
     internal/CommandQueueCompiler.h
     internal/CommandQueueCompiler.cpp
 
+    IResourceLoader.h
+    src/IResourceLoader.cpp
+    
     PipelineLoader.h
     src/PipelineLoader.cpp
 

@@ -4,6 +4,7 @@
 #include "build_config.h"
 
 #include "Common/PImplHelper.h"
+#include "Common/StringId.h"
 
 #include <functional>
 
@@ -65,6 +66,9 @@ namespace Pisces
         PISCES_API void clearMainRenderTarget();
 
         PISCES_API int getHardwareLimit( HardwareLimitName limit );
+
+        PISCES_API void registerResourceLoader( Common::StringId name, IResourceLoader *loader );
+        PISCES_API ResourcePackHandle loadResourcePack( const char *name );
 
     private:
         struct Impl;

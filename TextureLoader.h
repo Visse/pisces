@@ -2,6 +2,7 @@
 
 #include "Fwd.h"
 #include "build_config.h"
+#include "IResourceLoader.h"
 
 #include "Common/PImplHelper.h"
 #include "Common/Archive.h"
@@ -11,13 +12,14 @@
 
 namespace Pisces
 {
-    class TextureLoader
+    class TextureLoader :
+        public IResourceLoader
     {
     public:
         PISCES_API TextureLoader( HardwareResourceManager *hardwareMgr );
         PISCES_API ~TextureLoader();
         
-        PISCES_API TextureHandle loadFile( Common::Archive &archive, const std::string &filename );
+        PISCES_API virtual ResourceHandle loadResource( Common::Archive &archive, YAML::Node node ) override;
 
     protected:
         struct Impl;

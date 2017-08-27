@@ -2,19 +2,21 @@
 
 #include "Fwd.h"
 #include "build_config.h"
+#include "IResourceLoader.h"
 
 #include "Common/PImplHelper.h"
 #include "Common/Archive.h"
 
 namespace Pisces
 {
-    class PipelineLoader
+    class PipelineLoader :
+        public IResourceLoader
     {
     public:
         PISCES_API PipelineLoader( PipelineManager *pipelineMgr );
         PISCES_API ~PipelineLoader();
         
-        PISCES_API PipelineHandle loadFile( Common::Archive &archive, const std::string &filename );
+        PISCES_API virtual ResourceHandle loadResource( Common::Archive &archive, YAML::Node node ) override;
 
     private:
         struct Impl;

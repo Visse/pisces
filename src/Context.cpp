@@ -3,6 +3,10 @@
 #include "PipelineManager.h"
 #include "RenderCommandQueue.h"
 #include "CompiledRenderQueue.h"
+#include "IResourceLoader.h"
+#include "TextureLoader.h"
+#include "PipelineLoader.h"
+
 
 #include "internal/GLCompat.h"
 #include "internal/GLDebugCallback.h"
@@ -16,6 +20,10 @@
 #include "Common/ErrorUtils.h"
 #include "Common/HandleType.h"
 #include "Common/HandleVector.h"
+#include "Common/Archive.h"
+#include "Common/MemStreamBuf.h"
+
+#include "yaml-cpp/yaml.h"
 
 #include <glbinding/Binding.h>
 #include <glbinding/gl33core/gl.h>
@@ -27,6 +35,7 @@ using namespace gl33core;
 #include <stdexcept>
 #include <initializer_list>
 #include <cassert>
+#include <map>
 
 
 #include <glbinding/Version.h>
@@ -66,6 +75,17 @@ namespace Pisces
         const void *id;
     };
 
+    struct ResourceInfo {
+        IResourceLoader *loader;
+
+        Common::StringId name;
+        ResourceHandle handle;
+    };
+    struct ResourcePackInfo {
+        Common::StringId name;
+        std::vector<ResourceInfo> resources;
+    };
+
     struct Context::Impl {
         SDLWindow window;
         SDLGLContext context;
@@ -84,6 +104,11 @@ namespace Pisces
         bool isFullscreen = false;
 
         std::vector<DisplayResizedCallbackInfo> callbackDisplayResized;
+
+        std::map<Common::StringId, IResourceLoader*> resourceLoaders;
+        HandleVector<ResourcePackHandle, ResourcePackInfo> resourcePacks;
+
+        std::vector<std::unique_ptr<IResourceLoader>> coreResourceLoaders;
 
         struct {
             int textureUnits = 0,
@@ -249,6 +274,13 @@ namespace Pisces
         }
         // wait 10ms for sync
         glClientWaitSync(mImpl->frameSync[0], GL_SYNC_FLUSH_COMMANDS_BIT, 10000000);
+
+        mImpl->coreResourceLoaders.emplace_back(new TextureLoader(mImpl->hardwareResourceMgr.get()));
+        registerResourceLoader(Common::CreateStringId("Texture"), mImpl->coreResourceLoaders.back().get());
+
+        mImpl->coreResourceLoaders.emplace_back(new PipelineLoader(mImpl->pipelineMgr.get()));
+        registerResourceLoader(Common::CreateStringId("Pipeline"), mImpl->coreResourceLoaders.back().get());
+
     }
 
     PISCES_API HardwareResourceManager* Context::getHardwareResourceManager()
@@ -444,5 +476,80 @@ namespace Pisces
             return mImpl->limits.textureUnits;
         }
         FATAL_ERROR("Unknown HardwareLimitName %i", (int)limit);
+    }
+
+    PISCES_API void Context::registerResourceLoader( Common::StringId name, IResourceLoader *loader )
+    {
+        FATAL_ASSERT(loader != nullptr, "Loader can't be null!");
+
+        mImpl->resourceLoaders[name] = loader;
+    }
+
+    PISCES_API ResourcePackHandle Context::loadResourcePack( const char *name )
+    {
+        std::vector<ResourceInfo> resources;
+        try {
+            Common::Archive archive = Common::Archive::OpenArchive(name);
+            auto file = archive.openFile("resources.txt");
+
+            if (!file) {
+                LOG_ERROR("Failed to load resource pack \"%s\" - failed to open file \"resources.txt\"", name);
+                return ResourcePackHandle{};
+            }
+
+            Common::MemStreamBuf streamBuf(archive.mapFile(file), archive.fileSize(file));
+            std::istream stream(&streamBuf);
+
+            YAML::Node node = YAML::Load(stream);
+            if (!node.IsSequence()) {
+                LOG_ERROR("Failed to load resource pack \"%s\" - top level node in \"resources.txt\" must be a sequence", name);
+            }
+
+            for (YAML::Node entry : node) {
+                YAML::Node resourceTypeNode = entry["Type"];
+                if (!(resourceTypeNode && resourceTypeNode.IsScalar())) {
+                    LOG_WARNING("Failed to load resource in pack \"%s\" from file \"resources.txt\" - missing attribute \"Type\" at line %i", name,  entry.Mark().line);
+                    continue;
+                }
+                YAML::Node resourceNameNode = entry["Name"];
+                if (!(resourceNameNode && resourceNameNode.IsScalar())) {
+                    LOG_WARNING("Failed to load resource in pack \"%s\" from file \"resources.txt\" - missing attribute \"Name\" at line %i", name,  entry.Mark().line);
+                    continue;
+                }
+
+                Common::StringId type = Common::CreateStringId(resourceTypeNode.Scalar().c_str());
+
+                auto iter = mImpl->resourceLoaders.find(type);
+                if (iter == mImpl->resourceLoaders.end()) {
+                    LOG_WARNING("Failed to load resource in pack \"%s\" from file \"resources.txt\" - missing loader for resource type \"%s\"", name, Common::GetCString(type));
+                    continue;
+                }
+
+                IResourceLoader *loader = iter->second;
+                ResourceHandle resource = loader->loadResource(archive, entry);
+
+                if (!resource) {
+                    LOG_WARNING("Failed to load resource in pack \"%s\" from file \"resources.cfg\" - resource loader failed to load resource", name);
+                    continue;
+                }
+
+                ResourceInfo info;
+                    info.handle = resource;
+                    info.loader;
+                    info.name = Common::CreateStringId(resourceNameNode.Scalar().c_str());
+
+                resources.push_back(std::move(info));
+            }
+        }
+        catch (const std::exception &e) {
+            LOG_ERROR("Failed to load resource pack \"%s\" - caught exception \"%s\"", name, e.what());
+            return ResourcePackHandle{};
+        }
+
+        ResourcePackInfo info;
+            info.name = Common::CreateStringId(name);
+            info.resources = std::move(resources);
+
+        return mImpl->resourcePacks.create(std::move(info));
     }
 }

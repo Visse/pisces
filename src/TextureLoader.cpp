@@ -30,25 +30,15 @@ namespace Pisces {
     {
     }
     
-    PISCES_API TextureHandle TextureLoader::loadFile( Common::Archive &archive, const std::string &filename )
+    PISCES_API ResourceHandle TextureLoader::loadResource( Common::Archive &archive, YAML::Node node )
     {
 
 #define LOAD_ERROR(error, ...) \
-            LOG_ERROR("Failed to load texture from file \"%s\" in archive \"%s\" error: " error, filename.c_str(), archive.name(), __VA_ARGS__); \
-            return TextureHandle {};
+            LOG_ERROR("Failed to load texture in archive \"%s\" error: " error, archive.name(), __VA_ARGS__); \
+            return ResourceHandle {};
 #define LOAD_ERROR0(error) LOAD_ERROR(error, 0)
         
         try {
-            auto fileHandle = archive.openFile(filename);
-            if (!fileHandle) {
-                LOAD_ERROR0("Failed to open file.");
-            }
-
-            Common::MemStreamBuf streamBuf(archive.mapFile(fileHandle), archive.fileSize(fileHandle));
-            std::istream stream(&streamBuf);
-
-            YAML::Node node = YAML::Load(stream);
-
             YAML::Node textureTypeNode = node["TextureType"];
             if (!textureTypeNode || textureTypeNode.IsScalar() == false) {
                 LOAD_ERROR0("Missing attribute \"TextureType\"");
@@ -110,7 +100,7 @@ namespace Pisces {
 
                 mImpl->hardwareMgr->uploadTexture2D(texture, 0, TextureUploadFlags::GenerateMipmaps, PixelFormat::RGBA8, image);
 
-                return texture;
+                return ResourceHandle(texture.handle);
             }
             else {
                 LOAD_ERROR("Unknown TextureType \"%s\"", textureType.c_str());

@@ -28,7 +28,11 @@ namespace Pisces
     MAKE_HANDLE( ProgramHandle, uint32_t );
     MAKE_HANDLE( BufferHandle, uint32_t );
 
+
     MAKE_HANDLE( ComputeProgramHandle, uint32_t );
+
+    MAKE_HANDLE( ResourceHandle, uint64_t );
+    MAKE_HANDLE( ResourcePackHandle, uint32_t );
 
     MAKE_HANDLE( ProgramHandle, uint32_t );
     MAKE_HANDLE( PipelineHandle, uint32_t );
@@ -44,6 +48,7 @@ namespace Pisces
     using RenderCommandQueuePtr = std::shared_ptr<RenderCommandQueue>;
     class CompiledRenderQueue;
     using CompiledRenderQueuePtr = std::shared_ptr<CompiledRenderQueue>;
+    class IResourceLoader;
 
     enum class PixelFormat {
         R8, RG8, RGB8, RGBA8

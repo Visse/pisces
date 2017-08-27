@@ -8,7 +8,6 @@
 #include "Common/BuiltinFromString.h"
 #include "Common/ErrorUtils.h"
 #include "Common/StringFormat.h"
-#include "Common/MemStreamBuf.h"
 
 #include "yaml-cpp/yaml.h"
 
@@ -29,28 +28,18 @@ namespace Pisces
     {
     }
 
-    PISCES_API PipelineHandle PipelineLoader::loadFile( Common::Archive &archive, const std::string &filename )
+    PISCES_API ResourceHandle PipelineLoader::loadResource( Common::Archive &archive, YAML::Node node )
     {
 #define LOAD_ERROR(error, ...) \
-            LOG_ERROR("Failed to load pipeline from file \"%s\" in archive \"%s\" error: " error, filename.c_str(), archive.name(), __VA_ARGS__); \
-            return PipelineHandle {};
+            LOG_ERROR("Failed to load pipeline in archive \"%s\" error: " error, archive.name(), __VA_ARGS__); \
+            return ResourceHandle {};
 #define LOAD_ERROR0(error) LOAD_ERROR(error, 0)
 
 #define LOAD_WARNING(warning, ...) \
-            LOG_ERROR("When loading pipeline from file \"%s\" in archive \"%s\" warning: " warning, filename.c_str(), archive.name(), __VA_ARGS__); \
-            return PipelineHandle {};
+            LOG_ERROR("When loading pipeline in archive \"%s\" warning: " warning, archive.name(), __VA_ARGS__); \
+            return ResourceHandle {};
 
         try {
-            auto fileHandle = archive.openFile(filename);
-            if (!fileHandle) {
-                LOAD_ERROR0("Failed to open file.");
-            }
-        
-            Common::MemStreamBuf streamBuf(archive.mapFile(fileHandle), archive.fileSize(fileHandle));
-            std::istream stream(&streamBuf);
-
-            YAML::Node node = YAML::Load(stream);
-
             YAML::Node typeNode = node["Type"];
             if (!(typeNode && typeNode.IsScalar())) {
                 LOAD_ERROR0("Missing attribute \"Type\"");
@@ -173,7 +162,7 @@ namespace Pisces
                 if (!pipeline) {
                     LOAD_ERROR0("Failed to create pipeline");
                 }
-                return pipeline;
+                return ResourceHandle(pipeline.handle);
             }
             else if (type == "Compute") {
                 LOAD_ERROR0("Not implemented type \"Compute\" yet.");
@@ -182,6 +171,6 @@ namespace Pisces
             LOAD_ERROR("Caught exception \"%s\"", e.what());
         }
 
-        return PipelineHandle {};
+        return ResourceHandle {};
     }
 }
