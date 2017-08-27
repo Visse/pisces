@@ -252,8 +252,12 @@ namespace Pisces
         Cube = 1,
         IcoSphere = 2,
         UVSphere = 3,
+
+        Plane_XY = 4,
+        Plane_XZ = 5,
+        Plane_YZ = 6,
     };
-    static const int BUILTIN_OBJECT_COUNT = 4;
+    static const int BUILTIN_OBJECT_COUNT = 7;
 
     struct BufferInitParams {
         const void *data = nullptr;

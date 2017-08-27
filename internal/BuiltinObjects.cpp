@@ -887,12 +887,49 @@ namespace Pisces
             99, 73, 97, 65, 73, 99, 65, 73, 99, 65, 73, 99, 41, 65, 75, 41, 65, 75, 41, 65, 75, 14, 10, 41, 14, 10, 41, 
             14, 10, 41, 551, 8, 10, 551, 8, 10, 551, 8, 10, 
         };
+    
+        
+        const BuiltinVertex Plane_XYVertexes[] = {
+            {{-1,-1,0}, {0,0,1}, {0,0}},
+            {{ 1,-1,0}, {0,0,1}, {1,0}},
+            {{-1, 1,0}, {0,0,1}, {0,1}},
+            {{ 1, 1,0}, {0,0,1}, {1,1}},
+        };
+        const uint16_t Plane_XYIndexes[] = {
+            0, 1, 3,
+            0, 3, 2
+        };
+
+        const BuiltinVertex Plane_XZVertexes[] = {
+            {{-1,0,-1}, {0,0,1}, {0,0}},
+            {{ 1,0,-1}, {0,0,1}, {1,0}},
+            {{-1,0, 1}, {0,0,1}, {0,1}},
+            {{ 1,0, 1}, {0,0,1}, {1,1}},
+        };
+        const uint16_t Plane_XZIndexes[] = {
+            0, 1, 3,
+            0, 3, 2
+        };
+        
+        const BuiltinVertex Plane_YZVertexes[] = {
+            {{0,-1,-1}, {0,0,1}, {0,0}},
+            {{0, 1,-1}, {0,0,1}, {1,0}},
+            {{0,-1, 1}, {0,0,1}, {0,1}},
+            {{0, 1, 1}, {0,0,1}, {1,1}},
+        };    
+        const uint16_t Plane_YZIndexes[] = {
+            0, 1, 3,
+            0, 3, 2
+        };
     }
 
     const BuiltinObjectInfo BuiltinObjectInfos[BUILTIN_OBJECT_COUNT] = {
         MAKE_BUILTIN(Quad, Primitive::Triangles),
         MAKE_BUILTIN(Cube, Primitive::Triangles),
         MAKE_BUILTIN(IcoSphere, Primitive::Triangles),
-        MAKE_BUILTIN(UVSphere, Primitive::Triangles)
+        MAKE_BUILTIN(UVSphere, Primitive::Triangles),
+        MAKE_BUILTIN(Plane_XY, Primitive::Triangles),
+        MAKE_BUILTIN(Plane_XZ, Primitive::Triangles),
+        MAKE_BUILTIN(Plane_YZ, Primitive::Triangles),
     };
 }
