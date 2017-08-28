@@ -490,6 +490,8 @@ namespace Pisces
 
     PISCES_API ResourcePackHandle Context::loadResourcePack( const char *name )
     {
+        LOG_INFORMATION("Loading resource pack \"%s\"", name);
+
         std::vector<ResourceInfo> resources;
         try {
             Common::Archive archive = Common::Archive::OpenArchive(name);
@@ -519,7 +521,8 @@ namespace Pisces
                     LOG_WARNING("Failed to load resource in pack \"%s\" from file \"resources.txt\" - missing attribute \"Name\" at line %i", name,  entry.Mark().line);
                     continue;
                 }
-
+                
+                Common::StringId resourceName = Common::CreateStringId(resourceNameNode.Scalar().c_str());
                 Common::StringId type = Common::CreateStringId(resourceTypeNode.Scalar().c_str());
 
                 auto iter = mImpl->resourceLoaders.find(type);
@@ -527,6 +530,8 @@ namespace Pisces
                     LOG_WARNING("Failed to load resource in pack \"%s\" from file \"resources.txt\" - missing loader for resource type \"%s\"", name, Common::GetCString(type));
                     continue;
                 }
+
+                LOG_INFORMATION("Loading resource \"%s\" of type \"%s\"", Common::GetCString(resourceName), Common::GetCString(type));
 
                 IResourceLoader *loader = iter->second;
                 ResourceHandle resource = loader->loadResource(archive, entry);
@@ -539,7 +544,7 @@ namespace Pisces
                 ResourceInfo info;
                     info.handle = resource;
                     info.loader;
-                    info.name = Common::CreateStringId(resourceNameNode.Scalar().c_str());
+                    info.name = resourceName;
 
                 resources.push_back(std::move(info));
             }
@@ -549,6 +554,7 @@ namespace Pisces
             return ResourcePackHandle{};
         }
 
+        LOG_INFORMATION("Finnished loading resoruce pack \"%s\", %zu resources was loaded", name, resources.size());
         ResourcePackInfo info;
             info.name = Common::CreateStringId(name);
             info.resources = std::move(resources);
