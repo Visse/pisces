@@ -1,4 +1,5 @@
 #include "PipelineManagerImpl.h"
+#include "UniformBlockInfo.h"
 
 #include "Common/Throw.h"
 #include "Common/FileUtils.h"
@@ -80,7 +81,7 @@ namespace PipelineManagerImpl
         glGetProgramiv(program->glProgram, GL_ACTIVE_UNIFORMS, &count);
 
 
-        static const int MAX_NAME_LEN = 32;
+        static const int MAX_NAME_LEN = 64;
         char name[MAX_NAME_LEN];
         GLenum glType;
         GLint size;
@@ -99,13 +100,16 @@ namespace PipelineManagerImpl
             glGetActiveUniform(program->glProgram, i, MAX_NAME_LEN, &lenght, &size, &glType, name);
             GLType type = FromGLType(glType);
 
+            GLint location = glGetUniformLocation(program->glProgram, name);
+            if (location == -1) continue; // uniform is in a uniform block
+
             if (IsTypeSampler(type)) {
                 bool found = false;
                 int idx = 0;
                 for (const auto &sampler : bindings.samplers) {
                     if (nameEqualString(sampler)) {
                         found = true;
-                        program->samplers[idx].location = i;
+                        program->samplers[idx].location = location;
                         program->samplers[idx].type = ToTextureType(type);
                         break;
                     }
@@ -122,7 +126,7 @@ namespace PipelineManagerImpl
                 for (const auto &image : bindings.imageTextures) {
                     if (nameEqualString(image)) {
                         found = true;
-                        program->imageTextures[idx].location = i;
+                        program->imageTextures[idx].location = location;
                         program->imageTextures[idx].type = ToTextureType(type);
                         break;
                     }
@@ -139,7 +143,7 @@ namespace PipelineManagerImpl
                 for (const auto &uniform : bindings.uniforms) {
                     if (nameEqualString(uniform)) {
                         found = true;
-                        program->uniforms[idx].location = i;
+                        program->uniforms[idx].location = location;
                         program->uniforms[idx].type = type;
                         break;
                     }
@@ -151,5 +155,7 @@ namespace PipelineManagerImpl
                 }
             }
         }
+    
+        verifyUniformBlocksInProgram(program->glProgram);
     }
 }}
