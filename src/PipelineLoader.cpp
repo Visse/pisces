@@ -22,6 +22,7 @@ namespace Pisces
 
     PISCES_API PipelineLoader::PipelineLoader( PipelineManager *pipelineMgr )
     {
+        mImpl->pipelineMgr = pipelineMgr;
     }
 
     PISCES_API PipelineLoader::~PipelineLoader()
@@ -40,9 +41,9 @@ namespace Pisces
             return ResourceHandle {};
 
         try {
-            YAML::Node typeNode = node["Type"];
+            YAML::Node typeNode = node["PipelineType"];
             if (!(typeNode && typeNode.IsScalar())) {
-                LOAD_ERROR0("Missing attribute \"Type\"");
+                LOAD_ERROR0("Missing attribute \"PipelineType\"");
             }
 
             const std::string &type = typeNode.Scalar();
