@@ -356,7 +356,7 @@ namespace Pisces
     }
 
     enum class GLType {
-        Float,
+        Int, Float,
         Vec2, Vec3, Vec4,
         Mat2x2, Mat2x3, Mat2x4,
         Mat3x2, Mat3x3, Mat3x4,

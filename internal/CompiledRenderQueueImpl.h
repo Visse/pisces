@@ -36,6 +36,8 @@ namespace Pisces
             DrawIndexed,
 
             BindUniformInt,
+            BindUniformFloat,
+
             BindUniformVec2,
             BindUniformVec3,
             BindUniformVec4,
@@ -120,6 +122,10 @@ namespace Pisces
             (GLint, location),
             (GLint, value)
         );
+        CREATE_DATA_STRUCT(BindUniformFloat, Type,
+            (GLint, location),
+            (GLfloat, value)
+        );
         CREATE_DATA_STRUCT(BindUniformVec2, Type,
             (GLint, location),
             (vec2, vec)
@@ -174,6 +180,8 @@ namespace Pisces
             (DrawIndexedData, drawIndexed),
             
             (BindUniformIntData, bindUniformInt),
+            (BindUniformFloatData, bindUniformFloat),
+
             (BindUniformVec2Data, bindUniformVec2),
             (BindUniformVec3Data, bindUniformVec3),
             (BindUniformVec4Data, bindUniformVec4),

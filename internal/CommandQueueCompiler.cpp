@@ -363,7 +363,6 @@ namespace Pisces
         }
 
         switch(uniform.type) {
-        case GLType::Float:
         case GLType::Mat2x2:
         case GLType::Mat2x3:
         case GLType::Mat2x4:
@@ -378,13 +377,18 @@ namespace Pisces
         case GLType::ImageTexture2D:
             FATAL_ERROR("Unsupported uniform type!");
             break;
+        case GLType::Int:
+            Emit(impl, CCQI::BindUniformInt(loc, uniform.data.i[0]));
+            break;
+        case GLType::Float:
+            Emit(impl, CCQI::BindUniformFloat(loc, uniform.data.f[0]));
+            break;
         case GLType::Vec2: {
             CCQI::vec2 data;
             for (int j=0; j < 2; ++j) data[j] = uniform.data.f[j];
 
             Emit(impl, CCQI::BindUniformVec2(loc, data));
           } break;
-
         case GLType::Vec3: {
             CCQI::vec3 data;
             for (int j=0; j < 3; ++j) data[j] = uniform.data.f[j];
@@ -625,6 +629,24 @@ namespace Pisces
         impl.state.bindings.uniformBuffers[data.slot] = data.buffer;
     }
     
+    void BindUniformInt( CompilerImpl &impl, const CQI::BindUniformIntData &data ) 
+    {
+        FATAL_ASSERT(data.location >= 0 && data.location < MAX_BOUND_UNIFORMS, "Invalid uniform location %i", data.location);
+        
+        auto &uniform = impl.state.bindings.uniforms[data.location];
+        uniform.type = GLType::Int;
+        uniform.data.i[0] = data.value;
+    }
+    
+    void BindUniformFloat( CompilerImpl &impl, const CQI::BindUniformFloatData &data ) 
+    {
+        FATAL_ASSERT(data.location >= 0 && data.location < MAX_BOUND_UNIFORMS, "Invalid uniform location %i", data.location);
+        
+        auto &uniform = impl.state.bindings.uniforms[data.location];
+        uniform.type = GLType::Float;
+        uniform.data.f[0] = data.value;
+    }
+
     void BindUniformVec2( CompilerImpl &impl, const CQI::BindUniformVec2Data &data ) 
     {
         FATAL_ASSERT(data.location >= 0 && data.location < MAX_BOUND_UNIFORMS, "Invalid uniform location %i", data.location);
@@ -706,6 +728,12 @@ namespace Pisces
                 break;
             case CommandType::BindUniformBuffer:
                 BindUniformBuffer(impl, command.bindUniformBuffer);
+                break;
+            case CommandType::BindUniformInt:
+                BindUniformInt(impl, command.bindUniformInt);
+                break;
+            case CommandType::BindUniformFloat:
+                BindUniformFloat(impl, command.bindUniformFloat);
                 break;
             case CommandType::BindUniformVec2:
                 BindUniformVec2(impl, command.bindUniformVec2);

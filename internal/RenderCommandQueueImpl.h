@@ -32,6 +32,9 @@ namespace Pisces
             BindImageTexture,
             BindUniformBuffer,
 
+            BindUniformInt,
+            BindUniformFloat,
+
             BindUniformVec2,
             BindUniformVec3,
             BindUniformVec4,
@@ -86,6 +89,15 @@ namespace Pisces
             (UniformBufferHandle, buffer)
         );
 
+        CREATE_DATA_STRUCT(BindUniformInt, Type,
+            (int, location),
+            (int, value)
+        );
+        CREATE_DATA_STRUCT(BindUniformFloat, Type,
+            (int, location),
+            (float, value)
+        );
+
         CREATE_DATA_STRUCT(BindUniformVec2, Type,
             (int, location),
             (vec2, vec)
@@ -117,6 +129,9 @@ namespace Pisces
             (BindSamplerData, bindSampler),
             (BindImageTextureData, bindImageTexture),
             (BindUniformBufferData, bindUniformBuffer),
+
+            (BindUniformIntData, bindUniformInt),
+            (BindUniformFloatData, bindUniformFloat),
 
             (BindUniformVec2Data, bindUniformVec2),
             (BindUniformVec3Data, bindUniformVec3),

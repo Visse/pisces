@@ -106,6 +106,26 @@ namespace Pisces
         mImpl->commands.emplace_back(data);
     }
 
+    PISCES_API void RenderCommandQueue::bindUniform(int location, int value)
+    {
+        if (location < 0 || location >= MAX_BOUND_UNIFORMS) {
+            LOG_WARNING("Trying to bind uniform to invalid location %i", location);
+            return;
+        }
+
+        mImpl->commands.emplace_back(BindUniformInt(location, value));
+    }
+
+    PISCES_API void RenderCommandQueue::bindUniform(int location, float value)
+    {
+        if (location < 0 || location >= MAX_BOUND_UNIFORMS) {
+            LOG_WARNING("Trying to bind uniform to invalid location %i", location);
+            return;
+        }
+
+        mImpl->commands.emplace_back(BindUniformFloat(location, value));
+    }
+
     PISCES_API void RenderCommandQueue::bindUniform(int location, glm::vec2 vec)
     {
         if (location < 0 || location >= MAX_BOUND_UNIFORMS) {

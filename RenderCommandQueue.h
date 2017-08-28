@@ -38,6 +38,8 @@ namespace Pisces
         PISCES_API void clear( ClearFlags flags, Color color=NamedColors::Black, float depth=1.0f, int stencil=0 );
 
         PISCES_API void bindUniform( int location, glm::mat4 matrix );
+        PISCES_API void bindUniform( int location, int value );
+        PISCES_API void bindUniform( int location, float value );
         PISCES_API void bindUniform( int location, glm::vec2 vec );
         PISCES_API void bindUniform( int location, glm::vec3 vec );
         PISCES_API void bindUniform( int location, glm::vec4 vec );
