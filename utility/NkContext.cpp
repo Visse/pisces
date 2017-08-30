@@ -230,8 +230,13 @@ void main()
         }
     }
 
-    bool NkContext::injectInputEvent( const SDL_Event &event )
+    bool NkContext::injectInputEvent( const SDL_Event &event, bool handled )
     {
+        if (handled) return false;
+        
+        // is mouse visible, if not ignore all events
+        if (SDL_ShowCursor(SDL_QUERY) == SDL_DISABLE || SDL_GetRelativeMouseMode()) return false;
+
         switch (event.type) {
         case SDL_MOUSEMOTION:
             nk_input_motion(nkContext(), event.motion.x, event.motion.y);

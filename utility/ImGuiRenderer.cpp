@@ -193,8 +193,13 @@ void main()
         }
     }
 
-    PISCES_API bool ImGuiRenderer::injectEvent( const SDL_Event &event )
+    PISCES_API bool ImGuiRenderer::injectEvent( const SDL_Event &event, bool handled )
     {
+        if (handled) return false;
+
+        // is mouse visible, if not ignore all events
+        if (SDL_ShowCursor(SDL_QUERY) == SDL_DISABLE || SDL_GetRelativeMouseMode()) return false;
+
         auto &io = ImGui::GetIO();
         switch( event.type ) {
         case( SDL_MOUSEBUTTONDOWN ):

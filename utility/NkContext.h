@@ -23,7 +23,7 @@ namespace Pisces
         PISCES_API void endFrame();
 
         PISCES_API void beginInput();
-        PISCES_API bool injectInputEvent( const SDL_Event &event );
+        PISCES_API bool injectInputEvent( const SDL_Event &event, bool handled );
         PISCES_API void endInput();
 
         PISCES_API void render();

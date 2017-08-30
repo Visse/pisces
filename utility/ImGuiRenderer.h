@@ -16,7 +16,7 @@ namespace Pisces
     
         PISCES_API void render();
 
-        PISCES_API bool injectEvent( const SDL_Event &event );
+        PISCES_API bool injectEvent( const SDL_Event &event, bool handled );
 
     private:
         struct Impl;
