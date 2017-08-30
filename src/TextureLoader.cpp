@@ -92,6 +92,31 @@ namespace Pisces {
                     LOAD_ERROR0("Failed to allocate texture!");
                 }
 
+
+                {
+                    SamplerParams params;
+                    
+                    YAML::Node edgeSamplingXNode = node["EdgeSamplingX"],
+                                edgeSamplingYNode = node["EdgeSamplingY"],
+                                minFilterNode = node["MinFilter"],
+                                magFilterNode = node["MagFilter"];
+
+                    if (edgeSamplingXNode && edgeSamplingXNode.IsScalar()) {
+                        EdgeSamplingModeFromString(edgeSamplingXNode.Scalar().c_str(), params.edgeSamplingX);
+                    }
+                    if (edgeSamplingYNode && edgeSamplingYNode.IsScalar()) {
+                        EdgeSamplingModeFromString(edgeSamplingYNode.Scalar().c_str(), params.edgeSamplingY);
+                    }
+                    if (minFilterNode && minFilterNode.IsScalar()) {
+                        SamplerMinFilterFromString(minFilterNode.Scalar().c_str(), params.minFilter);
+                    }
+                    if (magFilterNode && magFilterNode.IsScalar()) {
+                        SamplerMagFilterFromString(magFilterNode.Scalar().c_str(), params.magFilter);
+                    }
+
+                    mImpl->hardwareMgr->setSamplerParams(texture, params);
+                }
+
                 YAML::Node nameNode = node["Name"];
                 if (nameNode && nameNode.IsScalar()) {
                     const std::string &name = nameNode.Scalar();
