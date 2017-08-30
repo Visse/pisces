@@ -156,6 +156,27 @@ namespace PipelineManagerImpl
             }
         }
     
+        glGetProgramiv(program->glProgram, GL_ACTIVE_UNIFORM_BLOCKS, &count);
+        for (int i=0; i < count; ++i) {
+            glGetActiveUniformBlockName(program->glProgram, i, MAX_NAME_LEN, &lenght, name);
+            
+            bool found = false;
+            int idx = 0;
+            for (const auto &uniform : bindings.uniformBuffers) {
+                if (nameEqualString(uniform)) {
+                    found = true;
+                    glUniformBlockBinding(program->glProgram, i, idx);
+                    program->uniformBuffers[idx].location = idx;
+                    break;
+                }
+                ++idx;
+            }
+
+            if (!found) {
+                LOG_WARNING("Uniform Buffer \"%.*s\" is missing a binding point", lenght, name);
+            }
+        }
+
         verifyUniformBlocksInProgram(program->glProgram);
     }
 }}
