@@ -14,6 +14,11 @@ find_path(GLM_INCLUDE_DIR FILES glm/glm.hpp REQUIRED)
 option( PISCES_BUILD_IMGUI "Build ImGui as part of Pisces." ON )
 option( PISCES_BUILD_NUKLEAR "Build Nuklear as part of Pisces." ON )
 
+
+option( PISCES_CLIP_ZERO_TO_ONE "Use clip range [0, 1], instead of the default [-1, 1] for better depth precision" ON)
+
+
+
 add_library( Pisces-request-shared-gpu STATIC
     internal/RequestDiscreteGpu.cpp
 )
@@ -86,6 +91,12 @@ add_library( Pisces SHARED
     src/TextureLoader.cpp
 )
 
+if (PISCES_CLIP_ZERO_TO_ONE)
+    target_compile_definitions( Pisces
+        PUBLIC GLM_FORCE_DEPTH_ZERO_TO_ONE
+        PUBLIC PISCES_CLIP_ZERO_TO_ONE
+    )
+endif (PISCES_CLIP_ZERO_TO_ONE)
 
 if (PISCES_BUILD_IMGUI)
     target_sources( Pisces

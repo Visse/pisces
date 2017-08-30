@@ -245,6 +245,15 @@ namespace Pisces
         }
         LOG_INFORMATION("Opengl Extensions up to version %i.%i is supported", maxVersion/10, maxVersion%10);
 
+
+#ifdef PISCES_CLIP_ZERO_TO_ONE
+        if (!glbinding::ContextInfo::supported({gl::GLextension::GL_ARB_clip_control})) {
+            LOG_ERROR("Opengl does not support extension ARB_clip_control - try updating your drivers");
+            THROW(std::runtime_error, "Opengl required extension ARB_clip_control not supported");
+        }
+        gl::glClipControl(gl::GL_LOWER_LEFT, gl::GL_ZERO_TO_ONE);
+#endif
+
         mImpl->limits.init();
 
         GLCompat::InitCompat(params.enableExtensions);
