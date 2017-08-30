@@ -359,7 +359,8 @@ namespace Pisces
 
         int loc = impl.programInfo->uniforms[i].location;
         if (impl.programInfo->uniforms[i].type != uniform.type) {
-            LOG_WARNING("Missmatch between uniform binding and program, expected type %i, got %i", (int)impl.programInfo->uniforms[i].type, (int)uniform.type);
+            LOG_ERROR("Missmatch between uniform binding and program, expected type %i, got %i", (int)impl.programInfo->uniforms[i].type, (int)uniform.type);
+            return false;
         }
 
         switch(uniform.type) {
