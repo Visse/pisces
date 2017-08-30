@@ -315,6 +315,7 @@ namespace Pisces
         if ((handle.offset+handle.size) > buffer->size) return false;
 
         int loc = impl.programInfo->uniformBuffers[i].location;
+        if (loc == -1) return true;
 
         Emit(impl, CCQI::BindUniform(loc, buffer->glBuffer, handle.offset, handle.size));
         impl.current.bindings.uniformBuffers[i] = handle;
