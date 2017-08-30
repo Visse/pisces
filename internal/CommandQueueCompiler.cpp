@@ -352,16 +352,18 @@ namespace Pisces
 
     bool EmitBindUniform( CompilerImpl &impl, int i, const Uniform &uniform )
     {
-        if (impl.current.bindings.uniforms[i] == uniform) return true;
-        if (uniform.type == GLTypeNone) return true;
-
         assert (i >= 0 && i < MAX_BOUND_UNIFORMS);
 
-        int loc = impl.programInfo->uniforms[i].location;
+        if (impl.current.bindings.uniforms[i] == uniform) return true;
+        if (uniform.type == GLTypeNone) return true;
+        if (impl.programInfo->uniforms[i].type == GLTypeNone) return true;
+
         if (impl.programInfo->uniforms[i].type != uniform.type) {
             LOG_ERROR("Missmatch between uniform binding and program, expected type %i, got %i", (int)impl.programInfo->uniforms[i].type, (int)uniform.type);
             return false;
         }
+
+        int loc = impl.programInfo->uniforms[i].location;
 
         switch(uniform.type) {
         case GLType::Mat2x2:
