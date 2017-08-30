@@ -178,7 +178,7 @@ namespace Pisces
                 lastUsed = -1;
                 slot = i;
             }
-            else if(lastUsed == -1 || impl.textureUnits[i].lastUsed < lastUsed) {
+            else if(slot == -1 || impl.textureUnits[i].lastUsed < lastUsed) {
                 // The slot isn't free, but its the oldest one (hasn't been used for the longest time)
                 // so recycle it.
                 lastUsed = impl.textureUnits[i].lastUsed;
