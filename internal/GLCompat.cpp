@@ -33,7 +33,7 @@ namespace Pisces
             glActiveTexture(GL_TEXTURE0 + slot);
             glBindTexture(target, texture);
         }
-        void BindTexture_Unit  ( int slot, gl::GLenum target, gl::GLuint texture )
+        void BindTexture_Unit( int slot, gl::GLenum target, gl::GLuint texture )
         {
             glBindTextureUnit(slot, texture);
         }
@@ -46,7 +46,7 @@ namespace Pisces
                 height = std::max(1, (height / 2));
             }
         }
-        void TexStorage2D_Storage  ( gl::GLenum target, int levels, gl::GLenum internalFormat, gl::GLsizei width, gl::GLsizei height )
+        void TexStorage2D_Storage( gl::GLenum target, int levels, gl::GLenum internalFormat, gl::GLsizei width, gl::GLsizei height )
         {
             glTexStorage2D(target, levels, internalFormat, width, height);
         }
@@ -63,7 +63,7 @@ namespace Pisces
                 TexStorage2D_NoStorage(face, levels, internalFormat, size, size);
             }
         }
-        void TexStorageCube_Storage  ( gl::GLenum target, int levels, gl::GLenum internalFormat, gl::GLsizei size )
+        void TexStorageCube_Storage( gl::GLenum target, int levels, gl::GLenum internalFormat, gl::GLsizei size )
         {
             TexStorage2D_Storage(target, levels, internalFormat, size, size);
         }
@@ -84,7 +84,7 @@ namespace Pisces
 
             glBufferData( target, size, data, buffUsage );
         }
-        void BufferStorage_Storage  ( gl::GLenum target, BufferUsage usage, BufferFlags flags, size_t size, const void *data )
+        void BufferStorage_Storage( gl::GLenum target, BufferUsage usage, BufferFlags flags, size_t size, const void *data )
         {
             gl::BufferStorageMask buffFlags = GL_NONE_BIT;
 
@@ -117,9 +117,11 @@ namespace Pisces
 
             return glMapBufferRange(target, offset, size, mask);
         }
-        void* MapBuffer_Storage  ( gl::GLenum target, size_t offset, size_t size, BufferMapFlags flags, size_t bufferSize, BufferPersistentMapping &mapping )
+        void* MapBuffer_Storage( gl::GLenum target, size_t offset, size_t size, BufferMapFlags flags, size_t bufferSize, BufferPersistentMapping &mapping )
         {
             if (all(flags, BufferMapFlags::Persistent) && mapping.data != nullptr) {
+                mapping.offset = offset;
+                mapping.size = size;
                 return Common::advance(mapping.data, offset);
             }
 
@@ -145,7 +147,7 @@ namespace Pisces
             glUnmapBuffer(target);
             return false;
         }
-        bool UnMapBuffer_Storage  ( gl::GLenum target, bool keepPersistent, BufferPersistentMapping &mapping )
+        bool UnMapBuffer_Storage( gl::GLenum target, bool keepPersistent, BufferPersistentMapping &mapping )
         {
             if (keepPersistent) {
                 glFlushMappedBufferRange(target, mapping.offset, mapping.size);
