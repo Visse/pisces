@@ -235,7 +235,7 @@ void main()
         if (handled) return false;
         
         // is mouse visible, if not ignore all events
-        if (SDL_ShowCursor(SDL_QUERY) == SDL_DISABLE || SDL_GetRelativeMouseMode()) return false;
+        if (SDL_ShowCursor(SDL_QUERY) == SDL_DISABLE) return false;
 
         switch (event.type) {
         case SDL_MOUSEMOTION:
