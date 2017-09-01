@@ -58,6 +58,9 @@ namespace Pisces
         PISCES_API int displayWidth();
         PISCES_API int displayHeight();
 
+        PISCES_API int windowWidth();
+        PISCES_API int windowHeight();
+
         PISCES_API void addDisplayResizedCallback( DisplayResizedCallback callback, const void *id=nullptr );
         PISCES_API void removeCallback( const void *id );
 

@@ -100,7 +100,8 @@ namespace Pisces
 
         RenderTargetHandle mainRenderTarget;
 
-        glm::ivec2 displaySize;
+        glm::ivec2 displaySize,
+                   windowSize;
         bool isFullscreen = false;
 
         std::vector<DisplayResizedCallbackInfo> callbackDisplayResized;
@@ -217,6 +218,7 @@ namespace Pisces
         }
 
         SDL_GL_GetDrawableSize(window, &mImpl->displaySize.x, &mImpl->displaySize.y);
+        SDL_GetWindowSize(window, &mImpl->windowSize.x, &mImpl->windowSize.y);
 
         mImpl->window  = std::move(window);
         mImpl->context = std::move(context);
@@ -448,6 +450,16 @@ namespace Pisces
         return mImpl->displaySize.y;
     }
 
+    PISCES_API int Context::windowWidth()
+    {
+        return mImpl->windowSize.x;
+    }
+
+    PISCES_API int Context::windowHeight()
+    {
+        return mImpl->windowSize.y;
+    }
+
     PISCES_API void Context::addDisplayResizedCallback( DisplayResizedCallback callback, const void *id )
     {
         mImpl->callbackDisplayResized.push_back({callback, id});
@@ -467,6 +479,8 @@ namespace Pisces
         else {
             SDL_SetWindowFullscreen(mImpl->window, 0);
         }
+
+        SDL_GetWindowSize(mImpl->window, &mImpl->windowSize.x,&mImpl->windowSize.y);
 
         int width, height;
         SDL_GL_GetDrawableSize(mImpl->window, &width, &height);
