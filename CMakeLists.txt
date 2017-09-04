@@ -57,6 +57,11 @@ add_library( Pisces SHARED
     UniformBlockInfo.h
     src/UniformBlockInfo.cpp
 
+    Sprite.h
+
+    SpriteManager.h
+    src/SpriteManager.cpp
+
     internal/GLCompat.h
     internal/GLCompat.cpp
     internal/GLTypes.h
@@ -89,6 +94,9 @@ add_library( Pisces SHARED
 
     TextureLoader.h
     src/TextureLoader.cpp
+
+    SpriteLoader.h
+    src/SpriteLoader.cpp
 )
 
 if (PISCES_CLIP_ZERO_TO_ONE)
@@ -113,6 +121,11 @@ if (PISCES_BUILD_IMGUI)
     get_target_property(IMGUI_INTERFACE_SOURCES imgui INTERFACE_SOURCES)
     source_group(imgui FILES ${IMGUI_INTERFACE_SOURCES})
 
+    get_target_property(IMGUI_INTERFACE_DEFINITIONS imgui INTERFACE_COMPILE_DEFINITIONS)
+    if (INTERFACE_COMPILE_DEFINITIONS)
+        target_compile_definitions(Pisces INTERFACE ${INTERFACE_COMPILE_DEFINITIONS})
+    endif (INTERFACE_COMPILE_DEFINITIONS)
+
     install(FILES utility/ImGuiRenderer.h DESTINATION include/Pisces/utility)
 endif (PISCES_BUILD_IMGUI)
 
@@ -122,6 +135,8 @@ if (PISCES_BUILD_NUKLEAR)
         PRIVATE utility/NkContext.cpp
         PRIVATE utility/NkWindow.h
         PRIVATE utility/NkWindow.cpp
+        PRIVATE utility/NkSprite.h
+        PRIVATE utility/NkSprite.cpp
     )
     target_link_libraries (Pisces
         PRIVATE nuklear
@@ -133,7 +148,12 @@ if (PISCES_BUILD_NUKLEAR)
     get_target_property(NUKLEAR_INTERFACE_SOURCES nuklear INTERFACE_SOURCES)
     source_group(nuklear FILES ${NUKLEAR_INTERFACE_SOURCES})
     
-    install(FILES utility/NkContext.h utility/NkWindow.h DESTINATION include/Pisces/utility)
+    get_target_property(NUKLEAR_INTERFACE_DEFINITIONS nuklear INTERFACE_COMPILE_DEFINITIONS)
+    if (NUKLEAR_INTERFACE_DEFINITIONS)
+        target_compile_definitions(Pisces INTERFACE ${NUKLEAR_INTERFACE_DEFINITIONS})
+    endif (NUKLEAR_INTERFACE_DEFINITIONS)
+    
+    install(FILES utility/NkContext.h utility/NkWindow.h utility/NkSprite.h DESTINATION include/Pisces/utility)
 endif (PISCES_BUILD_NUKLEAR)
 
 

@@ -43,6 +43,7 @@ namespace Pisces
     public:
         PISCES_API HardwareResourceManager* getHardwareResourceManager();
         PISCES_API PipelineManager* getPipelineManager();
+        PISCES_API SpriteManager* getSpriteManager();
         PISCES_API RenderTargetHandle getMainRenderTarget();
 
         PISCES_API RenderCommandQueuePtr createRenderCommandQueue( RenderTargetHandle target=RenderTargetHandle(), RenderCommandQueueFlags flags=RenderCommandQueueFlags::None );

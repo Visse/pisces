@@ -6,7 +6,8 @@
 #include "IResourceLoader.h"
 #include "TextureLoader.h"
 #include "PipelineLoader.h"
-
+#include "SpriteManager.h"
+#include "SpriteLoader.h"
 
 #include "internal/GLCompat.h"
 #include "internal/GLDebugCallback.h"
@@ -92,6 +93,7 @@ namespace Pisces
 
         std::unique_ptr<HardwareResourceManager> hardwareResourceMgr;
         std::unique_ptr<PipelineManager> pipelineMgr;
+        std::unique_ptr<SpriteManager> spriteMgr;
 
         HandleVector<RenderTargetHandle, RenderTargetInfo> renderTargets;
 
@@ -272,6 +274,7 @@ namespace Pisces
 
         mImpl->hardwareResourceMgr.reset(new HardwareResourceManager(this));
         mImpl->pipelineMgr.reset(new PipelineManager(this));
+        mImpl->spriteMgr.reset(new SpriteManager(this));
 
         RenderTargetInfo info;
             info.glFramebuffer = GLFrameBuffer(0);
@@ -292,6 +295,8 @@ namespace Pisces
         mImpl->coreResourceLoaders.emplace_back(new PipelineLoader(mImpl->pipelineMgr.get()));
         registerResourceLoader(Common::CreateStringId("Pipeline"), mImpl->coreResourceLoaders.back().get());
 
+        mImpl->coreResourceLoaders.emplace_back(new SpriteLoader(mImpl->spriteMgr.get(), mImpl->hardwareResourceMgr.get()));
+        registerResourceLoader(Common::CreateStringId("Sprite"), mImpl->coreResourceLoaders.back().get());
     }
 
     PISCES_API HardwareResourceManager* Context::getHardwareResourceManager()
@@ -302,6 +307,11 @@ namespace Pisces
     PISCES_API PipelineManager* Context::getPipelineManager()
     {
         return mImpl->pipelineMgr.get();
+    }
+
+    PISCES_API SpriteManager* Context::getSpriteManager()
+    {
+        return mImpl->spriteMgr.get();
     }
 
     PISCES_API RenderTargetHandle Context::getMainRenderTarget()

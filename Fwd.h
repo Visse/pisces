@@ -50,6 +50,9 @@ namespace Pisces
     using CompiledRenderQueuePtr = std::shared_ptr<CompiledRenderQueue>;
     class IResourceLoader;
 
+    struct Sprite;
+    class SpriteManager;
+
     enum class PixelFormat {
         R8, RG8, RGB8, RGBA8
     };
