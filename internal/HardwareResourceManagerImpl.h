@@ -48,6 +48,8 @@ namespace Pisces
 
             size_t size;
 
+            bool isMapped = false;
+
             GLCompat::BufferPersistentMapping persistentMapping;
         };
 

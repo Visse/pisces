@@ -511,6 +511,11 @@ namespace Pisces
             LOG_WARNING("Invalid mapping interval [%zd, %zd] the buffer (%i) has a size of %zd", offset, offset+size, (int)buffer, info->size);
             return nullptr;
         }
+        if (info->isMapped) {
+            LOG_ERROR("Buffer (%i) is already mapped!", (int)buffer);
+            return nullptr;
+        }
+        info->isMapped = true;
 
         GLenum target = BufferTarget(info->type);
         glBindBuffer(target, info->glBuffer);
@@ -521,6 +526,12 @@ namespace Pisces
     {
         BufferInfo *info = mImpl->buffers.find(buffer);
         if (info == nullptr) return false;
+
+        if (!info->isMapped) {
+            LOG_ERROR("Buffer (%i) is not mapped!", (int)buffer);
+            return false;
+        }
+        info->isMapped = false;
 
         GLenum target = BufferTarget(info->type);
         glBindBuffer(target, info->glBuffer);
@@ -603,12 +614,23 @@ namespace Pisces
 
         if (!info) return;
 
+        if (info->isMapped) {
+            LOG_ERROR("Can't resize buffer (%i) that is mapped!", (int)buffer);
+        }
+
         GLBuffer newBuffer;
         glGenBuffers(1, &newBuffer.handle);
         
         GLenum target = BufferTarget(info->type);
         glBindBuffer(target, newBuffer);
         GLCompat::BufferStorage(target, info->usage, info->flags, newSize, nullptr);
+        
+        if (info->persistentMapping.data != nullptr) {
+            // unmap persistent mapping
+
+            glBindBuffer(target, info->glBuffer);
+            GLCompat::UnMapBuffer(target, false, info->persistentMapping);
+        }
 
         if (all(flags, BufferResizeFlags::KeepRange)) {
             glBindBuffer(GL_COPY_WRITE_BUFFER, newBuffer);

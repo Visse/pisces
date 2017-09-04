@@ -149,7 +149,7 @@ namespace Pisces
         }
         bool UnMapBuffer_Storage( gl::GLenum target, bool keepPersistent, BufferPersistentMapping &mapping )
         {
-            if (keepPersistent) {
+            if (keepPersistent && mapping.data != nullptr) {
                 glFlushMappedBufferRange(target, mapping.offset, mapping.size);
                 return true;
             }
