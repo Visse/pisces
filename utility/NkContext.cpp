@@ -300,9 +300,11 @@ void main()
             if (res == NK_CONVERT_SUCCESS) break;
 
             if (res & NK_CONVERT_VERTEX_BUFFER_FULL) {
-                size_t newSize = (vertexBuffer.needed + vertexBuffer.needed / 2) / sizeof(nkVertex);
+                size_t needed = vertexBuffer.needed / sizeof(nkVertex);
+                size_t newSize = needed + needed/2;
                 newSize = std::min(newSize, MAX_VERTEX_BUFFER_SIZE);
-                if (vertexBuffer.needed < newSize) {
+
+                if (needed < newSize) {
                     mImpl->vertexBuffer.resize(newSize, StreamingBufferResizeFlags::None);
                     mImpl->maxVertexCount = newSize;
                     recreateVA = true;
@@ -311,14 +313,15 @@ void main()
                 }
                 else {
                     // If this happends I need to investigate why, in the best case just increase MAX_VERTEX_BUFFER_SIZE
-                    FATAL_ERROR("To big of a vertex buffer, max is %zu - needs %zu", MAX_VERTEX_BUFFER_SIZE, (size_t)vertexBuffer.needed);
+                    FATAL_ERROR("To big of a vertex buffer, max is %zu - needs %zu", sizeof(nkVertex)*MAX_VERTEX_BUFFER_SIZE, (size_t)vertexBuffer.needed);
                 }
             }
             if (res & NK_CONVERT_ELEMENT_BUFFER_FULL) {
-                size_t newSize = (indexBuffer.needed + indexBuffer.needed / 2) / sizeof(nkIndex);
+                size_t needed = indexBuffer.needed / sizeof(nkIndex);
+                size_t newSize = needed + needed/2;
                 newSize = std::min(newSize, MAX_INDEX_BUFFER_SIZE);
 
-                if (indexBuffer.needed < newSize) {
+                if (needed < newSize) {
                     mImpl->indexBuffer.resize(newSize, StreamingBufferResizeFlags::None);
                     mImpl->maxIndexCount = newSize;
                     recreateVA = true;
@@ -327,7 +330,7 @@ void main()
                 }
                 else {
                     // If this happends I need to investigate why, in the best case just increase MAX_INDEX_BUFFER_SIZE
-                    FATAL_ERROR("To big of a vertex buffer, max is %zu - needs %zu", MAX_INDEX_BUFFER_SIZE, (size_t)vertexBuffer.needed);
+                    FATAL_ERROR("To big of a vertex buffer, max is %zu - needs %zu", sizeof(nkIndex)*MAX_INDEX_BUFFER_SIZE, (size_t)vertexBuffer.needed);
                 }
             }
         }
