@@ -570,7 +570,9 @@ namespace Pisces
                 ResourceHandle resource = loader->loadResource(archive, entry);
 
                 if (!resource) {
-                    LOG_WARNING("Failed to load resource in pack \"%s\" from file \"resources.cfg\" - resource loader failed to load resource", name);
+                    LOG_WARNING("Failed to load resource \"%s\" of type \"%s\" in pack \"%s\" from file \"resources.cfg\" - resource loader failed to load resource", 
+                                Common::GetCString(resourceName), Common::GetCString(type), name
+                    );
                     continue;
                 }
 
