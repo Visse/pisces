@@ -82,6 +82,11 @@ namespace Pisces
         return mImpl->buffer;
     }
 
+    PISCES_API size_t StreamingBufferBase::size()
+    {
+        return mImpl->size;
+    }
+
     PISCES_API StreamingUniformBuffer::StreamingUniformBuffer( Context *context, size_t size, bool autoResize ) :
         StreamingBufferBase(context, BufferType::Uniform, size)
     {

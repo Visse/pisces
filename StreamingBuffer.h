@@ -32,6 +32,7 @@ namespace Pisces
 
         PISCES_API size_t currentFrameOffset();
         PISCES_API BufferHandle handle();
+        PISCES_API size_t size();
 
     protected:
         struct Impl;
@@ -72,6 +73,10 @@ namespace Pisces
 
         BufferHandle handle() {
             return StreamingBufferBase::handle();
+        }
+
+        size_t size() {
+            return StreamingBufferBase::size();
         }
     };
 
