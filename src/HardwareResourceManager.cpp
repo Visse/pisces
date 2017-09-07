@@ -42,9 +42,12 @@ namespace Pisces
 
         stbi_set_flip_vertically_on_load(true);
 
-        const auto &MissingTexture = BuiltinTextures::MissingTexture;
-        mImpl->missingTexture = allocateTexture2D(MissingTexture.format, TextureFlags::None, MissingTexture.width, MissingTexture.height);
-        uploadTexture2D(mImpl->missingTexture, 0, TextureUploadFlags::GenerateMipmaps, MissingTexture.format, MissingTexture.pixels);
+        for (int i=0; i < BUILTIN_TEXTURE_COUNT; ++i) {
+            const auto &textureInfo = BuiltinTextures[i];
+
+            mImpl->builtinTextures[i] = allocateTexture2D(textureInfo.format, TextureFlags::None, textureInfo.width, textureInfo.height);
+            uploadTexture2D(mImpl->builtinTextures[i], 0, TextureUploadFlags::GenerateMipmaps, textureInfo.format, textureInfo.pixels);
+        }
     }
 
     PISCES_API HardwareResourceManager::~HardwareResourceManager()
@@ -497,9 +500,14 @@ namespace Pisces
         return TextureHandle();
     }
 
-    PISCES_API TextureHandle HardwareResourceManager::getMissingTexture()
+    PISCES_API TextureHandle HardwareResourceManager::getBuiltinTexture( BuiltinTexture texture )
     {
-        return mImpl->missingTexture;
+        int idx = (int)texture;
+        if (idx < 0 || idx >= BUILTIN_TEXTURE_COUNT) {
+            LOG_ERROR("Invalid BuiltinTexture (%i)", idx);
+            return {};
+        }
+        return mImpl->builtinTextures[idx];
     }
 
     PISCES_API void* HardwareResourceManager::mapBuffer( BufferHandle buffer, size_t offset, size_t size, BufferMapFlags flags )

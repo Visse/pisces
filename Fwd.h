@@ -267,6 +267,13 @@ namespace Pisces
     };
     static const int BUILTIN_OBJECT_COUNT = 7;
 
+    enum class BuiltinTexture {
+        Missing = 0,
+        White   = 1,
+        Black   = 2,
+    };
+    static const int BUILTIN_TEXTURE_COUNT = 3;
+
     struct BufferInitParams {
         const void *data = nullptr;
         int size = 0;

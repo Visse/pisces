@@ -45,7 +45,7 @@ namespace Pisces
         PISCES_API void setTextureName( TextureHandle texture, Common::StringId name );
         PISCES_API TextureHandle findTextureByName( Common::StringId name );
 
-        PISCES_API TextureHandle getMissingTexture();
+        PISCES_API TextureHandle getBuiltinTexture( BuiltinTexture texture );
 
 
         PISCES_API void* mapBuffer( BufferHandle buffer, size_t offset, size_t size, BufferMapFlags flags );

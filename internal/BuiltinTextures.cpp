@@ -1,8 +1,8 @@
 #include "BuiltinTextures.h"
 
 namespace Pisces {
-namespace BuiltinTextures {
-    BuiltinTexture MissingTexture = BuiltinTexture{ 32, 32, PixelFormat::RGB8,
+namespace {
+    BuiltinTextureInfo MissingTexture = BuiltinTextureInfo{ 32, 32, PixelFormat::RGB8,
           "\377\377\377\377\000\377\377\000\377\377\000\377\377\000\377\377\000\377\377\000\377"
           "\377\000\377\377\000\377\377\000\377\377\000\377\377\000\377\377\000\377\377\000\377\377"
           "\000\377\377\000\377\000\377\377\000\377\377\000\377\377\000\377\377\000\377\377\000\377"
@@ -145,4 +145,16 @@ namespace BuiltinTextures {
           "\377\377\000\377\377\000\377\377\000\377\377\000\377\377\000\377\377\000\377\377\000\377"
           "\377\000\377"
   };
-}}
+    BuiltinTextureInfo WhiteTexture = BuiltinTextureInfo{ 1, 1, PixelFormat::RGB8,
+        "\377\377\377\377"
+    };
+    BuiltinTextureInfo BlackTexture = BuiltinTextureInfo{ 1, 1, PixelFormat::RGB8,
+        "\000\000\000\377"
+    };
+}
+    const BuiltinTextureInfo BuiltinTextures[BUILTIN_TEXTURE_COUNT] = {
+        MissingTexture,
+        WhiteTexture,
+        BlackTexture
+    };
+}

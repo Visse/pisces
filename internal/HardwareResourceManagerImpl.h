@@ -86,7 +86,7 @@ namespace Pisces
 
             BuiltinDrawInfo builtinDrawInfo[BUILTIN_OBJECT_COUNT];
 
-            TextureHandle missingTexture;
+            TextureHandle builtinTextures[BUILTIN_TEXTURE_COUNT];
 
             size_t uniformBlockAllignment = 0,
                    maxTextxureUnits = 0;

@@ -4,15 +4,11 @@
 
 namespace Pisces
 {
-    namespace BuiltinTextures
-    {
-    
-        struct BuiltinTexture {
-            int width, height;
-            PixelFormat format;
-            const void *pixels;
-        };
+    struct BuiltinTextureInfo {
+        int width, height;
+        PixelFormat format;
+        const void *pixels;
+    };
 
-        extern BuiltinTexture MissingTexture;
-    }
+    extern const BuiltinTextureInfo BuiltinTextures[BUILTIN_TEXTURE_COUNT];
 }
