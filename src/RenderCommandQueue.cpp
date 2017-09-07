@@ -40,6 +40,11 @@ namespace Pisces
         mImpl->commands.emplace_back(BindSampler(slot, texture));
     }
 
+    PISCES_API void RenderCommandQueue::bindTexture(int slot, BuiltinTexture texture)
+    {
+        mImpl->commands.emplace_back(BindBuiltinTexture(0, texture));
+    }
+
     PISCES_API void RenderCommandQueue::bindUniformBuffer( int slot, UniformBufferHandle uniform )
     {
         if (slot < 0 || slot >= MAX_BOUND_UNIFORM_BUFFERS) {

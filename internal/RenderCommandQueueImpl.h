@@ -29,6 +29,7 @@ namespace Pisces
             UseClipRect,
 
             BindSampler,
+            BindBuiltinTexture,
             BindImageTexture,
             BindUniformBuffer,
 
@@ -77,6 +78,10 @@ namespace Pisces
         CREATE_DATA_STRUCT(BindSampler, Type,
             (int, slot),
             (TextureHandle, sampler)
+        );
+        CREATE_DATA_STRUCT(BindBuiltinTexture, Type,
+            (int, slot),
+            (BuiltinTexture, texture)
         );
         CREATE_DATA_STRUCT(BindImageTexture, Type,
             (int, slot),
@@ -127,6 +132,7 @@ namespace Pisces
             (UseClipRectData, useClipRect),
 
             (BindSamplerData, bindSampler),
+            (BindBuiltinTextureData, bindBuiltinTexture),
             (BindImageTextureData, bindImageTexture),
             (BindUniformBufferData, bindUniformBuffer),
 

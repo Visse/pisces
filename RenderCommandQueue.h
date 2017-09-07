@@ -26,6 +26,7 @@ namespace Pisces
         PISCES_API void usePipeline( PipelineHandle pipeline );
         PISCES_API void useVertexArray( VertexArrayHandle vertexArray );
         PISCES_API void bindTexture( int slot, TextureHandle texture );
+        PISCES_API void bindTexture( int slot, BuiltinTexture texture );
         PISCES_API void bindUniformBuffer( int slot, UniformBufferHandle uniform );
         PISCES_API void useClipping( bool use );
         PISCES_API void setClipRect( ClipRect rect );

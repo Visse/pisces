@@ -617,6 +617,18 @@ namespace Pisces
         impl.state.bindings.samplers[data.slot] = data.sampler;
     }
 
+    void BindBuiltinTexture( CompilerImpl &impl, const CQI::BindBuiltinTextureData &data )
+    {
+        int idx = (int)data.texture;
+        FATAL_ASSERT(idx >= 0 && idx < BUILTIN_TEXTURE_COUNT, "Invalid Builtin Texture %i!", idx);
+
+        CQI::BindSamplerData sampler;
+            sampler.slot = data.slot;
+            sampler.sampler = impl.hardwareMgr->builtinTextures[idx];
+
+        BindSampler(impl, sampler);
+    }
+
     void BindImageTexture( CompilerImpl &impl, const CQI::BindImageTextureData &data )
     {
         FATAL_ASSERT(data.slot >= 0 && data.slot < MAX_BOUND_IMAGE_TEXTURES, "Invalid image texture slot %i", data.slot);
@@ -726,6 +738,9 @@ namespace Pisces
                 break;
             case CommandType::BindSampler:
                 BindSampler(impl, command.bindSampler);
+                break;
+            case CommandType::BindBuiltinTexture:
+                BindBuiltinTexture(impl, command.bindBuiltinTexture);
                 break;
             case CommandType::BindImageTexture:
                 BindImageTexture(impl, command.bindImageTexture);
