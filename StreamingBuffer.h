@@ -76,7 +76,7 @@ namespace Pisces
         }
 
         size_t size() {
-            return StreamingBufferBase::size();
+            return StreamingBufferBase::size() / sizeof(Type);
         }
     };
 
