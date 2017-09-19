@@ -221,6 +221,10 @@ namespace Pisces
         case VertexAttributeType::UInt32:
         case VertexAttributeType::NormUInt32:
             return gl::GL_UNSIGNED_INT;
+        case VertexAttributeType::NormInt3x10_1x2:
+            return gl::GL_INT_2_10_10_10_REV;
+        case VertexAttributeType::NormUInt3x10_1x2:
+            return gl::GL_UNSIGNED_INT_2_10_10_10_REV;
         case VertexAttributeType::Float16:
             return gl::GL_HALF_FLOAT;
         case VertexAttributeType::Float32:
@@ -246,6 +250,8 @@ namespace Pisces
         case VertexAttributeType::NormUInt8:
         case VertexAttributeType::NormUInt16:
         case VertexAttributeType::NormUInt32:
+        case VertexAttributeType::NormInt3x10_1x2:
+        case VertexAttributeType::NormUInt3x10_1x2:
             return gl::GL_TRUE;
         }
         FATAL_ERROR("Unknown VertexAttributeType %i", (int)type);

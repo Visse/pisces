@@ -140,6 +140,9 @@ namespace Pisces
         NormInt8,  NormInt16,  NormInt32,
         NormUInt8, NormUInt16, NormUInt32,
 
+        NormInt3x10_1x2,
+        NormUInt3x10_1x2,
+
         Float16, Float32
     };
 
