@@ -13,7 +13,7 @@ find_path(GLM_INCLUDE_DIR FILES glm/glm.hpp REQUIRED)
 
 option( PISCES_BUILD_IMGUI "Build ImGui as part of Pisces." ON )
 option( PISCES_BUILD_NUKLEAR "Build Nuklear as part of Pisces." ON )
-
+option( PISCES_SUPPORT_LOAD_OBJ "Support loading of .obj files" ON )
 
 option( PISCES_CLIP_ZERO_TO_ONE "Use clip range [0, 1], instead of the default [-1, 1] for better depth precision" ON)
 
@@ -156,6 +156,22 @@ if (PISCES_BUILD_NUKLEAR)
     install(FILES utility/NkContext.h utility/NkWindow.h utility/NkSprite.h DESTINATION include/Pisces/utility)
 endif (PISCES_BUILD_NUKLEAR)
 
+
+if (PISCES_SUPPORT_LOAD_OBJ)
+
+    target_sources (Pisces
+        PRIVATE utility/ObjLoader.h
+        PRIVATE utility/ObjLoader.cpp
+    )
+    target_link_libraries (Pisces
+        PRIVATE tinyobjloader
+    )
+    target_compile_definitions (Pisces
+        PUBLIC PISCES_SUPPORT_LOAD_OBJ
+    )
+    
+    install(FILES utility/ObjLoader.h DESTINATION include/Pisces/utility)
+endif (PISCES_SUPPORT_LOAD_OBJ)
 
 
 target_link_libraries( Pisces
