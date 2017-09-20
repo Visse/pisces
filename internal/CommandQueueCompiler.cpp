@@ -80,9 +80,9 @@ namespace Pisces
         ClipRect clipRect;
 
         bool clipping = false, 
-             depthTest = false,
-             faceCulling = false,
-             depthWrite = false;
+             depthTest = true,
+             faceCulling = true,
+             depthWrite = true;
         BlendMode blendMode;
 
         ResourceBindings bindings;
@@ -208,6 +208,24 @@ namespace Pisces
         }
     }
 
+    void EmitBlendMode( CompilerImpl &impl, BlendMode blendMode )
+    {
+        switch (blendMode) {
+        case BlendMode::Replace:
+            Emit(impl, CCQI::Disable(GL_BLEND));
+            break;
+        case BlendMode::Alpha:
+            Emit(impl, CCQI::Enable(GL_BLEND));
+            Emit(impl, CCQI::SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+            break;
+        case BlendMode::PreMultipledAlpha:
+            Emit(impl, CCQI::Enable(GL_BLEND));
+            Emit(impl, CCQI::SetBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
+            break;
+        }
+        impl.current.blendMode = blendMode;
+    }
+
     bool EmitBindPipeline( CompilerImpl &impl, PipelineHandle handle )
     {
         if (handle && impl.current.pipeline == handle) return true;
@@ -225,19 +243,7 @@ namespace Pisces
         }
 
         if (impl.current.blendMode != pipeline->blendMode) {
-            switch (pipeline->blendMode) {
-            case BlendMode::Replace:
-                Emit(impl, CCQI::Disable(GL_BLEND));
-                break;
-            case BlendMode::Alpha:
-                Emit(impl, CCQI::Enable(GL_BLEND));
-                Emit(impl, CCQI::SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-                break;
-            case BlendMode::PreMultipledAlpha:
-                Emit(impl, CCQI::Enable(GL_BLEND));
-                Emit(impl, CCQI::SetBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA));
-                break;
-            }
+            EmitBlendMode(impl, pipeline->blendMode);
         }
 
         PMI::RenderProgramInfo *programInfo = impl.pipelineMgr->renderPrograms.find(pipeline->program);
@@ -699,6 +705,31 @@ namespace Pisces
         std::copy(std::begin(data.matrix), std::end(data.matrix), uniform.data.f);
     }
 
+    void resetState( CompilerImpl &impl )
+    {
+        State state;
+
+        if (impl.current.clipping != state.clipping) {
+            EmitEnableDisable(impl, impl.current.clipping, state.clipping, GL_SCISSOR_TEST);
+            impl.current.clipping = state.clipping;
+        }
+        if (impl.current.depthTest != state.depthTest) {
+            EmitEnableDisable(impl, impl.current.depthTest, state.depthTest, GL_DEPTH_TEST);
+            impl.current.depthTest = state.depthTest;
+        }
+        if (impl.current.faceCulling != state.faceCulling) {
+            EmitEnableDisable(impl, impl.current.faceCulling, state.faceCulling, GL_CULL_FACE);
+            impl.current.faceCulling = state.faceCulling;
+        }
+        if (impl.current.depthWrite != state.depthWrite) {
+            Emit(impl, CCQI::SetDepthMask(state.depthTest));
+            impl.current.depthWrite = state.depthWrite;
+        }
+        if (impl.current.blendMode != state.blendMode) {
+            EmitBlendMode(impl, state.blendMode);
+        }
+    }
+
     std::vector<CompiledRenderQueueImpl::Command> Compile( Context *context, const RenderQueueCompileOptions &options, const RenderCommandQueuePtr &queue )
     {
         CompilerImpl impl;
@@ -769,6 +800,7 @@ namespace Pisces
             }
         }
 
+        resetState(impl);
         return std::move(impl.commands);
     }
 }
