@@ -14,6 +14,7 @@ find_path(GLM_INCLUDE_DIR FILES glm/glm.hpp REQUIRED)
 option( PISCES_BUILD_IMGUI "Build ImGui as part of Pisces." ON )
 option( PISCES_BUILD_NUKLEAR "Build Nuklear as part of Pisces." ON )
 option( PISCES_SUPPORT_LOAD_OBJ "Support loading of .obj files" ON )
+option( PISCES_MESH_BUILDER "Build mesh builder as part of pisces" ON )
 
 option( PISCES_CLIP_ZERO_TO_ONE "Use clip range [0, 1], instead of the default [-1, 1] for better depth precision" ON)
 
@@ -172,6 +173,14 @@ if (PISCES_SUPPORT_LOAD_OBJ)
     
     install(FILES utility/ObjLoader.h DESTINATION include/Pisces/utility)
 endif (PISCES_SUPPORT_LOAD_OBJ)
+
+if (PISCES_MESH_BUILDER)
+    target_sources (Pisces
+        PRIVATE utility/MeshBuilder.h
+        PRIVATE utility/MeshBuilder.cpp
+    )
+    install(FILES utility/MeshBuilder.h DESTINATION include/Pisces/utility)
+endif (PISCES_MESH_BUILDER)
 
 
 target_link_libraries( Pisces
