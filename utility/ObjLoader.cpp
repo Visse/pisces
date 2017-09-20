@@ -65,11 +65,17 @@ namespace Pisces
 
         callbacks.group_cb = [](void *user_data, const char **names, int num_names) {};
         callbacks.object_cb = [](void *user_data, const char *name) {
+
             Data *data = (Data*)user_data;
+
+            if (!data->objects.empty()) {
+                auto &back = data->objects.back();
+                back.indexCount = (int)data->faces.size() - back.firstIndex;
+            }
 
             Object object;
             object.name = Common::CreateStringId(name);
-            object.first = (int)data->faces.size();
+            object.firstIndex = (int)data->faces.size();
             data->objects.push_back(object);
         };
 
@@ -79,6 +85,11 @@ namespace Pisces
         std::string error;
         if (!tinyobj::LoadObjWithCallback(file, callbacks, &data, nullptr, &error)) {
             THROW(std::runtime_error, "Failed to load obj file \"%s\" error: %s", filename.c_str(), error.c_str());   
+        }
+        
+        if (!data.objects.empty()) {
+            auto &back = data.objects.back();
+            back.indexCount = (int)data.faces.size() - back.firstIndex;
         }
 
 
@@ -100,44 +111,43 @@ namespace Pisces
 
         Result result;
 
-        for (Face face : data.faces) {
-            for (int i=0; i < 3; ++i) {
-                index_t index = face.indexes[i];
+        for (auto iter=data.objects.begin(), end=data.objects.end(); iter != end; ++iter) {
+            Object object;
+            object.firstIndex = result.indexes.size();
+            object.firstVertex = result.vertexes.size();
 
-                int idx = lookupIndex(index);
-                if (idx == -1) {
-                    Vertex vertex;
-                    vertex.x = data.positions[idx].x;
-                    vertex.y = data.positions[idx].y;
-                    vertex.z = data.positions[idx].z;
-                    vertex.uvx = glm::packUnorm1x16(data.texcoords[idx].x);
-                    vertex.uvy = glm::packUnorm1x16(data.texcoords[idx].y);
-                    vertex.normal = glm::packSnorm3x10_1x2(glm::vec4(data.normals[idx], 0.f));
+            object.name = iter->name;
+            // No sharing of indexes between objects
+            indexLookup.clear();
 
-                    result.vertexes.push_back(vertex);
-                    idx = (int)result.vertexes.size() - 1;
+            for (int i=0, c=iter->indexCount; i < c; ++i) {
+                Face face = data.faces[i + iter->firstIndex];
+                for (int i=0; i < 3; ++i) {
+                    index_t index = face.indexes[i];
 
-                    indexLookup[index] = idx;
+                    int idx = lookupIndex(index);
+                    if (idx == -1) {
+                        Vertex vertex;
+                        vertex.pos[0] = data.positions[index.vertex_index-1].x;
+                        vertex.pos[1] = data.positions[index.vertex_index-1].y;
+                        vertex.pos[2] = data.positions[index.vertex_index-1].z;
+                        vertex.uv[0] = glm::packUnorm1x16(data.texcoords[index.texcoord_index-1].x);
+                        vertex.uv[1] = glm::packUnorm1x16(data.texcoords[index.texcoord_index-1].y);
+                        vertex.normal = glm::packSnorm3x10_1x2(glm::vec4(data.normals[index.normal_index-1], 0.f));
+
+                        result.vertexes.push_back(vertex);
+                        idx = (int)result.vertexes.size() - 1;
+
+                        indexLookup[index] = idx;
+                        object.vertexCount++;
+                    }
+
+                    object.indexCount++;
+                    result.indexes.push_back(idx);
                 }
-
-                result.indexes.push_back(idx);
             }
-        }
 
-        result.objects = std::move(data.objects);
-        
-        if (!result.objects.empty()) {
-            result.objects[0].first *= 3;
-        }
-        int last = 0;
-        for (int i=1, e =(int)result.objects.size(); i < e; ++i) {
-            result.objects[i].first *= 3;
-            result.objects[i-1].count = result.objects[i].first - result.objects[i-1].first;
-            last = result.objects[i].first;
-        }
-        
-        if (!result.objects.empty()) {
-            result.objects.back().count = result.objects.back().first - last;
+            result.objects.push_back(object);
         }
 
         return std::move(result);
