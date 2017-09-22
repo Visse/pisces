@@ -2,7 +2,7 @@
 #include "Common/ErrorUtils.h"
 #include "Common/MemStreamBuf.h"
 
-#include "yaml-cpp/yaml.h"
+#include "Common/Yaml.h"
 
 
 namespace Pisces
@@ -18,16 +18,7 @@ namespace Pisces
             return ResourceHandle {};
 #define LOAD_ERROR0(error) LOAD_ERROR(error, 0)
         try {
-            auto fileHandle = archive.openFile(filename);
-            if (!fileHandle) {
-                LOAD_ERROR0("Failed to open file.");
-                return ResourceHandle {};
-            }
-
-            Common::MemStreamBuf streambuf(archive.mapFile(fileHandle), archive.fileSize(fileHandle));
-            std::istream stream(&streambuf);
-
-            YAML::Node node = YAML::Load(stream);
+            auto node = Common::YamlNode::LoadFile(archive, filename.c_str());
             return loadResource(archive, node);
         }
         catch (const std::exception &e) {

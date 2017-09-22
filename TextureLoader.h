@@ -19,7 +19,7 @@ namespace Pisces
         PISCES_API TextureLoader( HardwareResourceManager *hardwareMgr );
         PISCES_API ~TextureLoader();
         
-        PISCES_API virtual ResourceHandle loadResource( Common::Archive &archive, YAML::Node node ) override;
+        PISCES_API virtual ResourceHandle loadResource( Common::Archive &archive, Common::YamlNode node ) override;
 
     protected:
         struct Impl;

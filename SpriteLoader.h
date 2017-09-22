@@ -16,6 +16,6 @@ namespace Pisces
             mHardwareMgr(hardwareMgr)
         {}
 
-        PISCES_API virtual ResourceHandle loadResource( Common::Archive &archive, YAML::Node node ) override;
+        PISCES_API virtual ResourceHandle loadResource( Common::Archive &archive, Common::YamlNode node ) override;
     };
 }

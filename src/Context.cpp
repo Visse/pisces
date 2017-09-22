@@ -23,8 +23,7 @@
 #include "Common/HandleVector.h"
 #include "Common/Archive.h"
 #include "Common/MemStreamBuf.h"
-
-#include "yaml-cpp/yaml.h"
+#include "Common/Yaml.h"
 
 #include <glbinding/Binding.h>
 #include <glbinding/gl33core/gl.h>
@@ -535,28 +534,25 @@ namespace Pisces
                 return ResourcePackHandle{};
             }
 
-            Common::MemStreamBuf streamBuf(archive.mapFile(file), archive.fileSize(file));
-            std::istream stream(&streamBuf);
-
-            YAML::Node node = YAML::Load(stream);
-            if (!node.IsSequence()) {
+            auto node = Common::YamlNode::LoadString((const char*)archive.mapFile(file), archive.fileSize(file));
+            if (!node.isSequence()) {
                 LOG_ERROR("Failed to load resource pack \"%s\" - top level node in \"resources.txt\" must be a sequence", name);
             }
 
-            for (YAML::Node entry : node) {
-                YAML::Node resourceTypeNode = entry["Type"];
-                if (!(resourceTypeNode && resourceTypeNode.IsScalar())) {
-                    LOG_WARNING("Failed to load resource in pack \"%s\" from file \"resources.txt\" - missing attribute \"Type\" at line %i", name,  entry.Mark().line);
+            for (Common::YamlNode entry : node) {
+                auto resourceTypeNode = entry["Type"];
+                if (!(resourceTypeNode && resourceTypeNode.isScalar())) {
+                    LOG_WARNING("Failed to load resource in pack \"%s\" from file \"resources.txt\" - missing attribute \"Type\" at line %i", name,  entry.mark().line);
                     continue;
                 }
-                YAML::Node resourceNameNode = entry["Name"];
-                if (!(resourceNameNode && resourceNameNode.IsScalar())) {
-                    LOG_WARNING("Failed to load resource in pack \"%s\" from file \"resources.txt\" - missing attribute \"Name\" at line %i", name,  entry.Mark().line);
+                auto resourceNameNode = entry["Name"];
+                if (!(resourceNameNode && resourceNameNode.isScalar())) {
+                    LOG_WARNING("Failed to load resource in pack \"%s\" from file \"resources.txt\" - missing attribute \"Name\" at line %i", name,  entry.mark().line);
                     continue;
                 }
                 
-                Common::StringId resourceName = Common::CreateStringId(resourceNameNode.Scalar().c_str());
-                Common::StringId type = Common::CreateStringId(resourceTypeNode.Scalar().c_str());
+                Common::StringId resourceName = resourceNameNode.scalarAsStringId();
+                Common::StringId type = resourceTypeNode.scalarAsStringId();
 
                 auto iter = mImpl->resourceLoaders.find(type);
                 if (iter == mImpl->resourceLoaders.end()) {

@@ -8,8 +8,7 @@
 #include "Common/BuiltinFromString.h"
 #include "Common/ErrorUtils.h"
 #include "Common/StringFormat.h"
-
-#include "yaml-cpp/yaml.h"
+#include "Common/Yaml.h"
 
 #include <cassert>
 #include <vector>
@@ -29,7 +28,7 @@ namespace Pisces
     {
     }
 
-    PISCES_API ResourceHandle PipelineLoader::loadResource( Common::Archive &archive, YAML::Node node )
+    PISCES_API ResourceHandle PipelineLoader::loadResource( Common::Archive &archive, Common::YamlNode node )
     {
 #define LOAD_ERROR(error, ...) \
             LOG_ERROR("Failed to load pipeline in archive \"%s\" error: " error, archive.name(), __VA_ARGS__); \
@@ -41,33 +40,33 @@ namespace Pisces
             return ResourceHandle {};
 
         try {
-            YAML::Node typeNode = node["PipelineType"];
-            if (!(typeNode && typeNode.IsScalar())) {
+            auto typeNode = node["PipelineType"];
+            if (!(typeNode && typeNode.isScalar())) {
                 LOAD_ERROR0("Missing attribute \"PipelineType\"");
             }
 
-            const std::string &type = typeNode.Scalar();
+            std::string type = typeNode.scalar();
             if (type == "Render") {
                 PipelineProgramInitParams params;
 
-                YAML::Node blendModeNode = node["BlendMode"];
+                auto blendModeNode = node["BlendMode"];
 
 
-                if (blendModeNode && blendModeNode.IsScalar()) {
-                    const std::string &str = blendModeNode.Scalar();
+                if (blendModeNode && blendModeNode.isScalar()) {
+                    const char *str = blendModeNode.c_str();
 
-                    if (!BlendModeFromString(str.c_str(), str.size(), params.blendMode)) {
-                        LOAD_ERROR("Unknown blend mode \"%s\"", str.c_str());   
+                    if (!BlendModeFromString(str, params.blendMode)) {
+                        LOAD_ERROR("Unknown blend mode \"%s\"", str);   
                     }
                 }
 
 #define BUILTIN_ATTRIBUTE(name, var)                                                    \
                 do {                                                                    \
-                    YAML::Node varNode = node[name];                                    \
-                    if (varNode && varNode.IsScalar()) {                                \
-                        const std::string &str = varNode.Scalar();                      \
-                        if (!Common::BuiltinFromString(str.c_str(), str.size(), var)) { \
-                            LOAD_ERROR("Unkown " name " \"%s\"", str.c_str());          \
+                    auto varNode = node[name];                                          \
+                    if (varNode && varNode.isScalar()) {                                \
+                        const char *str = varNode.c_str();                              \
+                        if (!Common::BuiltinFromString(str, strlen(str), var)) {        \
+                            LOAD_ERROR("Unkown " name " \"%s\"", str);                  \
                         }                                                               \
                     }                                                                   \
                 } while(0)
@@ -84,23 +83,23 @@ namespace Pisces
                 if (faceCulling) params.flags = set(params.flags, PipelineFlags::FaceCulling);
 
 
-                YAML::Node programNode = node["Program"];
-                if (!programNode) {
+                auto programNode = node["Program"];
+                if (!(programNode && programNode.isMap())) {
                     LOAD_ERROR0("Missing attribute \"Program\"");
                 }
 
-                YAML::Node vertexShaderNode = programNode["VertexShader"],
-                           fragmentShaderNode = programNode["FragmentShader"];
+                auto vertexShaderNode = programNode["VertexShader"],
+                     fragmentShaderNode = programNode["FragmentShader"];
 
-                if (!(vertexShaderNode && vertexShaderNode.IsScalar())) {
+                if (!(vertexShaderNode && vertexShaderNode.isScalar())) {
                     LOAD_ERROR0("Missing attribute \"VertexShader\"");
                 }
-                if (!(fragmentShaderNode && fragmentShaderNode.IsScalar()))  {
+                if (!(fragmentShaderNode && fragmentShaderNode.isScalar()))  {
                     LOAD_ERROR0("Missing attribute \"FragmentShader\"");
                 }
 
-                const std::string &vertexShaderStr = vertexShaderNode.Scalar();
-                const std::string &fragmentShaderStr = fragmentShaderNode.Scalar();
+                std::string vertexShaderStr = vertexShaderNode.scalar();
+                std::string fragmentShaderStr = fragmentShaderNode.scalar();
 
                 auto vertexShaderFile = archive.openFile(vertexShaderStr);
                 if (!vertexShaderFile) {
@@ -127,23 +126,25 @@ namespace Pisces
                 programParams.vertexSource.assign(vertexSource, vertexSourceLen);
                 programParams.fragmentSource.assign(fragmentSource, fragmentSourceLen);
 
-                YAML::Node bindingNode = programNode["Bindings"];
-                if (bindingNode) {
-                    YAML::Node uniformsNode = bindingNode["Uniforms"],
-                               uniformBuffersNode = bindingNode["UniformBuffers"],
-                               samplersNode = bindingNode["Samplers"],
-                               imageTexturesNode = bindingNode["ImageTextures"];
+                auto bindingNode = programNode["Bindings"];
+                if (bindingNode && bindingNode.isMap()) {
+                    auto uniformsNode = bindingNode["Uniforms"],
+                         uniformBuffersNode = bindingNode["UniformBuffers"],
+                         samplersNode = bindingNode["Samplers"],
+                         imageTexturesNode = bindingNode["ImageTextures"];
 
-#define FILL_BINDINGS(name, node, var, max)                                     \
-                    if (node && node.IsMap()) {                                 \
-                        for (std::pair<YAML::Node, YAML::Node> entry : node) {  \
-                            int slot = entry.second.as<int>();                  \
-                            const std::string &val = entry.first.Scalar();      \
-                            if (slot < 0 ||slot >= max) {                       \
-                                LOG_WARNING("Invalid slot %i for " name " \"%s\"", slot, val.c_str()); \
-                            }                                                   \
-                            var[slot] = val;                                    \
-                        }                                                       \
+#define FILL_BINDINGS(name, node, var, max)                                         \
+                    if (node.isMap()) {                                             \
+                        for (std::pair<Common::YamlNode, Common::YamlNode> entry : node) {  \
+                            int slot;                                               \
+                            if (entry.second.as(slot)) {                            \
+                                std::string val = entry.first.scalar();             \
+                                if (slot < 0 || slot >= max) {                      \
+                                    LOG_WARNING("Invalid slot %i for " name " \"%s\"", slot, val.c_str()); \
+                                }                                                   \
+                                var[slot] = val;                                    \
+                            }                                                       \
+                        }                                                           \
                     }
                     FILL_BINDINGS("uniform", uniformsNode, programParams.bindings.uniforms, MAX_BOUND_UNIFORMS);
                     FILL_BINDINGS("uniform buffer", uniformBuffersNode, programParams.bindings.uniformBuffers, MAX_BOUND_UNIFORM_BUFFERS);
@@ -153,10 +154,9 @@ namespace Pisces
                 }
 
 
-                YAML::Node nameNode = node["Name"];
-                if (nameNode && nameNode.IsScalar()) {
-                    const std::string &name = nameNode.Scalar();
-                    params.name = Common::CreateStringId(name.c_str(), name.size());
+                auto nameNode = node["Name"];
+                if (nameNode && nameNode.isScalar()) {
+                    params.name = nameNode.scalarAsStringId();
                 }
 
                 PipelineHandle pipeline = mImpl->pipelineMgr->createPipeline(params);

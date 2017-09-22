@@ -186,7 +186,6 @@ endif (PISCES_MESH_BUILDER)
 target_link_libraries( Pisces
     PRIVATE stb
     PRIVATE glbinding::glbinding
-    PRIVATE yaml-cpp
     PUBLIC SDL2
     PUBLIC Common
     INTERFACE Pisces-request-shared-gpu
