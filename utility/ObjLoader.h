@@ -19,19 +19,23 @@ namespace Pisces
             // packed in 2_10_10_10 format
             uint32_t normal;
         };
+
+        struct SubObject {
+            int first=0, count=0;
+            Common::StringId material;
+        };
         struct Object {
             Common::StringId name;
-            int firstIndex = 0, 
-                indexCount = 0,
-                firstVertex = 0,
-                vertexCount = 0;
-        };
-        struct Result {
+
             std::vector<Vertex> vertexes;
             std::vector<uint16_t> indexes;
+
+            std::vector<SubObject> subobjects;
+        };
+        struct Result {
             std::vector<Object> objects;
         };
 
-        static PISCES_API Result LoadFile( const std::string &filename );
+        static PISCES_API Result LoadFile( Common::Archive &archive, const std::string &filename );
     };
 }

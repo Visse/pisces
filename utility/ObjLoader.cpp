@@ -3,33 +3,48 @@
 #include "Common/Throw.h"
 
 #include "tiny_obj_loader.h"
-
-#include <fstream>
+#include "Common/Throw.h"
+#include "Common/MemStreamBuf.h"
 
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 
 #include <glm/gtc/packing.hpp>
 
+
 namespace Pisces
 {
-    PISCES_API ObjLoader::Result ObjLoader::LoadFile( const std::string &filename )
+    PISCES_API ObjLoader::Result ObjLoader::LoadFile( Common::Archive &archive, const std::string &filename )
     {
         using namespace tinyobj;
 
-        std::ifstream file(filename);
+        auto file = archive.openFile(filename);
+        if (!file) {
+            THROW(std::runtime_error, 
+                  "Failed to open file \"%s\" in archive \"%s\"", filename.c_str(), archive.name()
+            );
+        }
+
+        Common::MemStreamBuf buf(archive.mapFile(file), archive.fileSize(file));
+        std::istream stream(&buf);
+
 
         struct Face {
+            Common::StringId material;
             index_t indexes[3];
         };
-
+        struct ObjectData {
+            Common::StringId name;
+            size_t firstFace = 0, faceCount = 0;
+        };
         struct Data {
             const char *filename;
             std::vector<glm::vec3> positions;
             std::vector<glm::vec3> normals;
             std::vector<glm::vec2> texcoords;
             std::vector<Face> faces;
-            std::vector<Object> objects;
+            std::vector<ObjectData> objects;
+            Common::StringId material;
         };
 
         tinyobj::callback_t callbacks;
@@ -54,44 +69,41 @@ namespace Pisces
             }
 
             Face face;
+                face.material = data->material;
                 face.indexes[0] = indices[0];
                 face.indexes[1] = indices[1];
                 face.indexes[2] = indices[2];
 
             data->faces.emplace_back(face);
+            data->objects.back().faceCount++;
         };
-        callbacks.usemtl_cb = [](void *user_data, const char *name, int material_id) {};
+        callbacks.usemtl_cb = [](void *user_data, const char *name, int material_id) {
+            Data *data = (Data*)user_data;
+            data->material = Common::CreateStringId(name);
+        };
         callbacks.mtllib_cb = [](void *user_data, const material_t *materials, int num_materials) {};
 
         callbacks.group_cb = [](void *user_data, const char **names, int num_names) {};
         callbacks.object_cb = [](void *user_data, const char *name) {
 
             Data *data = (Data*)user_data;
-
-            if (!data->objects.empty()) {
-                auto &back = data->objects.back();
-                back.indexCount = (int)data->faces.size() - back.firstIndex;
+            
+            if (data->objects.back().faceCount > 0) {
+                data->objects.emplace_back();
             }
 
-            Object object;
+            auto &object = data->objects.back();
+            object.firstFace = data->faces.size();
             object.name = Common::CreateStringId(name);
-            object.firstIndex = (int)data->faces.size();
-            data->objects.push_back(object);
         };
 
-
         Data data;
+        data.objects.emplace_back();
         data.filename = filename.c_str();
         std::string error;
-        if (!tinyobj::LoadObjWithCallback(file, callbacks, &data, nullptr, &error)) {
+        if (!tinyobj::LoadObjWithCallback(stream, callbacks, &data, nullptr, &error)) {
             THROW(std::runtime_error, "Failed to load obj file \"%s\" error: %s", filename.c_str(), error.c_str());   
         }
-        
-        if (!data.objects.empty()) {
-            auto &back = data.objects.back();
-            back.indexCount = (int)data.faces.size() - back.firstIndex;
-        }
-
 
         struct Less {
             bool operator () ( const index_t &lhs, const index_t &rhs) const {
@@ -113,15 +125,25 @@ namespace Pisces
 
         for (auto iter=data.objects.begin(), end=data.objects.end(); iter != end; ++iter) {
             Object object;
-            object.firstIndex = result.indexes.size();
-            object.firstVertex = result.vertexes.size();
 
             object.name = iter->name;
-            // No sharing of indexes between objects
             indexLookup.clear();
 
-            for (int i=0, c=iter->indexCount; i < c; ++i) {
-                Face face = data.faces[i + iter->firstIndex];
+            SubObject subObject;
+
+            for (size_t i=0, c=iter->faceCount; i < c; ++i) {
+                Face face = data.faces[i + iter->firstFace];
+
+                if (subObject.count > 0 && subObject.material != face.material) {
+                    object.subobjects.push_back(subObject);
+                    subObject.material = face.material;
+                    subObject.first = (int)object.indexes.size();
+                    subObject.count = 0;
+                }
+                else {
+                    subObject.count++;
+                }
+
                 for (int i=0; i < 3; ++i) {
                     index_t index = face.indexes[i];
 
@@ -135,15 +157,13 @@ namespace Pisces
                         vertex.uv[1] = glm::packUnorm1x16(data.texcoords[index.texcoord_index-1].y);
                         vertex.normal = glm::packSnorm3x10_1x2(glm::vec4(data.normals[index.normal_index-1], 0.f));
 
-                        result.vertexes.push_back(vertex);
-                        idx = (int)result.vertexes.size() - 1;
+                        object.vertexes.push_back(vertex);
+                        idx = (int)object.vertexes.size() - 1;
 
                         indexLookup[index] = idx;
-                        object.vertexCount++;
                     }
 
-                    object.indexCount++;
-                    result.indexes.push_back(idx);
+                    object.indexes.push_back(idx);
                 }
             }
 
