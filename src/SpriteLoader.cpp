@@ -3,7 +3,7 @@
 #include "HardwareResourceManager.h"
 #include "SpriteManager.h"
 
-#include "Common/ErrorUtils.h"
+#include "Common/Throw.h"
 #include "Common/StringId.h"
 
 namespace Pisces
@@ -12,14 +12,12 @@ namespace Pisces
     {
         Sprite sprite;
         
-#define LOAD_ERROR(error, ...) \
-            LOG_ERROR("Failed to load sprite in archive \"%s\" error: " error, archive.name(), __VA_ARGS__); \
-            return ResourceHandle {};
-#define LOAD_ERROR0(error) LOAD_ERROR(error, 0)
 #define GET_NODE(node, name, attribute, typeFunc)               \
         auto name = node[attribute];                            \
         if (!name|| !name.typeFunc) {                           \
-           LOAD_ERROR0("Missing attribute \"" attribute "\"");  \
+           THROW(std::runtime_error,                            \
+                "Missing attribute \"" attribute "\""           \
+            );                                                  \
         }
 
         GET_NODE(node, nameNode, "Name", isScalar());
@@ -38,9 +36,13 @@ namespace Pisces
         sprite.texture = mHardwareMgr->findTextureByName(textureName);
 
 
-#define GET_FLOAT(val, node, name)                                  \
-            if (!node.as(val)) {                                    \
-                LOAD_ERROR0("Expected number for attribute " name); \
+#define GET_FLOAT(val, node, name)                                      \
+            if (!node.as(val)) {                                        \
+                auto mark = node.mark();                                \
+                THROW(std::runtime_error,                               \
+                      "Expected number for attribute \"%s\" at %i:%i",  \
+                      name, mark.line, mark.col                         \
+                );                                                      \
             }
 
         GET_FLOAT(sprite.uv.x1, x1Node, "x1");

@@ -563,21 +563,21 @@ namespace Pisces
                 LOG_INFORMATION("Loading resource \"%s\" of type \"%s\"", Common::GetCString(resourceName), Common::GetCString(type));
 
                 IResourceLoader *loader = iter->second;
-                ResourceHandle resource = loader->loadResource(archive, entry);
 
-                if (!resource) {
-                    LOG_WARNING("Failed to load resource \"%s\" of type \"%s\" in pack \"%s\" from file \"resources.cfg\" - resource loader failed to load resource", 
-                                Common::GetCString(resourceName), Common::GetCString(type), name
+                try {
+                    ResourceHandle resource = loader->loadResource(archive, entry);
+
+                    ResourceInfo info;
+                        info.handle = resource;
+                        info.loader;
+                        info.name = resourceName;
+
+                    resources.push_back(std::move(info));
+                } catch( const std::exception &e) {
+                    LOG_WARNING("Failed to load resource \"%s\" of type \"%s\" in pack \"%s\" from file \"resources.cfg\" - resource loader failed with the error: %s", 
+                                Common::GetCString(resourceName), Common::GetCString(type), name, e.what()
                     );
-                    continue;
                 }
-
-                ResourceInfo info;
-                    info.handle = resource;
-                    info.loader;
-                    info.name = resourceName;
-
-                resources.push_back(std::move(info));
             }
         }
         catch (const std::exception &e) {

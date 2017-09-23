@@ -30,146 +30,142 @@ namespace Pisces
 
     PISCES_API ResourceHandle PipelineLoader::loadResource( Common::Archive &archive, Common::YamlNode node )
     {
-#define LOAD_ERROR(error, ...) \
-            LOG_ERROR("Failed to load pipeline in archive \"%s\" error: " error, archive.name(), __VA_ARGS__); \
-            return ResourceHandle {};
-#define LOAD_ERROR0(error) LOAD_ERROR(error, 0)
+        auto typeNode = node["PipelineType"];
+        if (!(typeNode && typeNode.isScalar())) {
+            THROW(std::runtime_error, 
+                    "Missing attribute \"PipelineType\""
+            );
+        }
 
-#define LOAD_WARNING(warning, ...) \
-            LOG_ERROR("When loading pipeline in archive \"%s\" warning: " warning, archive.name(), __VA_ARGS__); \
-            return ResourceHandle {};
+        std::string type = typeNode.scalar();
+        if (type == "Render") {
+            PipelineProgramInitParams params;
 
-        try {
-            auto typeNode = node["PipelineType"];
-            if (!(typeNode && typeNode.isScalar())) {
-                LOAD_ERROR0("Missing attribute \"PipelineType\"");
+            auto blendModeNode = node["BlendMode"];
+
+
+            if (blendModeNode && blendModeNode.isScalar()) {
+                const char *str = blendModeNode.c_str();
+
+                if (!BlendModeFromString(str, params.blendMode)) {
+                    auto mark = blendModeNode.mark();
+                    THROW(std::runtime_error,
+                            "Unknown blend mode \"%s\" at %i:%i", str, mark.line, mark.col
+                    );   
+                }
             }
 
-            std::string type = typeNode.scalar();
-            if (type == "Render") {
-                PipelineProgramInitParams params;
-
-                auto blendModeNode = node["BlendMode"];
-
-
-                if (blendModeNode && blendModeNode.isScalar()) {
-                    const char *str = blendModeNode.c_str();
-
-                    if (!BlendModeFromString(str, params.blendMode)) {
-                        LOAD_ERROR("Unknown blend mode \"%s\"", str);   
-                    }
-                }
-
-#define BUILTIN_ATTRIBUTE(name, var)                                                    \
-                do {                                                                    \
-                    auto varNode = node[name];                                          \
-                    if (varNode && varNode.isScalar()) {                                \
-                        const char *str = varNode.c_str();                              \
-                        if (!Common::BuiltinFromString(str, strlen(str), var)) {        \
-                            LOAD_ERROR("Unkown " name " \"%s\"", str);                  \
-                        }                                                               \
+#define BUILTIN_ATTRIBUTE(name, var)                                                        \
+            do {                                                                        \
+                auto varNode = node[name];                                              \
+                if (varNode && varNode.isScalar()) {                                    \
+                    const char *str = varNode.c_str();                                  \
+                    if (!Common::BuiltinFromString(str, strlen(str), var)) {            \
+                        auto mark = varNode.mark();                                     \
+                        THROW(std::runtime_error,                                       \
+                                "Failed to parse \"%s\" for attribute \"%s\" at %i:%i",   \
+                                str, name, mark.line, mark.col                            \
+                        );                                                              \
                     }                                                                   \
-                } while(0)
+                }                                                                       \
+            } while(0)
 
-                bool depthWrite = false,
-                     depthTest = false,
-                     faceCulling = false;
-                BUILTIN_ATTRIBUTE("DepthWrite", depthWrite);
-                BUILTIN_ATTRIBUTE("DepthTest", depthTest);
-                BUILTIN_ATTRIBUTE("FaceCulling", faceCulling);
+            bool depthWrite = false,
+                    depthTest = false,
+                    faceCulling = false;
+            BUILTIN_ATTRIBUTE("DepthWrite", depthWrite);
+            BUILTIN_ATTRIBUTE("DepthTest", depthTest);
+            BUILTIN_ATTRIBUTE("FaceCulling", faceCulling);
 
-                if (depthWrite) params.flags = set(params.flags, PipelineFlags::DepthWrite);
-                if (depthTest) params.flags = set(params.flags, PipelineFlags::DepthTest);
-                if (faceCulling) params.flags = set(params.flags, PipelineFlags::FaceCulling);
-
-
-                auto programNode = node["Program"];
-                if (!(programNode && programNode.isMap())) {
-                    LOAD_ERROR0("Missing attribute \"Program\"");
-                }
-
-                auto vertexShaderNode = programNode["VertexShader"],
-                     fragmentShaderNode = programNode["FragmentShader"];
-
-                if (!(vertexShaderNode && vertexShaderNode.isScalar())) {
-                    LOAD_ERROR0("Missing attribute \"VertexShader\"");
-                }
-                if (!(fragmentShaderNode && fragmentShaderNode.isScalar()))  {
-                    LOAD_ERROR0("Missing attribute \"FragmentShader\"");
-                }
-
-                std::string vertexShaderStr = vertexShaderNode.scalar();
-                std::string fragmentShaderStr = fragmentShaderNode.scalar();
-
-                auto vertexShaderFile = archive.openFile(vertexShaderStr);
-                if (!vertexShaderFile) {
-                    LOAD_ERROR("Failed to open file \"%s\"", vertexShaderStr.c_str());
-                }
-
-                auto fragmentShaderFile = archive.openFile(fragmentShaderStr);
-                if (!fragmentShaderFile) {
-                    LOAD_ERROR("Failed to open file \"%s\"", fragmentShaderStr.c_str());
-                }
+            if (depthWrite) params.flags = set(params.flags, PipelineFlags::DepthWrite);
+            if (depthTest) params.flags = set(params.flags, PipelineFlags::DepthTest);
+            if (faceCulling) params.flags = set(params.flags, PipelineFlags::FaceCulling);
 
 
-                size_t vertexSourceLen = archive.fileSize(vertexShaderFile),
-                       fragmentSourceLen = archive.fileSize(fragmentShaderFile);
+            auto programNode = node["Program"];
+            if (!(programNode && programNode.isMap())) {
+                THROW(std::runtime_error, "Missing attribute \"Program\"");
+            }
 
-                const char *vertexSource = (const char*) archive.mapFile(vertexShaderFile),
-                           *fragmentSource = (const char*) archive.mapFile(fragmentShaderFile);
+            auto vertexShaderNode = programNode["VertexShader"],
+                    fragmentShaderNode = programNode["FragmentShader"];
 
-                // Since the file was open succesfully it should succed to map it
-                assert (vertexSource && fragmentSource);
+            if (!(vertexShaderNode && vertexShaderNode.isScalar())) {
+                THROW(std::runtime_error, "Missing attribute \"VertexShader\"");
+            }
+            if (!(fragmentShaderNode && fragmentShaderNode.isScalar()))  {
+                THROW(std::runtime_error, "Missing attribute \"FragmentShader\"");
+            }
 
-                auto &programParams = params.programParams;
+            std::string vertexShaderStr = vertexShaderNode.scalar();
+            std::string fragmentShaderStr = fragmentShaderNode.scalar();
 
-                programParams.vertexSource.assign(vertexSource, vertexSourceLen);
-                programParams.fragmentSource.assign(fragmentSource, fragmentSourceLen);
+            auto vertexShaderFile = archive.openFile(vertexShaderStr);
+            if (!vertexShaderFile) {
+                THROW(std::runtime_error, "Failed to open file \"%s\"", vertexShaderStr.c_str());
+            }
 
-                auto bindingNode = programNode["Bindings"];
-                if (bindingNode && bindingNode.isMap()) {
-                    auto uniformsNode = bindingNode["Uniforms"],
-                         uniformBuffersNode = bindingNode["UniformBuffers"],
-                         samplersNode = bindingNode["Samplers"],
-                         imageTexturesNode = bindingNode["ImageTextures"];
+            auto fragmentShaderFile = archive.openFile(fragmentShaderStr);
+            if (!fragmentShaderFile) {
+                THROW(std::runtime_error, "Failed to open file \"%s\"", fragmentShaderStr.c_str());
+            }
+
+
+            size_t vertexSourceLen = archive.fileSize(vertexShaderFile),
+                   fragmentSourceLen = archive.fileSize(fragmentShaderFile);
+
+            const char *vertexSource = (const char*) archive.mapFile(vertexShaderFile),
+                       *fragmentSource = (const char*) archive.mapFile(fragmentShaderFile);
+
+            // Since the file was open succesfully it should succed to map it
+            assert (vertexSource && fragmentSource);
+
+            auto &programParams = params.programParams;
+
+            programParams.vertexSource.assign(vertexSource, vertexSourceLen);
+            programParams.fragmentSource.assign(fragmentSource, fragmentSourceLen);
+
+            auto bindingNode = programNode["Bindings"];
+            if (bindingNode && bindingNode.isMap()) {
+                auto uniformsNode = bindingNode["Uniforms"],
+                     uniformBuffersNode = bindingNode["UniformBuffers"],
+                     samplersNode = bindingNode["Samplers"],
+                     imageTexturesNode = bindingNode["ImageTextures"];
 
 #define FILL_BINDINGS(name, node, var, max)                                         \
-                    if (node.isMap()) {                                             \
-                        for (std::pair<Common::YamlNode, Common::YamlNode> entry : node) {  \
-                            int slot;                                               \
-                            if (entry.second.as(slot)) {                            \
-                                std::string val = entry.first.scalar();             \
-                                if (slot < 0 || slot >= max) {                      \
-                                    LOG_WARNING("Invalid slot %i for " name " \"%s\"", slot, val.c_str()); \
-                                }                                                   \
-                                var[slot] = val;                                    \
-                            }                                                       \
-                        }                                                           \
-                    }
-                    FILL_BINDINGS("uniform", uniformsNode, programParams.bindings.uniforms, MAX_BOUND_UNIFORMS);
-                    FILL_BINDINGS("uniform buffer", uniformBuffersNode, programParams.bindings.uniformBuffers, MAX_BOUND_UNIFORM_BUFFERS);
-                    FILL_BINDINGS("sampler", samplersNode, programParams.bindings.samplers, MAX_BOUND_SAMPLERS);
-                    FILL_BINDINGS("image texture", imageTexturesNode, programParams.bindings.imageTextures, MAX_BOUND_IMAGE_TEXTURES);
+                if (node.isMap()) {                                             \
+                    for (std::pair<Common::YamlNode, Common::YamlNode> entry : node) {  \
+                        int slot;                                               \
+                        if (entry.second.as(slot)) {                            \
+                            std::string val = entry.first.scalar();             \
+                            if (slot < 0 || slot >= max) {                      \
+                                LOG_WARNING("Invalid slot %i for " name " \"%s\"", slot, val.c_str()); \
+                            }                                                   \
+                            var[slot] = val;                                    \
+                        }                                                       \
+                    }                                                           \
+                }
+                FILL_BINDINGS("uniform", uniformsNode, programParams.bindings.uniforms, MAX_BOUND_UNIFORMS);
+                FILL_BINDINGS("uniform buffer", uniformBuffersNode, programParams.bindings.uniformBuffers, MAX_BOUND_UNIFORM_BUFFERS);
+                FILL_BINDINGS("sampler", samplersNode, programParams.bindings.samplers, MAX_BOUND_SAMPLERS);
+                FILL_BINDINGS("image texture", imageTexturesNode, programParams.bindings.imageTextures, MAX_BOUND_IMAGE_TEXTURES);
 #undef FILL_BINDINGS
-                }
-
-
-                auto nameNode = node["Name"];
-                if (nameNode && nameNode.isScalar()) {
-                    params.name = nameNode.scalarAsStringId();
-                }
-
-                PipelineHandle pipeline = mImpl->pipelineMgr->createPipeline(params);
-                if (!pipeline) {
-                    LOAD_ERROR0("Failed to create pipeline");
-                }
-                return ResourceHandle(pipeline.handle);
             }
-            else if (type == "Compute") {
-                LOAD_ERROR0("Not implemented type \"Compute\" yet.");
+
+
+            auto nameNode = node["Name"];
+            if (nameNode && nameNode.isScalar()) {
+                params.name = nameNode.scalarAsStringId();
             }
-        } catch (const std::exception &e) {
-            LOAD_ERROR("Caught exception \"%s\"", e.what());
+
+            PipelineHandle pipeline = mImpl->pipelineMgr->createPipeline(params);
+            if (!pipeline) {
+                THROW(std::runtime_error, "Failed to create pipeline");
+            }
+            return ResourceHandle(pipeline.handle);
+        }
+        else if (type == "Compute") {
+            THROW(std::runtime_error, "Not implemented type \"Compute\" yet.");
         }
 
         return ResourceHandle {};
