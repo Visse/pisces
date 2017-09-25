@@ -23,7 +23,8 @@
 #include "Common/HandleVector.h"
 #include "Common/Archive.h"
 #include "Common/MemStreamBuf.h"
-#include "Common/Yaml.h"
+
+#include "libyaml-cpp.h"
 
 #include <glbinding/Binding.h>
 #include <glbinding/gl33core/gl.h>
@@ -534,25 +535,30 @@ namespace Pisces
                 return ResourcePackHandle{};
             }
 
-            auto node = Common::YamlNode::LoadString((const char*)archive.mapFile(file), archive.fileSize(file));
+            Common::MemStreamBuf buf(archive.mapFile(file), archive.fileSize(file));
+            std::istream stream(&buf);
+
+            auto node = libyaml::Node::LoadStream(stream);
             if (!node.isSequence()) {
                 LOG_ERROR("Failed to load resource pack \"%s\" - top level node in \"resources.txt\" must be a sequence", name);
             }
 
-            for (Common::YamlNode entry : node) {
+            for (libyaml::Node entry : node) {
                 auto resourceTypeNode = entry["Type"];
-                if (!(resourceTypeNode && resourceTypeNode.isScalar())) {
-                    LOG_WARNING("Failed to load resource in pack \"%s\" from file \"resources.txt\" - missing attribute \"Type\" at line %i", name,  entry.mark().line);
+                if (!resourceTypeNode.isScalar()) {
+                    auto mark = entry.endMark();
+                    LOG_WARNING("Failed to load resource in pack \"%s\" from file \"resources.txt\" - missing attribute \"Type\" at %i:%i", name,  mark.line, mark.col);
                     continue;
                 }
                 auto resourceNameNode = entry["Name"];
-                if (!(resourceNameNode && resourceNameNode.isScalar())) {
-                    LOG_WARNING("Failed to load resource in pack \"%s\" from file \"resources.txt\" - missing attribute \"Name\" at line %i", name,  entry.mark().line);
+                if (!resourceNameNode.isScalar()) {
+                    auto mark = entry.startMark();
+                    LOG_WARNING("Failed to load resource in pack \"%s\" from file \"resources.txt\" - missing attribute \"Name\" at %i:%i", name,  mark.line, mark.col);
                     continue;
                 }
                 
-                Common::StringId resourceName = resourceNameNode.scalarAsStringId();
-                Common::StringId type = resourceTypeNode.scalarAsStringId();
+                Common::StringId resourceName = Common::CreateStringId(resourceNameNode.scalar());
+                Common::StringId type = Common::CreateStringId(resourceTypeNode.scalar());
 
                 auto iter = mImpl->resourceLoaders.find(type);
                 if (iter == mImpl->resourceLoaders.end()) {

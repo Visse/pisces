@@ -5,10 +5,11 @@
 
 #include "Common/Throw.h"
 #include "Common/StringId.h"
+#include "Common/BuiltinFromString.h"
 
 namespace Pisces
 {
-    PISCES_API ResourceHandle SpriteLoader::loadResource( Common::Archive &archive, Common::YamlNode node )
+    PISCES_API ResourceHandle SpriteLoader::loadResource( Common::Archive &archive, libyaml::Node node )
     {
         Sprite sprite;
         
@@ -31,14 +32,14 @@ namespace Pisces
         GET_NODE(uvNode, y2Node, "y2", isScalar());
         
 
-        Common::StringId textureName = textureNode.scalarAsStringId();
+        Common::StringId textureName = Common::CreateStringId(textureNode.scalar());
 
         sprite.texture = mHardwareMgr->findTextureByName(textureName);
 
 
 #define GET_FLOAT(val, node, name)                                      \
-            if (!node.as(val)) {                                        \
-                auto mark = node.mark();                                \
+            if (!Common::BuiltinFromString(node.scalar(), val)) {       \
+                auto mark = node.startMark();                           \
                 THROW(std::runtime_error,                               \
                       "Expected number for attribute \"%s\" at %i:%i",  \
                       name, mark.line, mark.col                         \
@@ -50,7 +51,7 @@ namespace Pisces
         GET_FLOAT(sprite.uv.x2, x2Node, "x2");
         GET_FLOAT(sprite.uv.y2, y2Node, "y2");
 
-        Common::StringId name = nameNode.scalarAsStringId();
+        Common::StringId name = Common::CreateStringId(nameNode.scalar());
         mSpriteMgr->setSprite(name, sprite);
 
         return ResourceHandle(name.handle);

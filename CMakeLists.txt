@@ -199,6 +199,20 @@ target_compile_definitions(Pisces
     PRIVATE PISCES_BUILDING
 )
 
+
+target_compile_definitions(Pisces
+    PUBLIC PISCES_USE_LIBYAML
+)
+target_link_libraries(Pisces
+    PRIVATE libyaml-cpp
+)
+get_target_property(LIBYAML_CPP_INCLUDE_DIR libyaml-cpp INTERFACE_INCLUDE_DIRECTORIES)
+target_include_directories(Pisces
+    PUBLIC ${LIBYAML_CPP_INCLUDE_DIR}
+)
+get_target_property(LIBYAML_CPP_INTERFACE_SOURCES libyaml-cpp INTERFACE_SOURCES)
+source_group(libyaml-cpp FILES ${LIBYAML_CPP_INTERFACE_SOURCES})
+
 file(GLOB PISCES_HEADERS ./*.h)
 
 install(TARGETS Pisces-request-shared-gpu Pisces

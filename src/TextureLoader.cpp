@@ -9,7 +9,6 @@
 #include "Common/BuiltinFromString.h"
 #include "Common/Throw.h"
 #include "Common/BuiltinCast.h"
-#include "Common/Yaml.h"
 
 #include "stb_image.h"
 WRAP_HANDLE_FUNC(stbi_image, stbi_uc*, stbi_image_free, nullptr);
@@ -30,8 +29,13 @@ namespace Pisces {
     {
     }
     
-    PISCES_API ResourceHandle TextureLoader::loadResource( Common::Archive &archive, Common::YamlNode node )
-    {   
+    PISCES_API ResourceHandle TextureLoader::loadResource( Common::Archive &archive, libyaml::Node node )
+    {
+#define LOG_ATTRIBUTE_WARNING(node, type, attribute)  \
+        do {auto mark = node.startMark();             \
+            LOG_WARNING("Expected %s for attribute \"%s\" at %i:%i when loading texture in archive %s", type, attribute, mark.line, mark.col, archive.name()); \
+        } while(0);
+        
         auto textureTypeNode = node["TextureType"];
         if (!textureTypeNode || textureTypeNode.isScalar() == false) {
             THROW(std::runtime_error,
@@ -42,7 +46,7 @@ namespace Pisces {
 
         if (textureType == "Texture2D") {
             auto pixelFormatNode = node["PixelFormat"];
-            if (!pixelFormatNode || pixelFormatNode.isScalar() == false) {
+            if (!pixelFormatNode.isScalar()) {
                 THROW(std::runtime_error, 
                         "Missing attribute \"PixelFormat\""
                 );
@@ -52,14 +56,14 @@ namespace Pisces {
 
             PixelFormat pixelFormat;
             if (!PixelFormatFromString(pixelFormatStr.c_str(), pixelFormatStr.size(), pixelFormat)) {
-                auto mark = pixelFormatNode.mark();
+                auto mark = pixelFormatNode.startMark();
                 THROW(std::runtime_error,
                         "Unkown PixelFormat \"%s\" at %i:%i", pixelFormatStr.c_str(), mark.line, mark.col
                 );
             }
 
             auto fileNode = node["File"];
-            if (!fileNode || fileNode.isScalar() == false) {
+            if (!fileNode.isScalar()) {
                 THROW(std::runtime_error,
                         "Missing attribute \"File\""
                 );
@@ -68,7 +72,10 @@ namespace Pisces {
             int mipmaps = 0;
             auto mipmapsNode = node["Mipmaps"];
             if (mipmapsNode) {
-                mipmapsNode.as(mipmaps);
+                if (!(mipmapsNode.isScalar() && Common::BuiltinFromString(mipmapsNode.scalar(), mipmaps))) {
+                    auto mark = mipmapsNode.startMark();
+                    LOG_ATTRIBUTE_WARNING(node, "integear", "Mipmaps");
+                }
             }
 
             TextureFlags flags = TextureFlags::None;
@@ -108,31 +115,39 @@ namespace Pisces {
                         minFilterNode = node["MinFilter"],
                         magFilterNode = node["MagFilter"];
 
-                if (edgeSamplingXNode && edgeSamplingXNode.isScalar()) {
-                    const char *str = edgeSamplingXNode.c_str();
-
-                    EdgeSamplingModeFromString(str, params.edgeSamplingX);
+                if (edgeSamplingXNode) {
+                    if (!(edgeSamplingXNode.isScalar() && EdgeSamplingModeFromString(edgeSamplingXNode.scalar(), params.edgeSamplingX))) {
+                        LOG_ATTRIBUTE_WARNING(node, "EdgeSamplingMode", "EdgeSamplingX");
+                    }
                 }
                 if (edgeSamplingYNode && edgeSamplingYNode.isScalar()) {
-                    const char *str = edgeSamplingYNode.c_str();
-                    EdgeSamplingModeFromString(str, params.edgeSamplingY);
+                    if (!(edgeSamplingYNode.isScalar() && EdgeSamplingModeFromString(edgeSamplingYNode.scalar(), params.edgeSamplingY))) {
+                        LOG_ATTRIBUTE_WARNING(node, "EdgeSamplingMode", "EdgeSamplingY");
+                    }
                 }
                 if (minFilterNode && minFilterNode.isScalar()) {
-                    const char *str = minFilterNode.c_str();
-                    SamplerMinFilterFromString(str, params.minFilter);
+                    if (!(minFilterNode.isScalar() && SamplerMinFilterFromString(minFilterNode.scalar(), params.minFilter))) {
+                        LOG_ATTRIBUTE_WARNING(node, "SamplerMinFilter", "MinFilter");
+                    }
                 }
                 if (magFilterNode && magFilterNode.isScalar()) {
-                    const char *str = magFilterNode.c_str();
-                    SamplerMagFilterFromString(str, params.magFilter);
+                    if (!(magFilterNode.isScalar() && SamplerMagFilterFromString(magFilterNode.scalar(), params.magFilter))) {
+                        LOG_ATTRIBUTE_WARNING(node, "SamplerMagFilter", "MagFilter");
+                    }
                 }
 
                 mImpl->hardwareMgr->setSamplerParams(texture, params);
             }
 
             auto nameNode = node["Name"];
-            if (nameNode && nameNode.isScalar()) {
-                const char *str = nameNode.c_str();
-                mImpl->hardwareMgr->setTextureName(texture, Common::CreateStringId(str));
+            if (nameNode) {
+                if (nameNode.isScalar()) {
+                    const char *str = nameNode.scalar();
+                    mImpl->hardwareMgr->setTextureName(texture, Common::CreateStringId(str));
+                }
+                else {
+                    LOG_ATTRIBUTE_WARNING(node, "string", "Name");
+                }
             }
 
             mImpl->hardwareMgr->uploadTexture2D(texture, 0, TextureUploadFlags::GenerateMipmaps, PixelFormat::RGBA8, image);
@@ -140,7 +155,7 @@ namespace Pisces {
             return ResourceHandle(texture.handle);
         }
         else {
-            auto mark = textureTypeNode.mark();
+            auto mark = textureTypeNode.startMark();
             THROW(std::runtime_error, 
                     "Unknown TextureType \"%s\" at %i:%i", textureType.c_str(), mark.line, mark.col
             );

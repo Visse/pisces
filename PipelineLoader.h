@@ -16,7 +16,7 @@ namespace Pisces
         PISCES_API PipelineLoader( PipelineManager *pipelineMgr );
         PISCES_API ~PipelineLoader();
         
-        PISCES_API virtual ResourceHandle loadResource( Common::Archive &archive, Common::YamlNode node ) override;
+        PISCES_API virtual ResourceHandle loadResource( Common::Archive &archive, libyaml::Node node ) override;
 
     private:
         struct Impl;

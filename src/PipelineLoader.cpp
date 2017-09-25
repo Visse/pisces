@@ -8,7 +8,6 @@
 #include "Common/BuiltinFromString.h"
 #include "Common/ErrorUtils.h"
 #include "Common/StringFormat.h"
-#include "Common/Yaml.h"
 
 #include <cassert>
 #include <vector>
@@ -28,10 +27,10 @@ namespace Pisces
     {
     }
 
-    PISCES_API ResourceHandle PipelineLoader::loadResource( Common::Archive &archive, Common::YamlNode node )
+    PISCES_API ResourceHandle PipelineLoader::loadResource( Common::Archive &archive, libyaml::Node node )
     {
         auto typeNode = node["PipelineType"];
-        if (!(typeNode && typeNode.isScalar())) {
+        if (!typeNode.isScalar()) {
             THROW(std::runtime_error, 
                     "Missing attribute \"PipelineType\""
             );
@@ -45,26 +44,26 @@ namespace Pisces
 
 
             if (blendModeNode && blendModeNode.isScalar()) {
-                const char *str = blendModeNode.c_str();
+                const char *str = blendModeNode.scalar();
 
                 if (!BlendModeFromString(str, params.blendMode)) {
-                    auto mark = blendModeNode.mark();
+                    auto mark = blendModeNode.startMark();
                     THROW(std::runtime_error,
                             "Unknown blend mode \"%s\" at %i:%i", str, mark.line, mark.col
                     );   
                 }
             }
 
-#define BUILTIN_ATTRIBUTE(name, var)                                                        \
+#define BUILTIN_ATTRIBUTE(name, var)                                                    \
             do {                                                                        \
                 auto varNode = node[name];                                              \
-                if (varNode && varNode.isScalar()) {                                    \
-                    const char *str = varNode.c_str();                                  \
+                if (varNode.isScalar()) {                                               \
+                    const char *str = varNode.scalar();                                 \
                     if (!Common::BuiltinFromString(str, strlen(str), var)) {            \
-                        auto mark = varNode.mark();                                     \
+                        auto mark = varNode.startMark();                                \
                         THROW(std::runtime_error,                                       \
-                                "Failed to parse \"%s\" for attribute \"%s\" at %i:%i",   \
-                                str, name, mark.line, mark.col                            \
+                                "Failed to parse \"%s\" for attribute \"%s\" at %i:%i", \
+                                str, name, mark.line, mark.col                          \
                         );                                                              \
                     }                                                                   \
                 }                                                                       \
@@ -134,9 +133,10 @@ namespace Pisces
 
 #define FILL_BINDINGS(name, node, var, max)                                         \
                 if (node.isMap()) {                                             \
-                    for (std::pair<Common::YamlNode, Common::YamlNode> entry : node) {  \
+                    for (std::pair<libyaml::Node, libyaml::Node> entry : node) {\
                         int slot;                                               \
-                        if (entry.second.as(slot)) {                            \
+                        if (entry.second.isScalar() &&                          \
+                            Common::BuiltinFromString(entry.second.scalar(), slot)) {\
                             std::string val = entry.first.scalar();             \
                             if (slot < 0 || slot >= max) {                      \
                                 LOG_WARNING("Invalid slot %i for " name " \"%s\"", slot, val.c_str()); \
@@ -155,7 +155,7 @@ namespace Pisces
 
             auto nameNode = node["Name"];
             if (nameNode && nameNode.isScalar()) {
-                params.name = nameNode.scalarAsStringId();
+                params.name = Common::CreateStringId(nameNode.scalar());
             }
 
             PipelineHandle pipeline = mImpl->pipelineMgr->createPipeline(params);
