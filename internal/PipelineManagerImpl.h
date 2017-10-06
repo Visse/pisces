@@ -29,6 +29,7 @@ namespace Pisces
         };
 
         struct BaseProgramInfo {
+            Common::StringId name;
             GLProgram glProgram;
             
             SamplerInfo samplers[MAX_BOUND_SAMPLERS];

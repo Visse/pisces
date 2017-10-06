@@ -56,6 +56,7 @@ namespace Pisces
             }
 
             RenderProgramInfo info;
+                info.name = params.name;
                 info.glProgram =  CreateProgram(2, shaders);
                 info.flags = params.flags;
 
@@ -88,6 +89,7 @@ namespace Pisces
             GLProgram program = CreateProgram(1, &shader);
 
             ComputeProgramInfo info;
+                info.name = params.name;
                 info.glProgram = std::move(program);
                 info.flags = params.flags;
 
@@ -114,8 +116,8 @@ namespace Pisces
                       (int)count, (int)MAX_TRANFORM_FEEDBACK_CAPTURE_VARIABLES
                 );
             }
-            const char *source = params.vertexSource.c_str();
-            GLint sourceLen = (GLint) params.vertexSource.size();
+            const char *source = params.source.c_str();
+            GLint sourceLen = (GLint) params.source.size();
 
             GLShader vertexShader = CreateShader(GL_VERTEX_SHADER, 1, &source, &sourceLen);
             GLProgram program(glCreateProgram());
@@ -158,6 +160,7 @@ namespace Pisces
             }
 
             TransformProgramInfo info;
+            info.name = params.name;
             info.glProgram = std::move(program);
             info.flags = params.flags;
 

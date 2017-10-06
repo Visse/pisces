@@ -8,6 +8,7 @@
 #include "PipelineLoader.h"
 #include "SpriteManager.h"
 #include "SpriteLoader.h"
+#include "ProgramLoader.h"
 
 #include "internal/GLCompat.h"
 #include "internal/GLDebugCallback.h"
@@ -292,7 +293,17 @@ namespace Pisces
         mImpl->coreResourceLoaders.emplace_back(new TextureLoader(mImpl->hardwareResourceMgr.get()));
         registerResourceLoader(Common::CreateStringId("Texture"), mImpl->coreResourceLoaders.back().get());
 
-        mImpl->coreResourceLoaders.emplace_back(new PipelineLoader(mImpl->pipelineMgr.get()));
+        RenderProgramLoader *renderProgramLoader = new RenderProgramLoader(mImpl->pipelineMgr.get());
+        mImpl->coreResourceLoaders.emplace_back(renderProgramLoader);
+        registerResourceLoader(Common::CreateStringId("RenderProgram"), renderProgramLoader);
+
+        mImpl->coreResourceLoaders.emplace_back(new ComputeProgramLoader(mImpl->pipelineMgr.get()));
+        registerResourceLoader(Common::CreateStringId("ComputeProgram"), mImpl->coreResourceLoaders.back().get());
+        
+        mImpl->coreResourceLoaders.emplace_back(new TransformProgramLoader(mImpl->pipelineMgr.get()));
+        registerResourceLoader(Common::CreateStringId("TransformProgram"), mImpl->coreResourceLoaders.back().get());
+
+        mImpl->coreResourceLoaders.emplace_back(new PipelineLoader(mImpl->pipelineMgr.get(), renderProgramLoader));
         registerResourceLoader(Common::CreateStringId("Pipeline"), mImpl->coreResourceLoaders.back().get());
 
         mImpl->coreResourceLoaders.emplace_back(new SpriteLoader(mImpl->spriteMgr.get(), mImpl->hardwareResourceMgr.get()));

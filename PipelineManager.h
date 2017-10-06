@@ -22,6 +22,7 @@ namespace Pisces
     };
 
     struct ComputeProgramInitParams {
+        Common::StringId name;
         ComputeProgramFlags flags = ComputeProgramFlags::None;
         
         std::string source;
@@ -29,6 +30,7 @@ namespace Pisces
         ProgramInitBindings bindings;
     };
     struct RenderProgramInitParams {
+        Common::StringId name;
         RenderProgramFlags flags = RenderProgramFlags::None;
 
         // If true vertexSource & fragmentSource holds the filename of the source
@@ -46,18 +48,16 @@ namespace Pisces
         Common::StringId name;
 
         TransformProgramFlags flags = TransformProgramFlags::None;
-        std::string vertexSource;
+        std::string source;
         ProgramInitBindings bindings;
-
     };
 
     struct PipelineInitParams {
+        Common::StringId name;
         ProgramHandle program;
 
         BlendMode blendMode = BlendMode::Replace;
         PipelineFlags flags = PipelineFlags::None;
-
-        Common::StringId name;
     };
 
     struct PipelineProgramInitParams {

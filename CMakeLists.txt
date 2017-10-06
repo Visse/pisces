@@ -93,6 +93,9 @@ add_library( Pisces SHARED
     PipelineLoader.h
     src/PipelineLoader.cpp
 
+    ProgramLoader.h
+    src/ProgramLoader.cpp
+
     TextureLoader.h
     src/TextureLoader.cpp
 
