@@ -518,6 +518,7 @@ namespace Pisces
     {
         FATAL_ASSERT(loader != nullptr, "Loader can't be null!");
 
+        LOG_INFORMATION("Registred resource loader for type \"%s\"", Common::GetCString(name));
         mImpl->resourceLoaders[name] = loader;
     }
 
