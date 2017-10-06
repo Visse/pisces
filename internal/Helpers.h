@@ -499,5 +499,45 @@ namespace Pisces
         }
         FATAL_ERROR("Unknown GLType (%i)", (int)type);
     }
+
+    inline TransformCaptureType ToTransformCaptureType( gl::GLenum type )
+    {
+        switch (type) {
+        case gl::GL_FLOAT:
+            return TransformCaptureType::Float;
+        case gl::GL_FLOAT_VEC2:
+            return TransformCaptureType::FloatVec2;
+        case gl::GL_FLOAT_VEC3:
+            return TransformCaptureType::FloatVec3;
+        case gl::GL_FLOAT_VEC4:
+            return TransformCaptureType::FloatVec4;
+        case gl::GL_DOUBLE:
+            return TransformCaptureType::Double;
+        case gl::GL_DOUBLE_VEC2:
+            return TransformCaptureType::DoubleVec2;
+        case gl::GL_DOUBLE_VEC3:
+            return TransformCaptureType::DoubleVec3;
+        case gl::GL_DOUBLE_VEC4:
+            return TransformCaptureType::DoubleVec4;
+        case gl::GL_INT:
+            return TransformCaptureType::Int;
+        case gl::GL_INT_VEC2:
+            return TransformCaptureType::IntVec2;
+        case gl::GL_INT_VEC3:
+            return TransformCaptureType::IntVec3;
+        case gl::GL_INT_VEC4:
+            return TransformCaptureType::IntVec4;
+        case gl::GL_UNSIGNED_INT:
+            return TransformCaptureType::UInt;
+        case gl::GL_UNSIGNED_INT_VEC2:
+            return TransformCaptureType::UIntVec2;
+        case gl::GL_UNSIGNED_INT_VEC3:
+            return TransformCaptureType::UIntVec3;
+        case gl::GL_UNSIGNED_INT_VEC4:
+            return TransformCaptureType::UIntVec4;
+        default:
+            FATAL_ERROR("Unknown TransformCaptureType (%i)", (int)type);
+        }
+    }
 }
 

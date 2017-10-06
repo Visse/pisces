@@ -49,14 +49,8 @@ namespace PipelineManagerImpl
         return std::move(shader);
     }
 
-    GLProgram CreateProgram( int count, const GLShader *shaders )
+    void LinkProgram( GLuint program )
     {
-        GLProgram program(glCreateProgram());
-
-        for (int i=0; i < count; ++i) {
-            glAttachShader(program, shaders[i]);
-        }
-
         glLinkProgram(program);
 
         GLint status;
@@ -71,6 +65,17 @@ namespace PipelineManagerImpl
 
             THROW(std::runtime_error, "Failed to link program: %s", log.data());
         }
+    }
+
+    GLProgram CreateProgram( int count, const GLShader *shaders )
+    {
+        GLProgram program(glCreateProgram());
+
+        for (int i=0; i < count; ++i) {
+            glAttachShader(program, shaders[i]);
+        }
+
+        LinkProgram(program);
         
         return std::move(program);
     }

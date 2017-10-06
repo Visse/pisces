@@ -48,6 +48,12 @@ namespace Pisces
             ComputeProgramFlags flags = ComputeProgramFlags::None;
         };
 
+        struct TransformProgramInfo :
+            public BaseProgramInfo
+        {
+            TransformProgramFlags flags = TransformProgramFlags::None;
+        };
+
         struct PipelineInfo {
             ProgramHandle program;
             Common::StringId name;
@@ -62,6 +68,7 @@ namespace Pisces
             HandleVector<ProgramHandle, RenderProgramInfo> renderPrograms;
             HandleVector<PipelineHandle, PipelineInfo> pipelines;
             HandleVector<ComputeProgramHandle, ComputeProgramInfo> computePrograms;
+            HandleVector<TranformProgramHandle, TransformProgramInfo> transformPrograms;
 
             bool veryfyUniformBlocks = true;
 
@@ -74,6 +81,8 @@ namespace Pisces
 
         GLShader LoadShader( gl::GLenum type, const char *file );
         GLShader CreateShader( gl::GLenum type, int count, const char* const*sources, const gl::GLint *sourceLenghts );
+        
+        void LinkProgram( gl::GLuint program );
         GLProgram CreateProgram( int count, const GLShader *shaders );
 
         void OnProgramCreated( BaseProgramInfo *program, const ProgramInitBindings &bindings );

@@ -19,6 +19,7 @@ namespace Pisces
     static const int MAX_BOUND_UNIFORMS = 16;
     static const int MAX_BOUND_UNIFORM_BUFFERS = 16;
     static const int MAX_BOUND_IMAGE_TEXTURES = 4;
+    static const int MAX_TRANFORM_FEEDBACK_CAPTURE_VARIABLES = 4;
 
     static const int MIN_UNIFORM_BLOCK_BUFFER_SIZE = 1024*16; // 16 Kb
 
@@ -30,6 +31,8 @@ namespace Pisces
 
 
     MAKE_HANDLE( ComputeProgramHandle, uint32_t );
+    // Transform feed back program
+    MAKE_HANDLE( TranformProgramHandle, uint32_t );
 
     MAKE_HANDLE( ResourceHandle, uint64_t );
     MAKE_HANDLE( ResourcePackHandle, uint32_t );
@@ -132,6 +135,27 @@ namespace Pisces
         KeepRange = 1
     };
     DECLARE_ENUM_FLAG( BufferResizeFlags );
+    
+    enum class TransformCaptureType {
+        Float,
+        FloatVec2, FloatVec3, FloatVec4,
+        Double,
+        DoubleVec2, DoubleVec3, DoubleVec4,
+        Int,
+        IntVec2, IntVec3, IntVec4,
+        UInt,
+        UIntVec2, UIntVec3, UIntVec4,
+    };
+    DECL_ENUM_TO_FROM_STRING(TransformCaptureType, PISCES_API,
+        (Float),
+        (FloatVec2), (FloatVec3), (FloatVec4),
+        (Double),
+        (DoubleVec2), (DoubleVec3), (DoubleVec4),
+        (Int),
+        (IntVec2), (IntVec3), (IntVec4),
+        (UInt),
+        (UIntVec2), (UIntVec3), (UIntVec4)
+    );
 
     enum class VertexAttributeType {
         Int8,  Int16,  Int32,
@@ -165,6 +189,11 @@ namespace Pisces
         None = 0,
     };
     DECLARE_ENUM_FLAG(ComputeProgramFlags);
+
+    enum class TransformProgramFlags {
+        None = 0,
+    };
+    DECLARE_ENUM_FLAG(TransformProgramFlags);
 
     enum class RenderCommandQueueFlags {
         None = 0,

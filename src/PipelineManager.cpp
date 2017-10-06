@@ -104,6 +104,76 @@ namespace Pisces
     {
         mImpl->computePrograms.free(handle);
     }
+    
+    PISCES_API TranformProgramHandle PipelineManager::createTransformProgram( const TransformProgramInitParams &params, const TransformCaptureVariable *captureVariables, size_t count )
+    {
+        try {
+            if (count > MAX_TRANFORM_FEEDBACK_CAPTURE_VARIABLES) {
+                THROW(std::runtime_error,
+                    "To many capture variables (%i), max supported is %i", 
+                      (int)count, (int)MAX_TRANFORM_FEEDBACK_CAPTURE_VARIABLES
+                );
+            }
+            const char *source = params.vertexSource.c_str();
+            GLint sourceLen = (GLint) params.vertexSource.size();
+
+            GLShader vertexShader = CreateShader(GL_VERTEX_SHADER, 1, &source, &sourceLen);
+            GLProgram program(glCreateProgram());
+
+            glAttachShader(program, vertexShader);
+
+            const char *variables[MAX_TRANFORM_FEEDBACK_CAPTURE_VARIABLES];
+            for (int i=0; i < count; ++i) {
+                variables[i] = captureVariables[i].name.c_str();
+            }
+            glTransformFeedbackVaryings(program, (GLsizei)count, variables, GL_INTERLEAVED_ATTRIBS);
+
+            LinkProgram(program);
+
+            if (glbinding::ContextInfo::supported({gl::GLextension::GL_ARB_program_interface_query})) {
+                for (int i=0; i < count; ++i) {
+                    GLint index = gl::glGetProgramResourceIndex(program, gl::GL_TRANSFORM_FEEDBACK_VARYING, variables[i]);
+                    if (index == GL_INVALID_INDEX) {
+                        LOG_ERROR("Capture variable \"%s\" is not active!", variables[i]);
+                        continue;
+                    }
+
+                    GLenum prop = gl::GL_TYPE;
+                    GLsizei lenght = 1;
+                    GLint type;
+                    gl::glGetProgramResourceiv(program, GL_TRANSFORM_FEEDBACK_VARYINGS, index, 1, &prop, lenght, &lenght, &type);
+
+                    TransformCaptureType captureType = ToTransformCaptureType((GLenum)type);
+                    if (captureType != captureVariables[i].type) {
+                        LOG_ERROR("Capture variable \"%s\" type missmatch, expected \"%s\" got \"%s\"", 
+                                  variables[i], 
+                                  TransformCaptureTypeToString(captureVariables[i].type),
+                                  TransformCaptureTypeToString(captureType)
+                        );
+                    }
+                }
+            }
+            else {
+                LOG_WARNING("GL_ARB_program_interface_query not supported - can't validate capture variables!");
+            }
+
+            TransformProgramInfo info;
+            info.glProgram = std::move(program);
+            info.flags = params.flags;
+
+            OnProgramCreated(&info, params.bindings);
+
+            return mImpl->transformPrograms.create(std::move(info));
+        } catch (const std::exception &e) {
+            LOG_ERROR("Failed to create transform program - error: %s", e.what());
+            return TranformProgramHandle();
+        }
+    }
+
+    PISCES_API void PipelineManager::destroyProgram( TranformProgramHandle handle )
+    {
+        mImpl->transformPrograms.free(handle);
+    }
 
     PISCES_API PipelineHandle PipelineManager::createPipeline( const PipelineInitParams &params )
     {
