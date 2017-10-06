@@ -539,7 +539,7 @@ namespace Pisces
             Common::MemStreamBuf buf(archive.mapFile(file), archive.fileSize(file));
             std::istream stream(&buf);
 
-            auto node = libyaml::Node::LoadStream(stream);
+            auto node = libyaml::Node::LoadStream("resources.txt", stream);
             if (!node.isSequence()) {
                 LOG_ERROR("Failed to load resource pack \"%s\" - top level node in \"resources.txt\" must be a sequence", name);
             }

@@ -24,7 +24,7 @@ namespace Pisces
             Common::MemStreamBuf buf(archive.mapFile(file), archive.fileSize(file));
             std::istream stream(&buf);
 
-            auto node = libyaml::Node::LoadStream(stream);
+            auto node = libyaml::Node::LoadStream(filename.c_str(), stream);
             return loadResource(archive, node);
         }
         catch (const std::exception &e) {
