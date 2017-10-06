@@ -239,4 +239,11 @@ namespace Pisces
         }
         return false;
     }
+
+    PISCES_API PipelineHandle PipelineManager::findPipeline(Common::StringId name)
+    {
+        PipelineHandle pipeline;
+        findPipeline(name, pipeline);
+        return pipeline;
+    }
 }

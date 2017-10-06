@@ -88,6 +88,7 @@ namespace Pisces
         PISCES_API void destroyPipeline( PipelineHandle handle );
 
         PISCES_API bool findPipeline( Common::StringId name, PipelineHandle &pipeline );
+        PISCES_API PipelineHandle findPipeline( Common::StringId name );
 
         PipelineManagerImpl::Impl* impl() {
             return mImpl.impl();
