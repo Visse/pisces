@@ -105,7 +105,7 @@ namespace Pisces
         mImpl->computePrograms.free(handle);
     }
     
-    PISCES_API TranformProgramHandle PipelineManager::createTransformProgram( const TransformProgramInitParams &params, const TransformCaptureVariable *captureVariables, size_t count )
+    PISCES_API TransformProgramHandle PipelineManager::createTransformProgram( const TransformProgramInitParams &params, const TransformCaptureVariable *captureVariables, size_t count )
     {
         try {
             if (count > MAX_TRANFORM_FEEDBACK_CAPTURE_VARIABLES) {
@@ -166,11 +166,11 @@ namespace Pisces
             return mImpl->transformPrograms.create(std::move(info));
         } catch (const std::exception &e) {
             LOG_ERROR("Failed to create transform program - error: %s", e.what());
-            return TranformProgramHandle();
+            return TransformProgramHandle();
         }
     }
 
-    PISCES_API void PipelineManager::destroyProgram( TranformProgramHandle handle )
+    PISCES_API void PipelineManager::destroyProgram( TransformProgramHandle handle )
     {
         mImpl->transformPrograms.free(handle);
     }

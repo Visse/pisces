@@ -68,7 +68,7 @@ namespace Pisces
             HandleVector<ProgramHandle, RenderProgramInfo> renderPrograms;
             HandleVector<PipelineHandle, PipelineInfo> pipelines;
             HandleVector<ComputeProgramHandle, ComputeProgramInfo> computePrograms;
-            HandleVector<TranformProgramHandle, TransformProgramInfo> transformPrograms;
+            HandleVector<TransformProgramHandle, TransformProgramInfo> transformPrograms;
 
             bool veryfyUniformBlocks = true;
 

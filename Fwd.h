@@ -32,7 +32,7 @@ namespace Pisces
 
     MAKE_HANDLE( ComputeProgramHandle, uint32_t );
     // Transform feed back program
-    MAKE_HANDLE( TranformProgramHandle, uint32_t );
+    MAKE_HANDLE( TransformProgramHandle, uint32_t );
 
     MAKE_HANDLE( ResourceHandle, uint64_t );
     MAKE_HANDLE( ResourcePackHandle, uint32_t );

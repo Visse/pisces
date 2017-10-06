@@ -80,8 +80,8 @@ namespace Pisces
         PISCES_API ComputeProgramHandle createComputeProgram( const ComputeProgramInitParams &params );
         PISCES_API void destroyProgram( ComputeProgramHandle handle );
 
-        PISCES_API TranformProgramHandle createTransformProgram( const TransformProgramInitParams &params, const TransformCaptureVariable *captureVariables, size_t count );
-        PISCES_API void destroyProgram( TranformProgramHandle handle );
+        PISCES_API TransformProgramHandle createTransformProgram( const TransformProgramInitParams &params, const TransformCaptureVariable *captureVariables, size_t count );
+        PISCES_API void destroyProgram( TransformProgramHandle handle );
 
         PISCES_API PipelineHandle createPipeline( const PipelineInitParams &params );
         PISCES_API PipelineHandle createPipeline( const PipelineProgramInitParams &params );
