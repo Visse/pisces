@@ -109,6 +109,7 @@ namespace Pisces
 
         const PMI::RenderProgramInfo *renderProgramInfo = nullptr;
         const PMI::ComputeProgramInfo *computeProgramInfo = nullptr;
+        const PMI::TransformProgramInfo *transformProgramInfo = nullptr;
 
         const HRMI::VertexArrayInfo *vertexArrayInfo = nullptr;
 
@@ -229,6 +230,8 @@ namespace Pisces
     bool EmitBindPipeline( CompilerImpl &impl, PipelineHandle handle )
     {
         if (handle && impl.current.pipeline == handle) return true;
+        // ignore if we are in transform feedback mode
+        if (impl.transformProgramInfo) return true;
 
         PMI::PipelineInfo *pipeline = impl.pipelineMgr->pipelines.find(handle);
         if (!pipeline) return false;
@@ -323,7 +326,7 @@ namespace Pisces
         int loc = impl.programInfo->uniformBuffers[i].location;
         if (loc == -1) return true;
 
-        Emit(impl, CCQI::BindUniform(loc, buffer->glBuffer, handle.offset, handle.size));
+        Emit(impl, CCQI::BindBufferRange(GL_UNIFORM_BUFFER, loc, buffer->glBuffer, handle.offset, handle.size));
         impl.current.bindings.uniformBuffers[i] = handle;
         return true;
     }
@@ -487,13 +490,12 @@ namespace Pisces
             return;
         }
 
-        assert (impl.renderProgramInfo);
-        if (!EmitBindResources(impl, impl.renderProgramInfo, state.bindings)) {
+        assert (impl.programInfo);
+        if (!EmitBindResources(impl, impl.programInfo, state.bindings)) {
             LOG_ERROR("Failed to bind resources!");
             return;
         }
 
-        assert(impl.pipelineInfo);
         if (impl.state.clipping != impl.current.clipping) {
             if (impl.state.clipping) {
                 Emit(impl, CCQI::Enable(GL_SCISSOR_TEST));
@@ -576,6 +578,8 @@ namespace Pisces
 
     void EmitExecuteCompute( CompilerImpl &impl, const CQI::ExecuteComputeData &data )
     {
+        FATAL_ASSERT(impl.transformProgramInfo == nullptr, "Can't execute compute! - Transform feedback is in progress");
+
         PMI::ComputeProgramInfo *programInfo = impl.pipelineMgr->computePrograms.find(data.program);
         if (!programInfo) return;
 
@@ -705,6 +709,56 @@ namespace Pisces
         std::copy(std::begin(data.matrix), std::end(data.matrix), uniform.data.f);
     }
 
+    void BeginTransformFeedback( CompilerImpl &impl, const CQI::BeginTransformFeedbackData &data )
+    {
+        FATAL_ASSERT(impl.transformProgramInfo == nullptr, "Already in transform feedback mode!");
+
+        HRMI::BufferInfo *buffer = impl.hardwareMgr->buffers.find(data.buffer);
+        if (!buffer) {
+            LOG_ERROR("Failed to bind transform feedback buffer %i", (int)data.buffer);
+            return;
+        }
+
+        if (data.size == 0 || 
+            data.offset >= buffer->size || 
+            (data.offset + data.size) > buffer->size) 
+        {
+            LOG_ERROR("Invalid range for transform feedback buffer %i - offset: %zu    size: %zu    buffer size: %zu", 
+                (int)data.buffer, data.offset, data.size, buffer->size        
+            );
+            return;
+        }
+
+        PMI::TransformProgramInfo *programInfo = impl.pipelineMgr->transformPrograms.find(data.program);
+        if (!programInfo) {
+            LOG_ERROR("Faield to bind transform feedback program %i", (int)data.program);
+            return;
+        }
+
+        impl.programInfo = programInfo;
+        impl.renderProgramInfo = nullptr;
+        impl.computeProgramInfo = nullptr;
+        impl.transformProgramInfo = programInfo;
+
+        impl.onProgramChanged();
+
+        impl.current.pipeline = {};
+
+        Emit(impl, CCQI::BindBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER, 0, buffer->glBuffer, data.offset, data.size));
+        Emit(impl, CCQI::SetProgram(programInfo->glProgram));
+        Emit(impl, CCQI::BeginTransformFeedback(ToGL(data.primitive)));
+    }
+
+    void EndTransformFeedback( CompilerImpl &impl, const CQI::EndTransformFeedbackData &data )
+    {
+        FATAL_ASSERT(impl.transformProgramInfo != nullptr, "Not in transform feedback mode!");
+        Emit(impl, CCQI::EndTransformFeedback());
+
+        assert(impl.programInfo == impl.transformProgramInfo);
+        impl.programInfo = nullptr;
+        impl.transformProgramInfo = nullptr;
+    }
+
     void resetState( CompilerImpl &impl )
     {
         State state;
@@ -797,7 +851,17 @@ namespace Pisces
             case CommandType::BindUniformMat4:
                 BindUniformMat4(impl, command.bindUniformMat4);
                 break;
+            case CommandType::BeginTransformFeedback:
+                BeginTransformFeedback(impl, command.beginTransformFeedback);
+                break;
+            case CommandType::EndTransformFeedback:
+                EndTransformFeedback(impl, command.endTransformFeedback);
+                break;
             }
+        }
+
+        if (impl.transformProgramInfo) {
+            EndTransformFeedback(impl, CQI::EndTransformFeedback());
         }
 
         resetState(impl);

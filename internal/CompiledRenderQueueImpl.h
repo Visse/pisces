@@ -29,7 +29,6 @@ namespace Pisces
             BindVertexArray,
             BindIndexBuffer,
             BindSampler,
-            BindUniform,
 
             Clear,
             Draw,
@@ -45,6 +44,10 @@ namespace Pisces
             
             BindImageTexture,
             DispatchCompute,
+
+            BindBufferRange,
+            BeginTransformFeedback,
+            EndTransformFeedback,
         };
 
         using vec2 = std::array<float,2>;
@@ -93,12 +96,6 @@ namespace Pisces
             (GLenum, target),
             (GLuint, texture),
             (GLuint, sampler)
-        );
-        CREATE_DATA_STRUCT( BindUniform, Type,
-            (int, unit),
-            (GLuint, buffer),
-            (size_t, offset),
-            (size_t, size)
         );
 
         CREATE_DATA_STRUCT( Clear, Type,
@@ -158,6 +155,19 @@ namespace Pisces
             (GLuint, size_z)
         );
 
+        CREATE_DATA_STRUCT(BindBufferRange, Type,
+            (GLenum, target),
+            (GLuint, index),
+            (GLuint, buffer),
+            (GLintptr, offset),
+            (GLsizeiptr, size)
+        );
+
+        CREATE_DATA_STRUCT(BeginTransformFeedback, Type,
+            (GLenum, primitive)
+        );
+        CREATE_DATA_STRUCT(EndTransformFeedback, Type);
+
         CREATE_DATA_UNION( Command, Type,
             (EnableData, enable),
             (DisableData, disable),
@@ -173,7 +183,6 @@ namespace Pisces
             (BindVertexArrayData, bindVertexArray),
             (BindIndexBufferData, bindIndexBuffer),
             (BindSamplerData, bindSampler),
-            (BindUniformData, bindUniform),
             
             (ClearData, clear),
             (DrawData, draw),
@@ -188,7 +197,12 @@ namespace Pisces
             (BindUniformMat4Data, bindUniformMat4),
 
             (BindImageTextureData, bindImageTexture),
-            (DispatchComputeData, dispatchCompute)
+            (DispatchComputeData, dispatchCompute),
+
+            (BindBufferRangeData, bindBufferRange),
+
+            (BeginTransformFeedbackData, beginTransformFeedback),
+            (EndTransformFeedbackData, endTransformFeedback)
         );
 
         struct Impl {

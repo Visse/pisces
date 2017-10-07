@@ -404,9 +404,6 @@ namespace Pisces
                 glBindSampler(cmd.bindSampler.unit, cmd.bindSampler.sampler);
                 GLCompat::BindTexture(cmd.bindSampler.unit, cmd.bindSampler.target, cmd.bindSampler.texture);
                 break;
-            case Type::BindUniform:
-                glBindBufferRange(GL_UNIFORM_BUFFER, cmd.bindUniform.unit, cmd.bindUniform.buffer, cmd.bindUniform.offset, cmd.bindUniform.size);
-                break;
             case Type::Clear:
                 glClear((gl::ClearBufferMask)cmd.clear.mask);
                 break;
@@ -439,6 +436,15 @@ namespace Pisces
                 break;
             case Type::DispatchCompute:
                 gl::glDispatchCompute(cmd.dispatchCompute.size_x, cmd.dispatchCompute.size_y, cmd.dispatchCompute.size_z);
+                break;
+            case Type::BindBufferRange:
+                glBindBufferRange(cmd.bindBufferRange.target, cmd.bindBufferRange.index, cmd.bindBufferRange.buffer, cmd.bindBufferRange.offset, cmd.bindBufferRange.size);
+                break;
+            case Type::BeginTransformFeedback:
+                glBeginTransformFeedback(cmd.beginTransformFeedback.primitive);
+                break;
+            case Type::EndTransformFeedback:
+                glEndTransformFeedback();
                 break;
             }
         }

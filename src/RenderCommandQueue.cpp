@@ -76,7 +76,31 @@ namespace Pisces
 
     PISCES_API void RenderCommandQueue::executeComputeProgram( ComputeProgramHandle program, glm::uvec3 count )
     {
+        if (mImpl->transformFeedback) {
+            LOG_WARNING("Can't execute compute inside transform feedback mode!");
+            return;
+        }
         mImpl->commands.emplace_back(ExecuteCompute(program, {count.x,count.y,count.z}));
+    }
+
+    PISCES_API void RenderCommandQueue::beginTransformFeedback(TransformProgramHandle program, Primitive primitive, BufferHandle buffer, size_t offset, size_t size)
+    {
+        if (mImpl->transformFeedback) {
+            LOG_WARNING("Already in transform feedback mode!");
+            return;
+        }
+        mImpl->commands.emplace_back(BeginTransformFeedback(program, primitive, buffer, offset, size));
+        mImpl->transformFeedback = true;
+    }
+
+    PISCES_API void RenderCommandQueue::endTransformFeedback()
+    {
+        if (!mImpl->transformFeedback) {
+            LOG_WARNING("Not in transform feedback mode!");
+            return;
+        }
+        mImpl->commands.emplace_back(EndTransformFeedback());
+        mImpl->transformFeedback = false;
     }
 
     PISCES_API void RenderCommandQueue::draw( Primitive primitive, size_t first, size_t count, size_t base )

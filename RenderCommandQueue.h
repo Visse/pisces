@@ -34,6 +34,10 @@ namespace Pisces
         PISCES_API void bindImageTexture( int slot, TextureHandle texture, ImageTextureAccess access, PixelFormat format );
         PISCES_API void executeComputeProgram( ComputeProgramHandle program, glm::uvec3 count );
 
+        PISCES_API void beginTransformFeedback( TransformProgramHandle program, Primitive primitive, 
+                                                BufferHandle buffer, size_t offset, size_t size );
+        PISCES_API void endTransformFeedback();
+
         // base is only used together with a index array
         PISCES_API void draw( Primitive primitive, size_t first, size_t count, size_t base=0 );
         PISCES_API void clear( ClearFlags flags, Color color=NamedColors::Black, float depth=1.0f, int stencil=0 );

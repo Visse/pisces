@@ -40,6 +40,9 @@ namespace Pisces
             BindUniformVec3,
             BindUniformVec4,
             BindUniformMat4,
+
+            BeginTransformFeedback,
+            EndTransformFeedback,
         };
         
         CREATE_DATA_STRUCT(Draw, Type,
@@ -120,6 +123,15 @@ namespace Pisces
             (mat4, matrix)                  
         );
 
+        CREATE_DATA_STRUCT(BeginTransformFeedback, Type,
+            (TransformProgramHandle, program),
+            (Primitive, primitive),
+            (BufferHandle, buffer),
+            (size_t, offset),
+            (size_t, size)
+        );
+        CREATE_DATA_STRUCT(EndTransformFeedback, Type);
+
         CREATE_DATA_UNION( Command, Type,
             (DrawData, draw),
             (DrawBuiltinData, drawBuiltin),
@@ -142,7 +154,10 @@ namespace Pisces
             (BindUniformVec2Data, bindUniformVec2),
             (BindUniformVec3Data, bindUniformVec3),
             (BindUniformVec4Data, bindUniformVec4),
-            (BindUniformMat4Data, bindUniformMat4)
+            (BindUniformMat4Data, bindUniformMat4),
+
+            (BeginTransformFeedbackData, beginTransformFeedback),
+            (EndTransformFeedbackData, endTransformFeedback)
         );
 
         struct Impl {
@@ -151,6 +166,8 @@ namespace Pisces
             RenderCommandQueueFlags flags;
 
             std::vector<Command> commands;
+
+            bool transformFeedback = false;
 
             Impl( Context *context_ , RenderTargetHandle renderTarget_ , RenderCommandQueueFlags flags_ ) :
                 context(context_),
