@@ -77,6 +77,8 @@ namespace Pisces
         PISCES_API ProgramHandle createRenderProgram( const RenderProgramInitParams &params );
         PISCES_API void destroyProgram( ProgramHandle handle );
 
+
+        PISCES_API bool supportsComputePrograms();
         PISCES_API ComputeProgramHandle createComputeProgram( const ComputeProgramInitParams &params );
         PISCES_API void destroyProgram( ComputeProgramHandle handle );
 

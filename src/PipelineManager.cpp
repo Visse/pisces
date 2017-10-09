@@ -74,6 +74,11 @@ namespace Pisces
         mImpl->renderPrograms.free(handle);
     }
 
+    PISCES_API bool PipelineManager::supportsComputePrograms()
+    {
+        return mImpl->supportsComputeShaders;
+    }
+
     PISCES_API ComputeProgramHandle PipelineManager::createComputeProgram( const ComputeProgramInitParams &params )
     {
         if (!mImpl->supportsComputeShaders) {
