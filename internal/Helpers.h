@@ -204,21 +204,27 @@ namespace Pisces
     inline gl::GLenum ToGL( VertexAttributeType type ) {
         switch (type) {
         case VertexAttributeType::Int8:
+        case VertexAttributeType::IInt8:
         case VertexAttributeType::NormInt8:
             return gl::GL_BYTE;
         case VertexAttributeType::Int16:
+        case VertexAttributeType::IInt16:
         case VertexAttributeType::NormInt16:
             return gl::GL_SHORT;
         case VertexAttributeType::Int32:
+        case VertexAttributeType::IInt32:
         case VertexAttributeType::NormInt32:
             return gl::GL_INT;
         case VertexAttributeType::UInt8:
+        case VertexAttributeType::IUInt8:
         case VertexAttributeType::NormUInt8:
             return gl::GL_UNSIGNED_BYTE;
         case VertexAttributeType::UInt16:
+        case VertexAttributeType::IUInt16:
         case VertexAttributeType::NormUInt16:
             return gl::GL_UNSIGNED_SHORT;
         case VertexAttributeType::UInt32:
+        case VertexAttributeType::IUInt32:
         case VertexAttributeType::NormUInt32:
             return gl::GL_UNSIGNED_INT;
         case VertexAttributeType::NormInt3x10_1x2:
@@ -241,6 +247,12 @@ namespace Pisces
         case VertexAttributeType::UInt8:
         case VertexAttributeType::UInt16:
         case VertexAttributeType::UInt32:
+        case VertexAttributeType::IInt8:
+        case VertexAttributeType::IInt16:
+        case VertexAttributeType::IInt32:
+        case VertexAttributeType::IUInt8:
+        case VertexAttributeType::IUInt16:
+        case VertexAttributeType::IUInt32:
         case VertexAttributeType::Float16:
         case VertexAttributeType::Float32:
             return gl::GL_FALSE;
@@ -253,6 +265,37 @@ namespace Pisces
         case VertexAttributeType::NormInt3x10_1x2:
         case VertexAttributeType::NormUInt3x10_1x2:
             return gl::GL_TRUE;
+        }
+        FATAL_ERROR("Unknown VertexAttributeType %i", (int)type);
+    }
+
+    inline gl::GLboolean IsIntegear( VertexAttributeType type )
+    {
+        switch (type) {
+        case VertexAttributeType::IInt8:
+        case VertexAttributeType::IInt16:
+        case VertexAttributeType::IInt32:
+        case VertexAttributeType::IUInt8:
+        case VertexAttributeType::IUInt16:
+        case VertexAttributeType::IUInt32:
+            return gl::GL_TRUE;
+        case VertexAttributeType::Int8:
+        case VertexAttributeType::Int16:
+        case VertexAttributeType::Int32:
+        case VertexAttributeType::UInt8:
+        case VertexAttributeType::UInt16:
+        case VertexAttributeType::UInt32:
+        case VertexAttributeType::Float16:
+        case VertexAttributeType::Float32:
+        case VertexAttributeType::NormInt8:
+        case VertexAttributeType::NormInt16:
+        case VertexAttributeType::NormInt32:
+        case VertexAttributeType::NormUInt8:
+        case VertexAttributeType::NormUInt16:
+        case VertexAttributeType::NormUInt32:
+        case VertexAttributeType::NormInt3x10_1x2:
+        case VertexAttributeType::NormUInt3x10_1x2:
+            return gl::GL_FALSE;
         }
         FATAL_ERROR("Unknown VertexAttributeType %i", (int)type);
     }

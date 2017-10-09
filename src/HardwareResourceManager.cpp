@@ -354,7 +354,12 @@ namespace Pisces
 
             glBindBuffer(GL_ARRAY_BUFFER, buffer->glBuffer);
             glEnableVertexAttribArray(i);
-            glVertexAttribPointer(i, attribute.count, type, normalized, attribute.stride, reinterpret_cast<void*>((uintptr_t)attribute.offset));
+            if (IsIntegear(attribute.type)) {
+                gl::glVertexAttribIPointer(i, attribute.count, type, attribute.stride, reinterpret_cast<void*>((uintptr_t)attribute.offset));
+            }
+            else {
+                glVertexAttribPointer(i, attribute.count, type, normalized, attribute.stride, reinterpret_cast<void*>((uintptr_t)attribute.offset));
+            }
         }
 
         VertexArrayInfo info;

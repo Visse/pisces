@@ -158,6 +158,11 @@ namespace Pisces
     );
 
     enum class VertexAttributeType {
+        // Integear attributes
+        IInt8,  IInt16,  IInt32,
+        IUInt8, IUInt16, IUInt32,
+
+        // Floating point attribute (convertex)
         Int8,  Int16,  Int32,
         UInt8, UInt16, UInt32,
 
