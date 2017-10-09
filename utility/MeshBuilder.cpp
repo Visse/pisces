@@ -69,7 +69,7 @@ namespace Pisces
 
     PISCES_API void MeshBuilder::end()
     {
-        bool recreateVA = mImpl->vertexArray;
+        bool recreateVA = (bool)mImpl->vertexArray;
 
         HardwareResourceManager *hardwareMgr = mImpl->context->getHardwareResourceManager();
 
