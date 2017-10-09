@@ -76,14 +76,17 @@ namespace Pisces
         
         PISCES_API ProgramHandle createRenderProgram( const RenderProgramInitParams &params );
         PISCES_API void destroyProgram( ProgramHandle handle );
-
+        PISCES_API ProgramHandle findRenderprogram( Common::StringId name );
 
         PISCES_API bool supportsComputePrograms();
         PISCES_API ComputeProgramHandle createComputeProgram( const ComputeProgramInitParams &params );
         PISCES_API void destroyProgram( ComputeProgramHandle handle );
+        PISCES_API ComputeProgramHandle findComputeProgram( Common::StringId name );
 
         PISCES_API TransformProgramHandle createTransformProgram( const TransformProgramInitParams &params, const TransformCaptureVariable *captureVariables, size_t count );
         PISCES_API void destroyProgram( TransformProgramHandle handle );
+        PISCES_API TransformProgramHandle findTransformProgram( Common::StringId name );
+
 
         PISCES_API PipelineHandle createPipeline( const PipelineInitParams &params );
         PISCES_API PipelineHandle createPipeline( const PipelineProgramInitParams &params );

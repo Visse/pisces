@@ -74,6 +74,15 @@ namespace Pisces
         mImpl->renderPrograms.free(handle);
     }
 
+    PISCES_API ProgramHandle PipelineManager::findRenderprogram(Common::StringId name)
+    {
+        return mImpl->renderPrograms.findIf(
+            [&]( const RenderProgramInfo &info ) {
+                return info.name == name;
+            }
+        );
+    }
+
     PISCES_API bool PipelineManager::supportsComputePrograms()
     {
         return mImpl->supportsComputeShaders;
@@ -110,6 +119,15 @@ namespace Pisces
     PISCES_API void PipelineManager::destroyProgram( ComputeProgramHandle handle )
     {
         mImpl->computePrograms.free(handle);
+    }
+
+    PISCES_API ComputeProgramHandle PipelineManager::findComputeProgram(Common::StringId name)
+    {
+        return mImpl->computePrograms.findIf(
+            [&]( const ComputeProgramInfo &info ) {
+                return info.name == name;
+            }
+        );
     }
     
     PISCES_API TransformProgramHandle PipelineManager::createTransformProgram( const TransformProgramInitParams &params, const TransformCaptureVariable *captureVariables, size_t count )
@@ -181,6 +199,15 @@ namespace Pisces
     PISCES_API void PipelineManager::destroyProgram( TransformProgramHandle handle )
     {
         mImpl->transformPrograms.free(handle);
+    }
+
+    PISCES_API TransformProgramHandle PipelineManager::findTransformProgram(Common::StringId name)
+    {
+        return mImpl->transformPrograms.findIf(
+            [&]( const TransformProgramInfo &info ) {
+                return info.name == name;
+            }
+        );
     }
 
     PISCES_API PipelineHandle PipelineManager::createPipeline( const PipelineInitParams &params )
