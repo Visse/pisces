@@ -155,31 +155,29 @@ namespace Pisces
 
             LinkProgram(program);
 
-            if (glbinding::ContextInfo::supported({gl::GLextension::GL_ARB_program_interface_query})) {
-                for (int i=0; i < count; ++i) {
-                    GLint index = gl::glGetProgramResourceIndex(program, gl::GL_TRANSFORM_FEEDBACK_VARYING, variables[i]);
-                    if (index == GL_INVALID_INDEX) {
-                        LOG_ERROR("Capture variable \"%s\" is not active!", variables[i]);
-                        continue;
-                    }
-
-                    GLenum prop = gl::GL_TYPE;
-                    GLsizei lenght = 1;
-                    GLint type;
-                    gl::glGetProgramResourceiv(program, GL_TRANSFORM_FEEDBACK_VARYINGS, index, 1, &prop, lenght, &lenght, &type);
-
-                    TransformCaptureType captureType = ToTransformCaptureType((GLenum)type);
-                    if (captureType != captureVariables[i].type) {
-                        LOG_ERROR("Capture variable \"%s\" type missmatch, expected \"%s\" got \"%s\"", 
-                                  variables[i], 
-                                  TransformCaptureTypeToString(captureVariables[i].type),
-                                  TransformCaptureTypeToString(captureType)
-                        );
-                    }
+            for (int i=0; i < count; ++i) {
+                GLint index = gl::glGetProgramResourceIndex(program, gl::GL_TRANSFORM_FEEDBACK_VARYING, variables[i]);
+                if (index == GL_INVALID_INDEX) {
+                    LOG_ERROR("Capture variable \"%s\" is not active!", variables[i]);
+                    continue;
                 }
-            }
-            else {
-                LOG_WARNING("GL_ARB_program_interface_query not supported - can't validate capture variables!");
+
+                GLsizei size = 1;
+                GLenum type;
+                glGetTransformFeedbackVarying(program, index, 0, nullptr, &size, &type, nullptr);
+
+                if (size != 1) {
+                    LOG_ERROR("Arrays are currently not supported for capture variables!");
+                }
+
+                TransformCaptureType captureType = ToTransformCaptureType(type);
+                if (captureType != captureVariables[i].type) {
+                    LOG_ERROR("Capture variable \"%s\" type missmatch, expected \"%s\" got \"%s\"", 
+                                variables[i], 
+                                TransformCaptureTypeToString(captureVariables[i].type),
+                                TransformCaptureTypeToString(captureType)
+                    );
+                }
             }
 
             TransformProgramInfo info;
