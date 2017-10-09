@@ -166,7 +166,7 @@ namespace Pisces
                     object.indexes.push_back(idx);
                 }
             }
-
+            object.subobjects.push_back(subObject);
             result.objects.push_back(object);
         }
 
