@@ -228,7 +228,7 @@ namespace Pisces
     };
 
     enum class IndexType {
-        UInt16, UInt32
+        None, UInt16, UInt32
     };
 
     enum class BlendMode {

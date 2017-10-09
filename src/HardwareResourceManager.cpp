@@ -339,6 +339,8 @@ namespace Pisces
                                                                              const BufferHandle *sourceBuffers, int sourceCount, 
                                                                              BufferHandle indexBuffer, IndexType indexType )
     {
+        if (indexType == IndexType::None) indexBuffer = BufferHandle{};
+
         GLVertexArray vertexArray;
         glGenVertexArrays(1, &vertexArray.handle);
         glBindVertexArray(vertexArray);
