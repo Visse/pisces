@@ -50,6 +50,9 @@ namespace Pisces
         TransformProgramFlags flags = TransformProgramFlags::None;
         std::string source;
         ProgramInitBindings bindings;
+
+        const TransformCaptureVariable *capture = nullptr;
+        size_t captureCount = 0;
     };
 
     struct PipelineInitParams {
@@ -83,7 +86,7 @@ namespace Pisces
         PISCES_API void destroyProgram( ComputeProgramHandle handle );
         PISCES_API ComputeProgramHandle findComputeProgram( Common::StringId name );
 
-        PISCES_API TransformProgramHandle createTransformProgram( const TransformProgramInitParams &params, const TransformCaptureVariable *captureVariables, size_t count );
+        PISCES_API TransformProgramHandle createTransformProgram( const TransformProgramInitParams &params );
         PISCES_API void destroyProgram( TransformProgramHandle handle );
         PISCES_API TransformProgramHandle findTransformProgram( Common::StringId name );
 

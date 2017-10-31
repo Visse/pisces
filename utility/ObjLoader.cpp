@@ -134,14 +134,13 @@ namespace Pisces
             for (size_t i=0, c=iter->faceCount; i < c; ++i) {
                 Face face = data.faces[i + iter->firstFace];
 
-                if (subObject.count > 0 && subObject.material != face.material) {
-                    object.subobjects.push_back(subObject);
+                if (subObject.material != face.material) {
+                    if (subObject.count > 0) {
+                        object.subobjects.push_back(subObject);
+                    }
                     subObject.material = face.material;
                     subObject.first = (int)object.indexes.size();
                     subObject.count = 0;
-                }
-                else {
-                    subObject.count++;
                 }
 
                 for (int i=0; i < 3; ++i) {
@@ -163,6 +162,7 @@ namespace Pisces
                         indexLookup[index] = idx;
                     }
 
+                    subObject.count++;
                     object.indexes.push_back(idx);
                 }
             }

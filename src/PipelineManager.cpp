@@ -130,13 +130,13 @@ namespace Pisces
         );
     }
     
-    PISCES_API TransformProgramHandle PipelineManager::createTransformProgram( const TransformProgramInitParams &params, const TransformCaptureVariable *captureVariables, size_t count )
+    PISCES_API TransformProgramHandle PipelineManager::createTransformProgram( const TransformProgramInitParams &params )
     {
         try {
-            if (count > MAX_TRANFORM_FEEDBACK_CAPTURE_VARIABLES) {
+            if (params.captureCount > MAX_TRANFORM_FEEDBACK_CAPTURE_VARIABLES) {
                 THROW(std::runtime_error,
                     "To many capture variables (%i), max supported is %i", 
-                      (int)count, (int)MAX_TRANFORM_FEEDBACK_CAPTURE_VARIABLES
+                      (int)params.captureCount, (int)MAX_TRANFORM_FEEDBACK_CAPTURE_VARIABLES
                 );
             }
             const char *source = params.source.c_str();
@@ -148,14 +148,14 @@ namespace Pisces
             glAttachShader(program, vertexShader);
 
             const char *variables[MAX_TRANFORM_FEEDBACK_CAPTURE_VARIABLES];
-            for (int i=0; i < count; ++i) {
-                variables[i] = captureVariables[i].name.c_str();
+            for (int i=0; i < params.captureCount; ++i) {
+                variables[i] = params.capture[i].name.c_str();
             }
-            glTransformFeedbackVaryings(program, (GLsizei)count, variables, GL_INTERLEAVED_ATTRIBS);
+            glTransformFeedbackVaryings(program, (GLsizei)params.captureCount, variables, GL_INTERLEAVED_ATTRIBS);
 
             LinkProgram(program);
 
-            for (int i=0; i < count; ++i) {
+            for (int i=0; i < params.captureCount; ++i) {
                 GLint index = gl::glGetProgramResourceIndex(program, gl::GL_TRANSFORM_FEEDBACK_VARYING, variables[i]);
                 if (index == GL_INVALID_INDEX) {
                     LOG_ERROR("Capture variable \"%s\" is not active!", variables[i]);
@@ -171,10 +171,10 @@ namespace Pisces
                 }
 
                 TransformCaptureType captureType = ToTransformCaptureType(type);
-                if (captureType != captureVariables[i].type) {
+                if (captureType != params.capture[i].type) {
                     LOG_ERROR("Capture variable \"%s\" type missmatch, expected \"%s\" got \"%s\"", 
                                 variables[i], 
-                                TransformCaptureTypeToString(captureVariables[i].type),
+                                TransformCaptureTypeToString(params.capture[i].type),
                                 TransformCaptureTypeToString(captureType)
                     );
                 }

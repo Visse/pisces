@@ -277,7 +277,9 @@ namespace Pisces
             params.name = Common::CreateStringId(nameNode.scalar());
         }
 
-        TransformProgramHandle handle = mPipelineMgr->createTransformProgram(params, capture.data(), capture.size());
+        params.capture = capture.data();
+        params.captureCount = capture.size();
+        TransformProgramHandle handle = mPipelineMgr->createTransformProgram(params);
         return ResourceHandle(handle.handle);
     }
 }

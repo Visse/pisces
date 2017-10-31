@@ -27,7 +27,6 @@ namespace Pisces
             SetClearStencil,
 
             BindVertexArray,
-            BindIndexBuffer,
             BindSampler,
 
             Clear,
@@ -35,6 +34,7 @@ namespace Pisces
             DrawIndexed,
 
             BindUniformInt,
+            BindUniformUInt,
             BindUniformFloat,
 
             BindUniformVec2,
@@ -48,6 +48,9 @@ namespace Pisces
             BindBufferRange,
             BeginTransformFeedback,
             EndTransformFeedback,
+
+            BindBuffer,
+            CopyBufferSubData,
         };
 
         using vec2 = std::array<float,2>;
@@ -88,9 +91,6 @@ namespace Pisces
         CREATE_DATA_STRUCT( BindVertexArray, Type,
             (GLuint, vertexArray)
         );
-        CREATE_DATA_STRUCT( BindIndexBuffer, Type,
-            (GLuint, indexBuffer)                  
-        );
         CREATE_DATA_STRUCT( BindSampler, Type,
             (int, unit),
             (GLenum, target),
@@ -118,6 +118,10 @@ namespace Pisces
         CREATE_DATA_STRUCT(BindUniformInt, Type,
             (GLint, location),
             (GLint, value)
+        );
+        CREATE_DATA_STRUCT(BindUniformUInt, Type,
+            (GLint, location),
+            (GLuint, value)
         );
         CREATE_DATA_STRUCT(BindUniformFloat, Type,
             (GLint, location),
@@ -168,6 +172,19 @@ namespace Pisces
         );
         CREATE_DATA_STRUCT(EndTransformFeedback, Type);
 
+        CREATE_DATA_STRUCT(BindBuffer, Type,
+            (GLenum, target),
+            (GLuint, buffer)
+        );
+
+        CREATE_DATA_STRUCT(CopyBufferSubData, Type,
+            (GLenum, readTarget),
+            (GLenum, writeTarget),
+            (GLintptr, readOffset),
+            (GLintptr, writeOffset),
+            (GLsizeiptr, size)
+        );
+
         CREATE_DATA_UNION( Command, Type,
             (EnableData, enable),
             (DisableData, disable),
@@ -181,7 +198,6 @@ namespace Pisces
             (SetClearStencilData, setClearStencil),
             
             (BindVertexArrayData, bindVertexArray),
-            (BindIndexBufferData, bindIndexBuffer),
             (BindSamplerData, bindSampler),
             
             (ClearData, clear),
@@ -189,6 +205,7 @@ namespace Pisces
             (DrawIndexedData, drawIndexed),
             
             (BindUniformIntData, bindUniformInt),
+            (BindUniformUIntData, bindUniformUInt),
             (BindUniformFloatData, bindUniformFloat),
 
             (BindUniformVec2Data, bindUniformVec2),
@@ -202,7 +219,10 @@ namespace Pisces
             (BindBufferRangeData, bindBufferRange),
 
             (BeginTransformFeedbackData, beginTransformFeedback),
-            (EndTransformFeedbackData, endTransformFeedback)
+            (EndTransformFeedbackData, endTransformFeedback),
+
+            (BindBufferData, bindBuffer),
+            (CopyBufferSubDataData, copyBufferSubData)
         );
 
         struct Impl {

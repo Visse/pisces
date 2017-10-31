@@ -105,8 +105,11 @@ namespace Pisces
     DECLARE_ENUM_FLAG( TextureUploadFlags );
 
     enum class BufferUsage {
-        Static, 
+        Static,
         StreamWrite,
+
+        // Will regulary change - gpu will write&read
+        DynamicCopy,
     };
 
     enum class BufferFlags {

@@ -34,6 +34,7 @@ namespace Pisces
             BindUniformBuffer,
 
             BindUniformInt,
+            BindUniformUInt,
             BindUniformFloat,
 
             BindUniformVec2,
@@ -43,6 +44,8 @@ namespace Pisces
 
             BeginTransformFeedback,
             EndTransformFeedback,
+
+            CopyBuffer,
         };
         
         CREATE_DATA_STRUCT(Draw, Type,
@@ -101,6 +104,10 @@ namespace Pisces
             (int, location),
             (int, value)
         );
+        CREATE_DATA_STRUCT(BindUniformUInt, Type,
+            (int, location),
+            (unsigned int, value)
+        );
         CREATE_DATA_STRUCT(BindUniformFloat, Type,
             (int, location),
             (float, value)
@@ -132,6 +139,14 @@ namespace Pisces
         );
         CREATE_DATA_STRUCT(EndTransformFeedback, Type);
 
+        CREATE_DATA_STRUCT(CopyBuffer, Type,
+            (BufferHandle, target),
+            (BufferHandle, source),
+            (size_t, targetOffset),
+            (size_t, sourceOffset),
+            (size_t, size)
+        );
+
         CREATE_DATA_UNION( Command, Type,
             (DrawData, draw),
             (DrawBuiltinData, drawBuiltin),
@@ -149,6 +164,7 @@ namespace Pisces
             (BindUniformBufferData, bindUniformBuffer),
 
             (BindUniformIntData, bindUniformInt),
+            (BindUniformUIntData, bindUniformUInt),
             (BindUniformFloatData, bindUniformFloat),
 
             (BindUniformVec2Data, bindUniformVec2),
@@ -157,7 +173,9 @@ namespace Pisces
             (BindUniformMat4Data, bindUniformMat4),
 
             (BeginTransformFeedbackData, beginTransformFeedback),
-            (EndTransformFeedbackData, endTransformFeedback)
+            (EndTransformFeedbackData, endTransformFeedback),
+
+            (CopyBufferData, copyBuffer)
         );
 
         struct Impl {

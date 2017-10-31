@@ -52,6 +52,7 @@ namespace Pisces
         GLType type = GLTypeNone;
         union Data {
             int32_t i[16];
+            uint32_t u[16];
             float f[16];
         } data;
 
@@ -376,6 +377,7 @@ namespace Pisces
         int loc = impl.programInfo->uniforms[i].location;
 
         switch(uniform.type) {
+        default:
         case GLType::Mat2x2:
         case GLType::Mat2x3:
         case GLType::Mat2x4:
@@ -392,6 +394,9 @@ namespace Pisces
             break;
         case GLType::Int:
             Emit(impl, CCQI::BindUniformInt(loc, uniform.data.i[0]));
+            break;
+        case GLType::UInt:
+            Emit(impl, CCQI::BindUniformUInt(loc, uniform.data.u[0]));
             break;
         case GLType::Float:
             Emit(impl, CCQI::BindUniformFloat(loc, uniform.data.f[0]));
@@ -473,7 +478,7 @@ namespace Pisces
             HRMI::BufferInfo *indexBuffer = impl.hardwareMgr->buffers.find(vertexArray->indexBuffer);
             if (!indexBuffer) return false;
 
-            Emit(impl, CCQI::BindIndexBuffer(indexBuffer->glBuffer));
+            Emit(impl, CCQI::BindBuffer(gl::GL_ELEMENT_ARRAY_BUFFER, indexBuffer->glBuffer));
         }
 
         return true;
@@ -651,7 +656,7 @@ namespace Pisces
 
     void BindUniformBuffer( CompilerImpl &impl, const CQI::BindUniformBufferData &data )
     {
-        FATAL_ASSERT(data.slot >= 0 && data.slot < MAX_BOUND_IMAGE_TEXTURES, "Invalid uniform buffer slot %i", data.slot);
+        FATAL_ASSERT(data.slot >= 0 && data.slot < MAX_BOUND_UNIFORM_BUFFERS, "Invalid uniform buffer slot %i", data.slot);
         impl.state.bindings.uniformBuffers[data.slot] = data.buffer;
     }
     
@@ -662,6 +667,15 @@ namespace Pisces
         auto &uniform = impl.state.bindings.uniforms[data.location];
         uniform.type = GLType::Int;
         uniform.data.i[0] = data.value;
+    }
+
+    void BindUniformUInt( CompilerImpl &impl, const CQI::BindUniformUIntData &data ) 
+    {
+        FATAL_ASSERT(data.location >= 0 && data.location < MAX_BOUND_UNIFORMS, "Invalid uniform location %i", data.location);
+        
+        auto &uniform = impl.state.bindings.uniforms[data.location];
+        uniform.type = GLType::UInt;
+        uniform.data.u[0] = data.value;
     }
     
     void BindUniformFloat( CompilerImpl &impl, const CQI::BindUniformFloatData &data ) 
@@ -746,6 +760,7 @@ namespace Pisces
 
         Emit(impl, CCQI::BindBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER, 0, buffer->glBuffer, data.offset, data.size));
         Emit(impl, CCQI::SetProgram(programInfo->glProgram));
+        Emit(impl, CCQI::Enable(GL_RASTERIZER_DISCARD));
         Emit(impl, CCQI::BeginTransformFeedback(ToGL(data.primitive)));
     }
 
@@ -753,10 +768,44 @@ namespace Pisces
     {
         FATAL_ASSERT(impl.transformProgramInfo != nullptr, "Not in transform feedback mode!");
         Emit(impl, CCQI::EndTransformFeedback());
+        Emit(impl, CCQI::Disable(GL_RASTERIZER_DISCARD));
 
         assert(impl.programInfo == impl.transformProgramInfo);
         impl.programInfo = nullptr;
         impl.transformProgramInfo = nullptr;
+    }
+
+    void CopyBuffer( CompilerImpl &impl, const CQI::CopyBufferData &data )
+    {
+        const HRMI::BufferInfo *source = impl.hardwareMgr->buffers.find(data.source);
+        const HRMI::BufferInfo *target = impl.hardwareMgr->buffers.find(data.target);
+
+        if (!source) {
+            LOG_ERROR("Failed to find source buffer %i for buffer copy.", (int)data.source);
+            return;
+        }
+        if (!target) {
+            LOG_ERROR("Failed to find target buffer %i for buffer copy.", (int)data.target);
+            return;
+        }
+
+        if (source->size < (data.sourceOffset + data.size)) {
+            LOG_ERROR("Invalid offset/size for source buffer %i (its size is %zu) offset = %zu, size = %zu", 
+                (int)data.source, source->size, data.sourceOffset, data.size
+            );
+            return;
+        }
+        
+        if (target->size < (data.targetOffset + data.size)) {
+            LOG_ERROR("Invalid offset/size for target buffer %i (its size is %zu) offset = %zu, size = %zu", 
+                (int)data.target, target->size, data.sourceOffset, data.size
+            );
+            return;
+        }
+
+        Emit(impl, CCQI::BindBuffer(gl::GL_COPY_READ_BUFFER, source->glBuffer));
+        Emit(impl, CCQI::BindBuffer(gl::GL_COPY_WRITE_BUFFER, target->glBuffer));
+        Emit(impl, CCQI::CopyBufferSubData(gl::GL_COPY_READ_BUFFER, gl::GL_COPY_WRITE_BUFFER, data.sourceOffset, data.targetOffset, data.size));
     }
 
     void resetState( CompilerImpl &impl )
@@ -836,6 +885,9 @@ namespace Pisces
             case CommandType::BindUniformInt:
                 BindUniformInt(impl, command.bindUniformInt);
                 break;
+            case CommandType::BindUniformUInt:
+                BindUniformUInt(impl, command.bindUniformUInt);
+                break;
             case CommandType::BindUniformFloat:
                 BindUniformFloat(impl, command.bindUniformFloat);
                 break;
@@ -856,6 +908,9 @@ namespace Pisces
                 break;
             case CommandType::EndTransformFeedback:
                 EndTransformFeedback(impl, command.endTransformFeedback);
+                break;
+            case CommandType::CopyBuffer:
+                CopyBuffer(impl, command.copyBuffer);
                 break;
             }
         }

@@ -44,12 +44,15 @@ namespace Pisces
 
         PISCES_API void bindUniform( int location, glm::mat4 matrix );
         PISCES_API void bindUniform( int location, int value );
+        PISCES_API void bindUniform( int location, unsigned int value );
         PISCES_API void bindUniform( int location, float value );
         PISCES_API void bindUniform( int location, glm::vec2 vec );
         PISCES_API void bindUniform( int location, glm::vec3 vec );
         PISCES_API void bindUniform( int location, glm::vec4 vec );
 
         PISCES_API void drawBuiltin( BuiltinObject object );
+
+        PISCES_API void copyBuffer( BufferHandle target, size_t targetOffset, BufferHandle source, size_t sourceOffset, size_t size );
 
 
     private:

@@ -42,6 +42,10 @@ namespace Pisces
 
     PISCES_API void RenderCommandQueue::bindTexture(int slot, BuiltinTexture texture)
     {
+        if (slot < 0 || slot >= MAX_BOUND_SAMPLERS) {
+            LOG_WARNING("Trying to bind a uniform buffer to the invalid slot %i!", slot);
+            return;
+        }
         mImpl->commands.emplace_back(BindBuiltinTexture(0, texture));
     }
 
@@ -145,6 +149,16 @@ namespace Pisces
         mImpl->commands.emplace_back(BindUniformInt(location, value));
     }
 
+    PISCES_API void RenderCommandQueue::bindUniform( int location, unsigned int value )
+    {
+        if (location < 0 || location >= MAX_BOUND_UNIFORMS) {
+            LOG_WARNING("Trying to bind uniform to invalid location %i", location);
+            return;
+        }
+
+        mImpl->commands.emplace_back(BindUniformUInt(location, value));
+    }
+
     PISCES_API void RenderCommandQueue::bindUniform(int location, float value)
     {
         if (location < 0 || location >= MAX_BOUND_UNIFORMS) {
@@ -203,5 +217,10 @@ namespace Pisces
     PISCES_API void RenderCommandQueue::drawBuiltin( BuiltinObject object )
     {
         mImpl->commands.emplace_back(DrawBuiltin(object));
+    }
+
+    PISCES_API void RenderCommandQueue::copyBuffer( BufferHandle target, size_t targetOffset, BufferHandle source, size_t sourceOffset, size_t size )
+    {
+        mImpl->commands.emplace_back(CopyBuffer(target, source, targetOffset, sourceOffset, size));
     }
 }

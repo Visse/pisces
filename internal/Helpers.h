@@ -405,7 +405,8 @@ namespace Pisces
     }
 
     enum class GLType {
-        Int, Float,
+        Int, UInt,
+        Float,
         Vec2, Vec3, Vec4,
         Mat2x2, Mat2x3, Mat2x4,
         Mat3x2, Mat3x3, Mat3x4,
@@ -424,6 +425,10 @@ namespace Pisces
 #include "compiler_warnings/push.h"
 #include "compiler_warnings/ignore_unhandled_enum_in_switch.h"
         switch (type) {
+        case gl::GL_INT:
+            return GLType::Int;
+        case gl::GL_UNSIGNED_INT:
+            return GLType::UInt;
         case gl::GL_FLOAT:
             return GLType::Float;
         case gl::GL_FLOAT_VEC2:
@@ -469,6 +474,8 @@ namespace Pisces
         case GLType::Sampler1D:
         case GLType::Sampler2D:
             return true;
+        case GLType::Int:
+        case GLType::UInt:
         case GLType::Float:
         case GLType::Vec2:
         case GLType::Vec3:
@@ -495,6 +502,8 @@ namespace Pisces
         case GLType::ImageTexture1D:
         case GLType::ImageTexture2D:
             return true;
+        case GLType::Int:
+        case GLType::UInt:
         case GLType::Float:
         case GLType::Vec2:
         case GLType::Vec3:
@@ -525,6 +534,8 @@ namespace Pisces
         case GLType::Sampler2D:
         case GLType::ImageTexture2D:
             return TextureType::Texture2D;
+        case GLType::Int:
+        case GLType::UInt:
         case GLType::Float:
         case GLType::Vec2:
         case GLType::Vec3:

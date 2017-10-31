@@ -397,9 +397,6 @@ namespace Pisces
             case Type::BindVertexArray:
                 glBindVertexArray(cmd.bindVertexArray.vertexArray);
                 break;
-            case Type::BindIndexBuffer:
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cmd.bindIndexBuffer.indexBuffer);
-                break;
             case Type::BindSampler:
                 glBindSampler(cmd.bindSampler.unit, cmd.bindSampler.sampler);
                 GLCompat::BindTexture(cmd.bindSampler.unit, cmd.bindSampler.target, cmd.bindSampler.texture);
@@ -415,6 +412,9 @@ namespace Pisces
                 break;
             case Type::BindUniformInt:
                 glUniform1i(cmd.bindUniformInt.location, cmd.bindUniformInt.value);
+                break;
+            case Type::BindUniformUInt:
+                glUniform1ui(cmd.bindUniformUInt.location, cmd.bindUniformUInt.value);
                 break;
             case Type::BindUniformFloat:
                 glUniform1f(cmd.bindUniformFloat.location, cmd.bindUniformFloat.value);
@@ -445,6 +445,12 @@ namespace Pisces
                 break;
             case Type::EndTransformFeedback:
                 glEndTransformFeedback();
+                break;
+            case Type::BindBuffer:
+                glBindBuffer(cmd.bindBuffer.target, cmd.bindBuffer.buffer);
+                break;
+            case Type::CopyBufferSubData:
+                glCopyBufferSubData(cmd.copyBufferSubData.readTarget, cmd.copyBufferSubData.writeTarget, cmd.copyBufferSubData.readOffset, cmd.copyBufferSubData.writeOffset, cmd.copyBufferSubData.size);
                 break;
             }
         }

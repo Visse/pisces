@@ -78,6 +78,9 @@ namespace Pisces
             case BufferUsage::StreamWrite:
                 buffUsage = GL_STREAM_DRAW;
                 break;
+            case BufferUsage::DynamicCopy:
+                buffUsage = GL_DYNAMIC_COPY;
+                break;
             default:
                 FATAL_ERROR("Unknown BufferUsage %i", (int)usage);
             }
