@@ -295,6 +295,12 @@ namespace Pisces
         (ClampToBorder, "clamp_to_border")
     );
 
+    enum class VertexArrayFlags {
+        None = 0,
+        UsePrimitiveRestart = 1,
+    };
+    DECLARE_ENUM_FLAG(VertexArrayFlags);
+
     enum class BuiltinObject {
         Quad = 0,
         Cube = 1,

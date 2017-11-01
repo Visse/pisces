@@ -337,7 +337,8 @@ namespace Pisces
 
     PISCES_API VertexArrayHandle HardwareResourceManager::createVertexArray( const VertexAttribute *attributes, int attributeCount, 
                                                                              const BufferHandle *sourceBuffers, int sourceCount, 
-                                                                             BufferHandle indexBuffer, IndexType indexType )
+                                                                             BufferHandle indexBuffer, IndexType indexType,
+                                                                             VertexArrayFlags flags )
     {
         if (indexType == IndexType::None) indexBuffer = BufferHandle{};
 
@@ -368,6 +369,7 @@ namespace Pisces
             info.glVertexArray = std::move(vertexArray);
             info.indexBuffer = indexBuffer;
             info.indexType = indexType;
+            info.flags = flags;
 
         return mImpl->vertexArrays.create(std::move(info));
     }
@@ -656,6 +658,23 @@ namespace Pisces
 
         info->glBuffer = std::move(newBuffer);
         info->size = newSize;
+    }
+
+    void HardwareResourceManager::downloadBuffer( BufferHandle buffer, size_t offset, size_t size, void *data )
+    {
+        BufferInfo *info = mImpl->buffers.find(buffer);
+        if (!info) return;
+
+        if (info->size < (offset+size)) {
+            LOG_ERROR("Can't download buffer (%i) the specified offset(=%zu) & size(=%zu) is out of range, the buffer size is only %zu!", 
+                (int)buffer, offset, size, info->size
+            );
+        }
+
+        
+        GLenum target = BufferTarget(info->type);
+        glBindBuffer(target, info->glBuffer);
+        glGetBufferSubData(target, offset, size, data);
     }
 
     void loadBuiltinTypes( HardwareResourceManager *hardwareMgr )

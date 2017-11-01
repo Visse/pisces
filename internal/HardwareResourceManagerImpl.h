@@ -68,9 +68,9 @@ namespace Pisces
 
         struct VertexArrayInfo {
             GLVertexArray glVertexArray;
-
             BufferHandle indexBuffer;
             IndexType indexType;
+            VertexArrayFlags flags;
         };
 
         struct Impl {

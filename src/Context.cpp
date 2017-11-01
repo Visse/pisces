@@ -452,6 +452,9 @@ namespace Pisces
             case Type::CopyBufferSubData:
                 glCopyBufferSubData(cmd.copyBufferSubData.readTarget, cmd.copyBufferSubData.writeTarget, cmd.copyBufferSubData.readOffset, cmd.copyBufferSubData.writeOffset, cmd.copyBufferSubData.size);
                 break;
+            case Type::PrimitiveRestartIndex:
+                glPrimitiveRestartIndex(cmd.primitiveRestartIndex.index);
+                break;
             }
         }
     }

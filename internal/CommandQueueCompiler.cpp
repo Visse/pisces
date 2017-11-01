@@ -83,7 +83,8 @@ namespace Pisces
         bool clipping = false, 
              depthTest = true,
              faceCulling = true,
-             depthWrite = true;
+             depthWrite = true,
+             primitiveRestart = false;
         BlendMode blendMode;
 
         ResourceBindings bindings;
@@ -300,7 +301,9 @@ namespace Pisces
 
         TextureUnitInfo &unit = impl.textureUnits[slot];
         if (unit.type != impl.programInfo->samplers[i].type) {
-            LOG_WARNING("Missmatch between bound texture type (%i) and expected type (%i) for gl-program %i", (int)unit.type, (int)impl.programInfo->samplers[i].type, (int)impl.programInfo->glProgram);
+            LOG_WARNING("Missmatch between bound texture type (%i) and expected type (%i) for program %s", 
+                (int)unit.type, (int)impl.programInfo->samplers[i].type, Common::GetCString(impl.programInfo->name)
+            );
         }
 
         unit.lastUsed = impl.currentCommand;
@@ -364,13 +367,16 @@ namespace Pisces
     bool EmitBindUniform( CompilerImpl &impl, int i, const Uniform &uniform )
     {
         assert (i >= 0 && i < MAX_BOUND_UNIFORMS);
+        assert(impl.programInfo);
 
         if (impl.current.bindings.uniforms[i] == uniform) return true;
         if (uniform.type == GLTypeNone) return true;
         if (impl.programInfo->uniforms[i].type == GLTypeNone) return true;
 
         if (impl.programInfo->uniforms[i].type != uniform.type) {
-            LOG_ERROR("Missmatch between uniform binding and program, expected type %i, got %i", (int)impl.programInfo->uniforms[i].type, (int)uniform.type);
+            LOG_ERROR("Missmatch between uniform binding and program, expected type %i, got %i for program %s", 
+                (int)impl.programInfo->uniforms[i].type, (int)uniform.type, Common::GetCString(impl.programInfo->name)
+            );
             return false;
         }
 
@@ -479,6 +485,23 @@ namespace Pisces
             if (!indexBuffer) return false;
 
             Emit(impl, CCQI::BindBuffer(gl::GL_ELEMENT_ARRAY_BUFFER, indexBuffer->glBuffer));
+            
+        }
+
+        if (vertexArray->indexType != IndexType::None && all(vertexArray->flags, VertexArrayFlags::UsePrimitiveRestart)) {
+            EmitEnableDisable(impl, impl.current.primitiveRestart, true, GL_PRIMITIVE_RESTART);
+            if (vertexArray->indexType == IndexType::UInt16) {
+                Emit(impl, CCQI::PrimitiveRestartIndex(uint16_t(-1)));
+            }
+            else if((vertexArray->indexType == IndexType::UInt32)) {
+                Emit(impl, CCQI::PrimitiveRestartIndex(uint32_t(-1)));
+            }
+            else {
+                FATAL_ERROR("Unknown index type!");
+            }
+        }
+        else {
+            EmitEnableDisable(impl, impl.current.primitiveRestart, false, GL_PRIMITIVE_RESTART);
         }
 
         return true;
@@ -823,6 +846,9 @@ namespace Pisces
         if (impl.current.faceCulling != state.faceCulling) {
             EmitEnableDisable(impl, impl.current.faceCulling, state.faceCulling, GL_CULL_FACE);
             impl.current.faceCulling = state.faceCulling;
+        }
+        if (impl.current.primitiveRestart != state.primitiveRestart) {
+            EmitEnableDisable(impl, impl.current.primitiveRestart, state.primitiveRestart, GL_PRIMITIVE_RESTART);
         }
         if (impl.current.depthWrite != state.depthWrite) {
             Emit(impl, CCQI::SetDepthMask(state.depthTest));

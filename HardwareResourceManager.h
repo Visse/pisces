@@ -35,7 +35,8 @@ namespace Pisces
 
         PISCES_API VertexArrayHandle createVertexArray( const VertexAttribute *attributes, int attributeCount,
                                                         const BufferHandle *sourceBuffers, int sourceCount,
-                                                        BufferHandle indexBuffer, IndexType indexType );
+                                                        BufferHandle indexBuffer, IndexType indexType, 
+                                                        VertexArrayFlags flags = VertexArrayFlags::None );
         PISCES_API void deleteVertexArray( VertexArrayHandle vertexArray );
 
         PISCES_API TextureHandle loadTexture2D( PixelFormat format, TextureFlags flags, const char *filename );
@@ -81,6 +82,8 @@ namespace Pisces
         // WARNING this will internally recreate the buffer - this causes issuis if the buffer have been used in other structures,
         // such as, but not limited to, a source for a VertexArray - Use with care
         PISCES_API void resizeBuffer( BufferHandle buffer, size_t newSize, BufferResizeFlags flags, size_t sourceOffset=0, size_t targetOffset=0, size_t size=0);
+        
+        PISCES_API void downloadBuffer( BufferHandle buffer, size_t offset, size_t size, void *data );
 
         HardwareResourceManagerImpl::Impl* impl() {
             return mImpl.impl();

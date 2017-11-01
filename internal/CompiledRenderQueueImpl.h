@@ -51,6 +51,8 @@ namespace Pisces
 
             BindBuffer,
             CopyBufferSubData,
+
+            PrimitiveRestartIndex,
         };
 
         using vec2 = std::array<float,2>;
@@ -185,6 +187,10 @@ namespace Pisces
             (GLsizeiptr, size)
         );
 
+        CREATE_DATA_STRUCT(PrimitiveRestartIndex, Type,
+            (GLuint, index)
+        );
+
         CREATE_DATA_UNION( Command, Type,
             (EnableData, enable),
             (DisableData, disable),
@@ -222,7 +228,9 @@ namespace Pisces
             (EndTransformFeedbackData, endTransformFeedback),
 
             (BindBufferData, bindBuffer),
-            (CopyBufferSubDataData, copyBufferSubData)
+            (CopyBufferSubDataData, copyBufferSubData),
+
+            (PrimitiveRestartIndexData, primitiveRestartIndex)
         );
 
         struct Impl {
