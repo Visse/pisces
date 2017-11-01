@@ -45,8 +45,8 @@ namespace Pisces
 
     struct Uniform {
         Uniform() {
-            // Its bad to memset this, but its the easiest way to zero initilize
-            memset(this, 0, sizeof(Uniform));
+            // Its bad to memset data, but its the easiest way to zero initilize
+            memset(&data, 0, sizeof(data));
         }
 
         GLType type = GLTypeNone;
