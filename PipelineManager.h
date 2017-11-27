@@ -36,6 +36,7 @@ namespace Pisces
         // If true vertexSource & fragmentSource holds the filename of the source
         bool sourceIsFilename = false;
         std::string vertexSource,
+                    geometrySource,
                     fragmentSource;
 
         ProgramInitBindings bindings;

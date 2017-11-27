@@ -48,7 +48,8 @@ namespace Pisces
     PISCES_API ResourceHandle RenderProgramLoader::loadResource( Common::Archive &archive, libyaml::Node node )
     {
         auto vertexShaderNode = node["VertexShader"],
-             fragmentShaderNode = node["FragmentShader"];
+             fragmentShaderNode = node["FragmentShader"],
+             geometryShaderNode = node["GeometryShader"];
 
         if (!vertexShaderNode.isScalar()) {
             auto mark = vertexShaderNode ? vertexShaderNode.startMark() : node.endMark();
@@ -61,6 +62,14 @@ namespace Pisces
             auto mark = fragmentShaderNode ? fragmentShaderNode.startMark() : node.endMark();
             THROW(std::runtime_error,
                   "Expected attribute \"VertexShader\" in \"%s::%s\" at %i:%i",
+                  archive.name(), node.filename(), mark.line, mark.col
+            );
+        }
+
+        if (geometryShaderNode && !geometryShaderNode.isScalar()) {
+            auto mark = geometryShaderNode.startMark();
+            THROW(std::runtime_error,
+                  "Expected scalar for attribute \"GeometryShader\" in \"%s::%s\" at %i:%i",
                   archive.name(), node.filename(), mark.line, mark.col
             );
         }
@@ -88,6 +97,19 @@ namespace Pisces
         RenderProgramInitParams params;
         params.vertexSource.assign(vertexSource, vertexSourceLen);
         params.fragmentSource.assign(fragmentSource, fragmentSourceLen);
+
+        if (geometryShaderNode) {
+            auto file = archive.openFile(geometryShaderNode.scalar());
+            if (!file) {
+                THROW(std::runtime_error, 
+                    "Failed to open file \"%s\"", fragmentShaderNode.scalar()    
+                );
+            }
+
+            const char *source = (const char*)archive.mapFile(file);
+            size_t len = archive.fileSize(file);
+            params.geometrySource.assign(source, len);
+        }
 
         auto bindingNode = node["Bindings"];
         if (bindingNode) {

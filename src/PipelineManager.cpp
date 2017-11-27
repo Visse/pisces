@@ -39,11 +39,17 @@ namespace Pisces
     PISCES_API ProgramHandle PipelineManager::createRenderProgram( const RenderProgramInitParams &params )
     {
         try {
-            GLShader shaders[2];
+            int count = 0;
+            GLShader shaders[3];
             
             if (params.sourceIsFilename) {
                 shaders[0] = LoadShader(GL_VERTEX_SHADER, params.vertexSource.c_str());
                 shaders[1] = LoadShader(GL_FRAGMENT_SHADER, params.fragmentSource.c_str());
+                count = 2;
+                if (!params.geometrySource.empty()) {
+                    shaders[count] = LoadShader(GL_GEOMETRY_SHADER, params.geometrySource.c_str());
+                    count++;
+                }
             }
             else {
                 const char *fragmentSource = params.fragmentSource.c_str();
@@ -53,11 +59,20 @@ namespace Pisces
                 const char *vertexSource = params.vertexSource.c_str();
                 GLint vertexSourceLen = (GLint) params.vertexSource.size();
                 shaders[1] = CreateShader(GL_VERTEX_SHADER, 1, &vertexSource, &vertexSourceLen);
+
+                count = 2;
+                if (!params.geometrySource.empty()) {
+                    const char *source = params.geometrySource.c_str();
+                    GLint sourceLen  = (GLint)params.geometrySource.size();
+                    shaders[count] = CreateShader(GL_GEOMETRY_SHADER, 1, &source, &sourceLen);
+                    ++count;
+                }
+                
             }
 
             RenderProgramInfo info;
                 info.name = params.name;
-                info.glProgram =  CreateProgram(2, shaders);
+                info.glProgram =  CreateProgram(count, shaders);
                 info.flags = params.flags;
 
             OnProgramCreated(&info, params.bindings);
