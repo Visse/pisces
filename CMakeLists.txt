@@ -11,26 +11,16 @@ find_package(SDL2 REQUIRED)
 
 find_path(GLM_INCLUDE_DIR FILES glm/glm.hpp REQUIRED)
 
-option( PISCES_BUILD_IMGUI "Build ImGui as part of Pisces." ON )
-option( PISCES_BUILD_NUKLEAR "Build Nuklear as part of Pisces." ON )
-option( PISCES_SUPPORT_LOAD_OBJ "Support loading of .obj files" ON )
-option( PISCES_MESH_BUILDER "Build mesh builder as part of pisces" ON )
-
-option( PISCES_CLIP_ZERO_TO_ONE "Use clip range [0, 1], instead of the default [-1, 1] for better depth precision" ON)
-
-
-
 add_library( Pisces-request-shared-gpu STATIC
     internal/RequestDiscreteGpu.cpp
 )
 
 if (MSVC)
+    # force visual studio to include symbols
     target_link_libraries( Pisces-request-shared-gpu
         INTERFACE "-INCLUDE:NvOptimusEnablement;-INCLUDE:AmdPowerXpressRequestHighPerformance"
     )
 endif(MSVC)
-    
-
 
 add_library( Pisces SHARED
     Fwd.h
@@ -103,6 +93,7 @@ add_library( Pisces SHARED
     src/SpriteLoader.cpp
 )
 
+option (PISCES_CLIP_ZERO_TO_ONE "Use clip range [0, 1], instead of the default [-1, 1] for better depth precision" ON)
 if (PISCES_CLIP_ZERO_TO_ONE)
     target_compile_definitions( Pisces
         PUBLIC GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -110,29 +101,24 @@ if (PISCES_CLIP_ZERO_TO_ONE)
     )
 endif (PISCES_CLIP_ZERO_TO_ONE)
 
+
+option (PISCES_BUILD_IMGUI "Include imgui (debug gui) support" ON)
 if (PISCES_BUILD_IMGUI)
     target_sources( Pisces
         PRIVATE utility/ImGuiRenderer.h
         PRIVATE utility/ImGuiRenderer.cpp
     )
     target_link_libraries( Pisces
-        PRIVATE imgui
+        PUBLIC imgui
     )
     target_compile_definitions( Pisces
         PUBLIC PISCES_USE_IMGUI
     )
-    
-    get_target_property(IMGUI_INTERFACE_SOURCES imgui INTERFACE_SOURCES)
-    source_group(imgui FILES ${IMGUI_INTERFACE_SOURCES})
-
-    get_target_property(IMGUI_INTERFACE_DEFINITIONS imgui INTERFACE_COMPILE_DEFINITIONS)
-    if (INTERFACE_COMPILE_DEFINITIONS)
-        target_compile_definitions(Pisces INTERFACE ${INTERFACE_COMPILE_DEFINITIONS})
-    endif (INTERFACE_COMPILE_DEFINITIONS)
 
     install(FILES utility/ImGuiRenderer.h DESTINATION include/Pisces/utility)
 endif (PISCES_BUILD_IMGUI)
 
+option (PISCES_BUILD_NUKLEAR "Include nuklear (gui) support" ON )
 if (PISCES_BUILD_NUKLEAR)
     target_sources (Pisces
         PRIVATE utility/NkContext.h
@@ -143,26 +129,18 @@ if (PISCES_BUILD_NUKLEAR)
         PRIVATE utility/NkSprite.cpp
     )
     target_link_libraries (Pisces
-        PRIVATE nuklear
+        PUBLIC nuklear
     )
     target_compile_definitions (Pisces
         PUBLIC PISCES_USE_NUKLEAR
     )
     
-    get_target_property(NUKLEAR_INTERFACE_SOURCES nuklear INTERFACE_SOURCES)
-    source_group(nuklear FILES ${NUKLEAR_INTERFACE_SOURCES})
-    
-    get_target_property(NUKLEAR_INTERFACE_DEFINITIONS nuklear INTERFACE_COMPILE_DEFINITIONS)
-    if (NUKLEAR_INTERFACE_DEFINITIONS)
-        target_compile_definitions(Pisces INTERFACE ${NUKLEAR_INTERFACE_DEFINITIONS})
-    endif (NUKLEAR_INTERFACE_DEFINITIONS)
-    
     install(FILES utility/NkContext.h utility/NkWindow.h utility/NkSprite.h DESTINATION include/Pisces/utility)
 endif (PISCES_BUILD_NUKLEAR)
 
 
+option( PISCES_SUPPORT_LOAD_OBJ "Support loading of .obj files" ON )
 if (PISCES_SUPPORT_LOAD_OBJ)
-
     target_sources (Pisces
         PRIVATE utility/ObjLoader.h
         PRIVATE utility/ObjLoader.cpp
@@ -177,6 +155,7 @@ if (PISCES_SUPPORT_LOAD_OBJ)
     install(FILES utility/ObjLoader.h DESTINATION include/Pisces/utility)
 endif (PISCES_SUPPORT_LOAD_OBJ)
 
+option (PISCES_MESH_BUILDER "Build mesh builder as part of pisces" ON)
 if (PISCES_MESH_BUILDER)
     target_sources (Pisces
         PRIVATE utility/MeshBuilder.h
@@ -191,6 +170,7 @@ target_link_libraries( Pisces
     PRIVATE glbinding::glbinding
     PUBLIC SDL2
     PUBLIC Common
+    PUBLIC libyaml-cpp
     INTERFACE Pisces-request-shared-gpu
 )
 target_include_directories( Pisces
@@ -199,22 +179,10 @@ target_include_directories( Pisces
 
 target_compile_definitions(Pisces
     PUBLIC PISCES_BUILT_SHARED
+    PUBLIC PISCES_USE_LIBYAML
     PRIVATE PISCES_BUILDING
 )
 
-
-target_compile_definitions(Pisces
-    PUBLIC PISCES_USE_LIBYAML
-)
-target_link_libraries(Pisces
-    PRIVATE libyaml-cpp
-)
-get_target_property(LIBYAML_CPP_INCLUDE_DIR libyaml-cpp INTERFACE_INCLUDE_DIRECTORIES)
-target_include_directories(Pisces
-    PUBLIC ${LIBYAML_CPP_INCLUDE_DIR}
-)
-get_target_property(LIBYAML_CPP_INTERFACE_SOURCES libyaml-cpp INTERFACE_SOURCES)
-source_group(libyaml-cpp FILES ${LIBYAML_CPP_INTERFACE_SOURCES})
 
 file(GLOB PISCES_HEADERS ./*.h)
 
@@ -227,13 +195,5 @@ install(TARGETS Pisces-request-shared-gpu Pisces
 install(FILES ${PISCES_HEADERS} DESTINATION include/Pisces)
 
 
-if (PISCES_BUILD_IMGUI)
-    get_target_property(IMGUI_INTERFACE_HEADERS imgui INTERFACE_HEADER)
-    install(FILES ${IMGUI_INTERFACE_HEADERS} DESTINATION include)
-endif (PISCES_BUILD_IMGUI)
 
-if (PISCES_BUILD_NUKLEAR)
-    get_target_property(NUKLEAR_INTERFACE_HEADERS nuklear INTERFACE_HEADER)
-    install(FILES ${NUKLEAR_INTERFACE_HEADERS} DESTINATION include)
-endif (PISCES_BUILD_NUKLEAR)
 
