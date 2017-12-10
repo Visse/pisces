@@ -240,6 +240,11 @@ void main()
         return false;
     }
 
+    PISCES_API ImGuiContext* ImGuiRenderer::context()
+    {
+        return ImGui::GetCurrentContext();
+    }
+
     void imguiRender( ImGuiRenderer::Impl *impl )
     {
         auto &io = ImGui::GetIO();

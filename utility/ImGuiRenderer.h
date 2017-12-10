@@ -7,6 +7,8 @@
 
 typedef union SDL_Event SDL_Event;
 
+struct ImGuiContext;
+
 namespace Pisces
 {
     class ImGuiRenderer {
@@ -17,6 +19,7 @@ namespace Pisces
         PISCES_API void render();
 
         PISCES_API bool injectEvent( const SDL_Event &event, bool handled );
+        PISCES_API ImGuiContext* context();
 
     private:
         struct Impl;
