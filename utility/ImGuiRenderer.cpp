@@ -297,6 +297,7 @@ void main()
         renderQueue->usePipeline(impl->pipeline);
         renderQueue->useVertexArray(impl->vertexArray);
         renderQueue->bindUniform(0, impl->screenSize);
+        renderQueue->useClipping(true);
 
         float displayHeight = ImGui::GetIO().DisplaySize.y;
 
