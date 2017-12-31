@@ -6,11 +6,6 @@ source_group( "utility" REGULAR_EXPRESSION ./utility/* )
 
 include_directories(.)
 
-find_package(glbinding REQUIRED)
-find_package(SDL2 REQUIRED)
-
-find_path(GLM_INCLUDE_DIR FILES glm/glm.hpp REQUIRED)
-
 add_library( Pisces-request-shared-gpu STATIC
     internal/RequestDiscreteGpu.cpp
 )
@@ -171,10 +166,8 @@ target_link_libraries( Pisces
     PUBLIC SDL2
     PUBLIC Common
     PUBLIC libyaml-cpp
+    PUBLIC glm
     INTERFACE Pisces-request-shared-gpu
-)
-target_include_directories( Pisces
-    PUBLIC ${GLM_INCLUDE_DIR}
 )
 
 target_compile_definitions(Pisces
