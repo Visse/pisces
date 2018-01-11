@@ -948,4 +948,26 @@ namespace Pisces
         resetState(impl);
         return std::move(impl.commands);
     }
+
+    std::vector<CompiledRenderQueueImpl::Command> RestoreDefaultState( Context *context )
+    {
+        CompilerImpl impl;
+        impl.init(context, RenderQueueCompileOptions{});
+
+
+        auto &state = impl.current;
+
+        // Assume worst case - all the state different from the default
+        state.clipping = !state.clipping;
+        state.depthTest = !state.depthTest;
+        state.faceCulling = !state.faceCulling;
+        state.depthWrite = !state.depthWrite;
+        state.primitiveRestart = !state.primitiveRestart;
+        state.blendMode = BlendMode(-1);
+
+        // create the instructions needed to restore the state to the default
+        resetState(impl);
+        return std::move(impl.commands);
+
+    }
 }

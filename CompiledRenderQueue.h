@@ -21,6 +21,9 @@ namespace Pisces
         CompiledRenderQueueImpl::Impl* impl() {
             return mImpl.impl();
         }
+        
+        struct InitDefaultState_tag {};
+        PISCES_API CompiledRenderQueue( Context *context, InitDefaultState_tag );
 
     private:
         PImplHelper<CompiledRenderQueueImpl::Impl, 128> mImpl;

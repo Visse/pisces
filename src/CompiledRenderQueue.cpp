@@ -31,4 +31,11 @@ namespace Pisces
     PISCES_API CompiledRenderQueue::~CompiledRenderQueue()
     {
     }
+
+    PISCES_API CompiledRenderQueue::CompiledRenderQueue( Context *context, InitDefaultState_tag ) :
+        mImpl(context)
+    {
+        mImpl->renderTarget = context->getMainRenderTarget();
+        mImpl->commands = RestoreDefaultState(context);
+    }
 }

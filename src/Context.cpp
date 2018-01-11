@@ -308,6 +308,9 @@ namespace Pisces
 
         mImpl->coreResourceLoaders.emplace_back(new SpriteLoader(mImpl->spriteMgr.get(), mImpl->hardwareResourceMgr.get()));
         registerResourceLoader(Common::CreateStringId("Sprite"), mImpl->coreResourceLoaders.back().get());
+
+        // Initilize the default state
+        execute(std::make_shared<CompiledRenderQueue>(this, CompiledRenderQueue::InitDefaultState_tag{}));
     }
 
     PISCES_API HardwareResourceManager* Context::getHardwareResourceManager()
@@ -345,10 +348,6 @@ namespace Pisces
     {
         CompiledRenderQueuePtr compiled = compile(queue);
         execute(compiled);
-
-        // Restore state
-        glDisable(GL_BLEND);
-        glDisable(GL_SCISSOR_TEST);
     }
 
     PISCES_API void Context::execute( const CompiledRenderQueuePtr &queue )
