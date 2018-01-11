@@ -85,7 +85,7 @@ namespace Pisces
              faceCulling = true,
              depthWrite = true,
              primitiveRestart = false;
-        BlendMode blendMode;
+        BlendMode blendMode = BlendMode::Replace;
 
         ResourceBindings bindings;
     };
@@ -851,7 +851,7 @@ namespace Pisces
             EmitEnableDisable(impl, impl.current.primitiveRestart, state.primitiveRestart, GL_PRIMITIVE_RESTART);
         }
         if (impl.current.depthWrite != state.depthWrite) {
-            Emit(impl, CCQI::SetDepthMask(state.depthTest));
+            Emit(impl, CCQI::SetDepthMask(state.depthWrite));
             impl.current.depthWrite = state.depthWrite;
         }
         if (impl.current.blendMode != state.blendMode) {
