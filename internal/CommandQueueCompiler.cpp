@@ -59,6 +59,10 @@ namespace Pisces
         friend bool operator == (const Uniform &lhs, const Uniform &rhs) {
             return memcmp(&lhs, &rhs, sizeof(Uniform)) == 0;
         }
+
+        operator bool () const {
+            return type != GLTypeNone;
+        }
     };
     
     struct ResourceBindings {
@@ -522,6 +526,46 @@ namespace Pisces
         if (!EmitBindResources(impl, impl.programInfo, state.bindings)) {
             LOG_ERROR("Failed to bind resources!");
             return;
+        }
+
+        
+        { // check that all recources used by the program have been bound..
+            // Note the use of impl.state instead of impl.current 
+            // this is because impl.current ignores 'unsets' 
+            // and impl.current reprecents what the user requested
+            for (int i=0; i < MAX_BOUND_SAMPLERS; ++i) {
+                if (impl.programInfo->samplers[i].location != -1) {
+                    if (!impl.state.bindings.samplers[i]) {
+                        LOG_WARNING("Program \"%s\" expected sampler at %i!", Common::GetCString(impl.programInfo->name), i);
+                    }
+                }
+            }
+
+            for (int i=0; i < MAX_BOUND_UNIFORM_BUFFERS; ++i) {
+                if (impl.programInfo->uniformBuffers[i].location != -1) {
+                    // @todo make more advance check (bound size, type, etc..)
+                    if (!impl.state.bindings.uniformBuffers[i]) {
+                        LOG_WARNING("Program \"%s\" expected uniform buffer bound at %i!", Common::GetCString(impl.programInfo->name), i);
+                    }
+                }
+            }
+
+            for (int i=0; i < MAX_BOUND_IMAGE_TEXTURES; ++i) {
+                if (impl.programInfo->imageTextures[i].location != -1) {
+                    if (!impl.state.bindings.imageTextures[i]) {
+                        LOG_WARNING("Program \"%s\" expected image texture at %i!", Common::GetCString(impl.programInfo->name), i);
+                    }
+                }
+            }
+
+            for (int i=0; i < MAX_BOUND_UNIFORMS; ++i) {
+                if (impl.programInfo->uniforms[i].location != -1) {
+                    if (!impl.state.bindings.uniforms[i]) {
+                        LOG_WARNING("Program \"%s\" expected uniform at %i!", Common::GetCString(impl.programInfo->name), i);
+                    }
+                }
+            }
+
         }
 
         if (impl.state.clipping != impl.current.clipping) {
