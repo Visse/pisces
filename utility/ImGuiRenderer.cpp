@@ -245,6 +245,9 @@ void main()
         case( SDL_KEYUP ): {
             int idx = event.key.keysym.scancode;
 
+            // remap keypad enter to regular enter
+            if (event.key.keysym.scancode == SDL_SCANCODE_KP_ENTER) idx = SDL_SCANCODE_RETURN;
+
             if( idx >= 0 && idx < 512 ) {
                 io.KeysDown[idx] = (event.type == SDL_KEYDOWN);
             }
