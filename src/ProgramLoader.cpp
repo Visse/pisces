@@ -47,6 +47,12 @@ namespace Pisces
 
     PISCES_API ResourceHandle RenderProgramLoader::loadResource( Common::Archive &archive, libyaml::Node node )
     {
+        ProgramHandle program = loadProgram(archive, node);
+        return ResourceHandle{program.handle};
+    }
+    
+    ProgramHandle RenderProgramLoader::loadProgram( Common::Archive &archive, libyaml::Node node, Common::StringId defaultName )
+    {
         auto vertexShaderNode = node["VertexShader"],
              fragmentShaderNode = node["FragmentShader"],
              geometryShaderNode = node["GeometryShader"];
@@ -123,6 +129,7 @@ namespace Pisces
             LoadBindings(params.bindings, bindingNode);
         }
 
+        params.name = defaultName;
         auto nameNode = node["Name"];
         if (nameNode) {
             if (!nameNode.isScalar()) {
@@ -135,8 +142,7 @@ namespace Pisces
             params.name = Common::CreateStringId(nameNode.scalar());
         }
 
-        ProgramHandle program = mPipelineMgr->createRenderProgram(params);
-        return ResourceHandle{program.handle};
+        return mPipelineMgr->createRenderProgram(params);
     }
 
     PISCES_API ResourceHandle ComputeProgramLoader::loadResource( Common::Archive &archive, libyaml::Node node )

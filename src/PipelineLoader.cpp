@@ -91,13 +91,21 @@ namespace Pisces
                 );
             }
 
-            ResourceHandle program = mImpl->renderProgramLoader->loadResource(archive, programNode);
-            params.program = ProgramHandle{(uint32_t)program.handle};
+            
+            Common::StringId defaultProgramName;
 
             auto nameNode = node["Name"];
             if (nameNode.isScalar()) {
                 params.name = Common::CreateStringId(nameNode.scalar());
+                
+                char tmpBuffer[64];
+                StringUtils::sprintf(tmpBuffer, "%s.program", nameNode.scalar());
+
+                defaultProgramName = Common::CreateStringId(tmpBuffer); 
             }
+            
+            params.program = mImpl->renderProgramLoader->loadProgram(archive, programNode, defaultProgramName);
+
 
             PipelineHandle pipeline = mImpl->pipelineMgr->createPipeline(params);
             if (!pipeline) {

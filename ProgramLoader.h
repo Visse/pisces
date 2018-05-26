@@ -6,7 +6,7 @@
 
 #include "Common/PImplHelper.h"
 #include "Common/Archive.h"
-
+#include "Common/StringId.h"
 namespace Pisces
 {
     class RenderProgramLoader :
@@ -19,6 +19,8 @@ namespace Pisces
         {}
         
         PISCES_API virtual ResourceHandle loadResource( Common::Archive &archive, libyaml::Node node ) override;
+
+        ProgramHandle loadProgram( Common::Archive &archive, libyaml::Node node, Common::StringId defaultName = Common::StringId() );
     };
 
     class ComputeProgramLoader :
