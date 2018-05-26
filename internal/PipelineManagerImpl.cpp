@@ -172,6 +172,7 @@ namespace PipelineManagerImpl
                     found = true;
                     glUniformBlockBinding(program->glProgram, i, idx);
                     program->uniformBuffers[idx].location = idx;
+                    program->uniformBuffers[idx].index = i;
                     break;
                 }
                 ++idx;
@@ -182,6 +183,12 @@ namespace PipelineManagerImpl
             }
         }
 
-        verifyUniformBlocksInProgram(program->glProgram);
+        for (int i=0; i < count; ++i) {
+            if (program->uniformBuffers[i].index != -1) {
+                program->uniformBuffers[i].hash = hashUniformBlock(program, i);
+            }
+        }
+
+        verifyUniformBlocksInProgram(program);
     }
 }}

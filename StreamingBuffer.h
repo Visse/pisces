@@ -3,6 +3,7 @@
 
 #include "Fwd.h"
 #include "build_config.h"
+#include "UniformBlockInfo.h"
 
 #include "Common/PImplHelper.h"
 
@@ -89,11 +90,11 @@ namespace Pisces
         StreamingUniformBuffer( const StreamingUniformBuffer& ) = delete;
         StreamingUniformBuffer& operator = ( const StreamingUniformBuffer& ) = delete;
 
-        PISCES_API UniformBufferHandle allocate( const void *data, size_t size );
+        PISCES_API UniformBufferHandle allocate( const void *data, size_t size, const UniformBlockInfo *blockInfo=nullptr );
 
         template< typename Type >
         UniformBufferHandle allocate( const Type &type ) {
-            return allocate(&type, sizeof(Type));
+            return allocate(&type, sizeof(Type), getUniformBlockInfo<Type>());
         }
         
         PISCES_API void beginAllocation();

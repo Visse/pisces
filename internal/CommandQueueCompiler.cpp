@@ -9,6 +9,7 @@
 #include "RenderCommandQueueImpl.h"
 #include "CompiledRenderQueueImpl.h"
 #include "Helpers.h"
+#include "UniformBlockInfo.h"
 
 #include "Common/ErrorUtils.h"
 
@@ -333,6 +334,15 @@ namespace Pisces
 
         int loc = impl.programInfo->uniformBuffers[i].location;
         if (loc == -1) return true;
+
+        if (handle.type) {
+            if (handle.type->hash != impl.programInfo->uniformBuffers[i].hash) {
+                LOG_WARNING("Missmatch between bound type (%s) to unifrom buffer %i and expected shader uniform in program %s", 
+                    handle.type->name, i, Common::GetCString(impl.programInfo->name)
+                );
+            }
+        }
+
 
         Emit(impl, CCQI::BindBufferRange(GL_UNIFORM_BUFFER, loc, buffer->glBuffer, handle.offset, handle.size));
         impl.current.bindings.uniformBuffers[i] = handle;

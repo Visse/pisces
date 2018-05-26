@@ -17,7 +17,8 @@ namespace Pisces
             TextureType type = TextureType(-1);
         };
         struct UniformBufferInfo {
-            int location = -1;
+            int location = -1, index = -1;
+            size_t hash = 0;
         };
         struct UniformInfo {
             int location = -1;

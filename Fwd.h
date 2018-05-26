@@ -338,9 +338,11 @@ namespace Pisces
         Color borderColor = NamedColors::Black;
     };
 
+    struct UniformBlockInfo;
     struct UniformBufferHandle {
         BufferHandle buffer;
         size_t offset=0, size=0;
+        const UniformBlockInfo *type = nullptr;
 
         friend bool operator == ( const UniformBufferHandle &lhs, const UniformBufferHandle &rhs) {
             if (lhs.buffer != rhs.buffer) return false;

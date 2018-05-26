@@ -94,7 +94,7 @@ namespace Pisces
         mAlignment = hardwareMgr->getUniformAlignment();
     }
 
-    PISCES_API UniformBufferHandle StreamingUniformBuffer::allocate( const void *data, size_t size )
+    PISCES_API UniformBufferHandle StreamingUniformBuffer::allocate( const void *data, size_t size, const UniformBlockInfo *blockInfo )
     {
         if (!mCurrentMapping) {
             LOG_ERROR("StreamingUniformBuffer::allocate must be called between beginAllocation() and endAllocation()");
@@ -116,6 +116,7 @@ namespace Pisces
             handle.buffer = mImpl->buffer;
             handle.offset = mCurrentOffset;
             handle.size = size;
+            handle.type = blockInfo;
 
         // Adjust size to the next multiple of aligment
         size_t alignedSize = ((size + mAlignment - 1) / mAlignment)  * mAlignment;
