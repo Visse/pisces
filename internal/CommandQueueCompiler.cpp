@@ -19,7 +19,7 @@
 
 using namespace gl33core;
 
-LOG_MODULE(CommandQueueCompiler);
+CREATE_LOG_MODULE("CommandQueueCompiler");
 
 namespace Pisces
 {
