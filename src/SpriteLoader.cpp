@@ -13,29 +13,45 @@ namespace Pisces
     {
         Sprite sprite;
         
-#define GET_NODE(node, name, attribute, typeFunc)               \
+#define GET_NODE(node, name, attribute, typeFunc, force)        \
         auto name = node[attribute];                            \
-        if (!name|| !name.typeFunc) {                           \
+        if (force && (!name|| !name.typeFunc)) {                \
            THROW(std::runtime_error,                            \
                 "Missing attribute \"" attribute "\""           \
             );                                                  \
         }
 
-        GET_NODE(node, nameNode, "Name", isScalar());
-        GET_NODE(node, textureNode, "Texture", isScalar());
+        GET_NODE(node, nameNode, "Name", isScalar(), true);
+        GET_NODE(node, textureNode, "Texture", isScalar(), true);
+        GET_NODE(node, pixelSpaceNode, "PixelSpace", isScalar(), false);
 
-        GET_NODE(node, uvNode, "UV", isMap());
+        GET_NODE(node, uvNode, "UV", isMap(), true);
 
-        GET_NODE(uvNode, x1Node, "x1", isScalar());
-        GET_NODE(uvNode, y1Node, "y1", isScalar());
-        GET_NODE(uvNode, x2Node, "x2", isScalar());
-        GET_NODE(uvNode, y2Node, "y2", isScalar());
+        GET_NODE(uvNode, x1Node, "x1", isScalar(), true);
+        GET_NODE(uvNode, y1Node, "y1", isScalar(), true);
+        GET_NODE(uvNode, x2Node, "x2", isScalar(), true);
+        GET_NODE(uvNode, y2Node, "y2", isScalar(), true);
         
+
+        bool pixelSpace = false;
+        if (pixelSpaceNode && !Common::BuiltinFromString(pixelSpaceNode.scalar(),pixelSpace)) {
+            auto mark = pixelSpaceNode.startMark();
+            THROW(std::runtime_error,
+                    "Expected bool for attribute \"%s\" at %i:%i",
+                    "PixelSpace", mark.line, mark.col
+            ); 
+        }
 
         Common::StringId textureName = Common::CreateStringId(textureNode.scalar());
 
         sprite.texture = mHardwareMgr->findTextureByName(textureName);
 
+        if (!sprite.texture) {
+            THROW(std::runtime_error,
+                "Failed to find texture \"%s\"",
+                Common::GetCString(textureName)
+            );
+        }
 
 #define GET_FLOAT(val, node, name)                                      \
             if (!Common::BuiltinFromString(node.scalar(), val)) {       \
@@ -50,6 +66,14 @@ namespace Pisces
         GET_FLOAT(sprite.uv.y1, y1Node, "y1");
         GET_FLOAT(sprite.uv.x2, x2Node, "x2");
         GET_FLOAT(sprite.uv.y2, y2Node, "y2");
+
+        int width=1, height=1;
+        if (pixelSpace && mHardwareMgr->getTextureSize(sprite.texture, &width, &height)) {
+            sprite.uv.x1 /= width;
+            sprite.uv.x2 /= width;
+            sprite.uv.y1 /= height;
+            sprite.uv.y2 /= height;
+        }
 
         Common::StringId name = Common::CreateStringId(nameNode.scalar());
         mSpriteMgr->setSprite(name, sprite);
