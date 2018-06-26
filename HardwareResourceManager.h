@@ -48,6 +48,8 @@ namespace Pisces
 
         PISCES_API TextureHandle getBuiltinTexture( BuiltinTexture texture );
 
+        PISCES_API bool getTextureSize( TextureHandle texture, int *width, int *height, int *depth=nullptr );
+
 
         PISCES_API void* mapBuffer( BufferHandle buffer, size_t offset, size_t size, BufferMapFlags flags );
         // Returns true if persistent mapped

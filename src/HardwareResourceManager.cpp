@@ -519,6 +519,26 @@ namespace Pisces
         return mImpl->builtinTextures[idx];
     }
 
+    PISCES_API bool HardwareResourceManager::getTextureSize(TextureHandle handle, int *width, int *height, int *depth)
+    {
+        const TextureInfo *texture = nullptr;
+        if (TextureHandleVector::IsHandleFromThis(handle)) {
+            texture = mImpl->textures.find(handle);
+        }
+        else if(SamplerHandleVector::IsHandleFromThis(handle)) {
+            SamplerInfo *sampler = mImpl->samplers.find(handle);
+
+            if (!sampler) return false;
+            texture = mImpl->textures.find(sampler->texture);
+        }
+
+        if (!texture) return false;
+        if (width) *width = texture->size.x;
+        if (height) *height = texture->size.y;
+        if (depth) *depth = 1;
+        return true;
+    }
+
     PISCES_API void* HardwareResourceManager::mapBuffer( BufferHandle buffer, size_t offset, size_t size, BufferMapFlags flags )
     {
         BufferInfo *info = mImpl->buffers.find(buffer);
