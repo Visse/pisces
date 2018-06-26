@@ -176,6 +176,7 @@ void main()
                 params.programParams.fragmentSource = DefaultFragmentShader;
                 params.programParams.bindings.samplers[0] = "Texture";
                 params.programParams.bindings.uniforms[0] = "Transform";
+                params.programParams.name = Common::CreateStringId("Nuklear.program");
 
             mImpl->pipeline = pipelineMgr->createPipeline(params);
             if (!mImpl->pipeline) {

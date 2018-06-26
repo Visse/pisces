@@ -157,6 +157,7 @@ void main()
                 params.programParams.fragmentSource = DefaultFragmentShader;
                 params.programParams.bindings.samplers[0] = "Texture";
                 params.programParams.bindings.uniforms[0] = "ScreenSize";
+                params.programParams.name = Common::CreateStringId("ImGui.program");
 
             mImpl->pipeline = pipelineMgr->createPipeline(params); 
             if (!mImpl->pipeline) {
