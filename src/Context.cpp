@@ -244,7 +244,15 @@ namespace Pisces
         mImpl->context = std::move(context);
 
         if (params.enableVSync) {
-            SDL_GL_SetSwapInterval( 1 );
+            // Try to enable adoptive vsync (same as traditnal, with the exception of missed frames 
+            // are displayed Immediately instead of wating for the next sync)
+            if (SDL_GL_SetSwapInterval(-1) == -1) {
+                // if that fails - fall back on traditional vsync
+                SDL_GL_SetSwapInterval(1);
+            }
+        }
+        else {
+            SDL_GL_SetSwapInterval(0);
         }
 
         glbinding::Binding::initialize();
