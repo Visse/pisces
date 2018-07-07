@@ -167,6 +167,7 @@ target_link_libraries( Pisces
     PUBLIC Common
     PUBLIC libyaml-cpp
     PUBLIC glm
+    PUBLIC remotery
     INTERFACE Pisces-request-shared-gpu
 )
 

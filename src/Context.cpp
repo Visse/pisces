@@ -44,6 +44,8 @@ using namespace gl33core;
 #include <glbinding/Meta.h>
 #include <glbinding/ContextInfo.h>
 
+#include <Remotery.h>
+
 namespace Pisces
 {
     struct SDLWindowDelete {
@@ -59,6 +61,14 @@ namespace Pisces
         }
     };
     WRAP_HANDLE(SDLGLContext, SDL_GLContext, SDLGLContextDelete, nullptr);
+
+    struct RemoteryDelete {
+        void operator () ( Remotery *rmt ) {
+            rmt_UnbindOpenGL();
+            rmt_DestroyGlobalInstance(rmt);
+        }
+    };
+    WRAP_HANDLE(RemoteryContext, Remotery*, RemoteryDelete, nullptr);
 
     struct RenderTargetInfo {
         GLFrameBuffer glFramebuffer;
@@ -91,6 +101,7 @@ namespace Pisces
     struct Context::Impl {
         SDLWindow window;
         SDLGLContext context;
+        RemoteryContext remotery;
 
         std::unique_ptr<HardwareResourceManager> hardwareResourceMgr;
         std::unique_ptr<PipelineManager> pipelineMgr;
@@ -183,6 +194,12 @@ namespace Pisces
 
     PISCES_API Context::Context( const InitParams &params )
     {
+        if (params.initRemotery) {
+            rmt_CreateGlobalInstance(&mImpl->remotery.handle);
+        }
+
+        rmt_ScopedCPUSampleString("Pisces::Context::init", RMTSF_None);
+
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 
             (params.enableDebugContext ? SDL_GL_CONTEXT_DEBUG_FLAG : 0) | SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG
         );
@@ -267,6 +284,8 @@ namespace Pisces
             InstallGLDebugHooks();
         }
 
+        rmt_BindOpenGL();
+
         // Mark the first frame as done by swapping
         glClearColor(0,0,0,0);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -341,17 +360,22 @@ namespace Pisces
 
     PISCES_API CompiledRenderQueuePtr Context::compile( const RenderCommandQueuePtr &queue, const RenderQueueCompileOptions &options )
     {
+        rmt_ScopedCPUSampleString("Pisces::Context::compile", RMTSF_None);
         return std::make_shared<CompiledRenderQueue>(this, queue, options);
     }
 
     PISCES_API void Context::execute( const RenderCommandQueuePtr &queue )
     {
+        rmt_ScopedCPUSampleString("Pisces::Context::execute", RMTSF_None);
         CompiledRenderQueuePtr compiled = compile(queue);
         execute(compiled);
     }
 
     PISCES_API void Context::execute( const CompiledRenderQueuePtr &queue )
     {
+        rmt_ScopedCPUSampleString("Pisces::Context::execute", RMTSF_Aggregate);
+        rmt_ScopedOpenGLSampleString("Pisces::Context::execute");
+
         using namespace CompiledRenderQueueImpl;
         CompiledRenderQueueImpl::Impl *queueImpl = queue->impl();
 
@@ -460,6 +484,9 @@ namespace Pisces
 
     PISCES_API void Context::swapFrameBuffer()
     {
+        rmt_ScopedCPUSampleString("Pisces::Context::swapFrameBuffer", RMTSF_None);
+        rmt_ScopedOpenGLSampleString("Pisces::Context::swapFrameBuffer");
+
         int syncNum = mImpl->currentFrame % FRAMES_IN_FLIGHT;
         if (glClientWaitSync(mImpl->frameSync[syncNum], GL_SYNC_FLUSH_COMMANDS_BIT, GL_TIMEOUT_IGNORED) != GL_ALREADY_SIGNALED) {
             LOG_WARNING("Gpu had not finnished the frame when we expected it to, consider increasing FRAMES_IN_FLIGHT (currently %i)", FRAMES_IN_FLIGHT);
@@ -623,5 +650,10 @@ namespace Pisces
             info.resources = std::move(resources);
 
         return mImpl->resourcePacks.create(std::move(info));
+    }
+
+    PISCES_API Remotery* Context::remoteryContext()
+    {
+        return mImpl->remotery;
     }
 }

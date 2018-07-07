@@ -8,6 +8,9 @@
 
 #include <functional>
 
+
+struct Remotery;
+
 namespace Pisces
 {
     using DisplayResizedCallback = std::function<void(int width, int height)>;
@@ -25,7 +28,8 @@ namespace Pisces
 
             bool enableExtensions = true,
                  enableVSync = true,
-                 enableDebugContext = true;
+                 enableDebugContext = true,
+                 initRemotery = true;
         };
 
     public:
@@ -73,6 +77,9 @@ namespace Pisces
 
         PISCES_API void registerResourceLoader( Common::StringId name, IResourceLoader *loader );
         PISCES_API ResourcePackHandle loadResourcePack( const char *name );
+
+
+        PISCES_API Remotery* remoteryContext();
 
     private:
         struct Impl;
